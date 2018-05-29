@@ -1,10 +1,17 @@
 {
-  "data": {
+  "result": {
     "list": {
       "filePath": "./data/files.txt",
       "extension": {
         "filePath": "./data/extensions.txt"
       }
+    },
+    "delete": {
+
     }
+  },
+  "extension": {
+    "image": [],
+    "document": []
   }
 }

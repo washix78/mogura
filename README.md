@@ -1,7 +1,7 @@
 # mogura
 
 ```
-npm mogura
+npm mogura ${dir_path} lsit ${extension_group_name}
 ```
 
 ```
