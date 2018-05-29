@@ -1,0 +1,10 @@
+{
+  "data": {
+    "list": {
+      "filePath": "./data/files.txt",
+      "extension": {
+        "filePath": "./data/extensions.txt"
+      }
+    }
+  }
+}
