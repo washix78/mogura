@@ -18,6 +18,7 @@
   "homepage": "https://github.com/washix78/mogura#readme",
   "devDependencies": {
     "config": "^1.30.0",
-    "log4js": "^2.7.0"
+    "log4js": "^2.7.0",
+    "md5-file": "^4.0.0"
   }
 }
