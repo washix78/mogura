@@ -4,6 +4,8 @@ var fs = require('fs');
 var log4js = require('log4js');
 var os = require('os');
 
+var DirWalker = require('./dir_walker');
+
 log4js.configure('./config/log4js.json');
 var logger = log4js.getLogger('utils');
 
@@ -11,7 +13,7 @@ module.exports = {
   getExtension: (src) => {
     var extensionI = src.lastIndexOf('.');
     if (extensionI !== -1) {
-      var extension = src.substr(extensionI + 1);
+      var extension = src.substr(extensionI + 1).toLowerCase();
       return extension;
     } else {
       return null;

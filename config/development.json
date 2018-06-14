@@ -11,7 +11,7 @@
       "deleted": "./result/delete.deleted.txt"
     }
   },
-  "extension": {
+  "extensions": {
     "image": [
       "bmp",
       "jpeg",

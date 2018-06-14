@@ -22,19 +22,19 @@
   "categories": {
     "default": {
       "appenders": [ "stdout" ],
-      "level": "info"
+      "level": "debug"
     },
     "mogura": {
       "appenders": [ "moguraDateFile", "stdout" ],
-      "level": "info"
+      "level": "debug"
     },
     "dirWalker": {
       "appenders": [ "dirWalkerDateFile" ],
-      "level": "info"
+      "level": "debug"
     },
     "utils": {
       "appenders": [ "utilsDateFile" ],
-      "level": "info"
+      "level": "debug"
     }
   }
 }
