@@ -1,17 +1,34 @@
 {
   "result": {
-    "list": {
-      "filePath": "./data/files.txt",
-      "extension": {
-        "filePath": "./data/extensions.txt"
-      }
+    "list": "./result/list.txt",
+    "util": {
+      "extension": "./result/util.extension.txt"
     },
     "delete": {
-
+      "all": "./result/delete.all.txt",
+      "unique": "./result/delete.unique.txt",
+      "same": "./result/delete.same.txt",
+      "deleted": "./result/delete.deleted.txt"
     }
   },
   "extension": {
-    "image": [],
-    "document": []
+    "image": [
+      "bmp",
+      "jpeg",
+      "jpg",
+      "png"
+    ],
+    "document": [
+      "doc",
+      "html",
+      "txt"
+    ],
+    "archive": [
+      "7z",
+      "gz",
+      "tar",
+      "tgz",
+      "zip"
+    ]
   }
 }

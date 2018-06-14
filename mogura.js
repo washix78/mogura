@@ -2,12 +2,15 @@
 
 var config = require('config');
 var fs = require('fs');
+var log4js = require('log4js');
 var md5File = require('md5-file');
-var os = require('os');
 var path = require('path');
 
 var DirWalker = require('./dir_walker');
 var utils = require('./utils');
+
+log4js.configure('./config/log4js.json');
+var logger = log4js.getLogger('mogura');
 
 try {
   if (process.argv.length < 4) {
@@ -62,6 +65,11 @@ try {
     utils.writeArrayToFile(config.result.delete.unique, uniqueFilePaths);
     utils.writeArrayToFile(config.result.delete.same, sameFilePaths);
 
+    if (option === '-f') {
+      var deletedFilePaths = [];
+
+    }
+
     break;
 
   case 'util':
@@ -72,12 +80,12 @@ try {
           var fileName = path.basename(filePath);
           var extension  = utils.getExtension(path.basename(filePath));
           if (extension !== null) {
-            extensions.push(extension);
+            extensions.add(extension);
           }
         });
       }).start();
 
-      utils.writeArrayToFile(config.result.util, Array.from(extensions).sort());
+      utils.writeArrayToFile(config.result.util.extension, Array.from(extensions).sort());
     }
     break;
 
@@ -85,6 +93,5 @@ try {
     throw new Error('unsupported command');
   }
 } catch (e) {
-  console.log(e.stack);
-  // TODO: output log
+  logger.error(e.stack);
 }

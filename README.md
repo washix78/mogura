@@ -17,5 +17,5 @@ npm mogura ${dir_path} delete -f
 ```
 
 ```
-npm mogura ${dir_path} extension
+npm mogura ${dir_path} util extension
 ```

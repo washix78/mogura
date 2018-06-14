@@ -4,7 +4,8 @@ var fs = require('fs');
 var log4js = require('log4js');
 var path = require('path');
 
-var logger = log4js.getLogger(/* TODO */);
+log4js.configure('./config/log4js.json');
+var logger = log4js.getLogger('dirWalker');
 
 var DirWalker = function(startDirPath, afterFilePathsGetting) {
   var walk = (rootDirPath) => {
@@ -36,7 +37,7 @@ var DirWalker = function(startDirPath, afterFilePathsGetting) {
   };
   this.start = () => {
     var fileCount = walk(startDirPath);
-    logger.info(fileCount);
+    logger.info('file count: ' + fileCount);
     return fileCount;
   };
 };

@@ -1,8 +1,8 @@
 {
   "name": "mogura",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "File searcher. Mogura is the mole.",
+  "main": "mogura.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,7 +18,9 @@
   "homepage": "https://github.com/washix78/mogura#readme",
   "devDependencies": {
     "config": "^1.30.0",
-    "log4js": "^2.7.0",
+    "eslint": "^4.19.1",
+    "log4js": "^2.8.0",
     "md5-file": "^4.0.0"
-  }
+  },
+  "dependencies": {}
 }

@@ -1,0 +1,40 @@
+{
+  "appenders": {
+    "stdout": {
+      "type": "stdout"
+    },
+    "moguraDateFile": {
+      "type": "dateFile",
+      "filename": "./logs/mogura.log",
+      "pattern": "-yyyyMMdd"
+    },
+    "dirWalkerDateFile": {
+      "type": "dateFile",
+      "filename": "./logs/dir_walker.log",
+      "pattern": "-yyyyMMdd"
+    },
+    "utilsDateFile": {
+      "type": "dateFile",
+      "filename": "./logs/utils.log",
+      "pattern": "-yyyyMMdd"
+    }
+  },
+  "categories": {
+    "default": {
+      "appenders": [ "stdout" ],
+      "level": "info"
+    },
+    "mogura": {
+      "appenders": [ "moguraDateFile", "stdout" ],
+      "level": "info"
+    },
+    "dirWalker": {
+      "appenders": [ "dirWalkerDateFile" ],
+      "level": "info"
+    },
+    "utils": {
+      "appenders": [ "utilsDateFile" ],
+      "level": "info"
+    }
+  }
+}
