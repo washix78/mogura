@@ -32,11 +32,15 @@
       "appenders": [],
       "level": "debug"
     },
-    "dir_walker": {
+    "mogura_delete": {
+      "appenders": [],
+      "level": "debug"
+    },
+    "mogura_dir_walker": {
       "appenders": [ "dirWalkerDateFile" ],
       "level": "debug"
     },
-    "utils": {
+    "mogura_writer": {
       "appenders": [ "utilsDateFile" ],
       "level": "debug"
     }

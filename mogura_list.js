@@ -10,6 +10,8 @@ log4js.configure('./config/log4js.json');
 var log = log4js.getLogger('list');
 
 var MoguraList = function(dpath, options) {
+  var fpaths = null;
+
   if (options === undefined || options === null) {
     throw new Error('no options');
   }
@@ -36,8 +38,12 @@ var MoguraList = function(dpath, options) {
   }
 
   log.info('start:' + type);
-  var count = walker.start();
-  log.info('end:' + type + ' (' + count + ')');
+  fpaths = walker.start();
+  log.info('end:' + type + ' (' + fpaths.length + ')');
+
+  this.result = () => {
+    return fpaths;
+  };
 };
 
 module.exports = MoguraList;
