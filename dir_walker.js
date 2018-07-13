@@ -5,40 +5,43 @@ var log4js = require('log4js');
 var path = require('path');
 
 log4js.configure('./config/log4js.json');
-var logger = log4js.getLogger('dirWalker');
 
-var DirWalker = function(startDirPath, afterFilePathsGetting) {
-  var walk = (rootDirPath) => {
-    logger.debug(rootDirPath);
+var log = log4js.getLogger('dir_walker');
 
-    var paths = fs.readdirSync(rootDirPath).map((name) => {
-      return path.resolve(rootDirPath, name);
+var DirWalker = function(startDpath, fpathFilter) {
+  var filteredFpaths = [];
+
+  var walk = (topDpath) => {
+    log.info(topDpath);
+    var paths = fs.readdirSync(dpath).map((name) => {
+      return path.resolve(topDpath, name);
     });
-
-    var dirPaths = [];
-    var filePaths = [];
-    paths.forEach((path) => {
-      if (fs.statSync(path).isDirectory()) {
-        dirPaths.push(path);
+    var dpaths = [];
+    var fpaths = [];
+    paths.forEach((testPath) => {
+      if (fs.statSync(testPath).isDirectory()) {
+        dpaths.push(testPath);
       } else {
-        filePaths.push(path);
+        fpaths.push(testPath);
       }
     });
 
-    if (afterFilePathsGetting !== undefined && afterFilePathsGetting !== null) {
-      afterFilePathsGetting(filePaths);
+    if ('function' === typeof fpathFilter) {
+      Array.prototype.push.apply(filteredFpaths, fpaths.filter(fpathFilter));
+    } else {
+      Array.prototype.push.apply(filteredFpaths, fpaths);
     }
 
-    var fileCount = filePaths.length;
-    dirPaths.forEach((dirPath) => {
-      fileCount += walk(dirPath);
+    dpaths.forEach((dpath) => {
+      walk(dpath);
     });
-    return fileCount;
   };
+
   this.start = () => {
-    var fileCount = walk(startDirPath);
-    logger.info('file count: ' + fileCount);
-    return fileCount;
+    log.info('start');
+    walk(path.resolve(startDpath));
+    log.info('end (' + filteredFpaths.length + ')');
+    return filteredFpaths;
   };
 };
 

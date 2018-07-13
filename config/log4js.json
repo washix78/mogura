@@ -28,7 +28,11 @@
       "appenders": [ "moguraDateFile", "stdout" ],
       "level": "debug"
     },
-    "dirWalker": {
+    "mogura_list": {
+      "appenders": [],
+      "level": "debug"
+    },
+    "dir_walker": {
       "appenders": [ "dirWalkerDateFile" ],
       "level": "debug"
     },
