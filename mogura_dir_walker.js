@@ -8,7 +8,7 @@ log4js.configure('./config/log4js.json');
 
 var log = log4js.getLogger('dir_walker');
 
-var DirWalker = function(startDpath, fpathFilter) {
+var MoguraDirWalker = function(startDpath, fpathFilter) {
   var filteredFpaths = [];
 
   var walk = (topDpath) => {
@@ -45,4 +45,4 @@ var DirWalker = function(startDpath, fpathFilter) {
   };
 };
 
-module.exports = DirWalker;
+module.exports = MoguraDirWalker;

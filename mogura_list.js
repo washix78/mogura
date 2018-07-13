@@ -3,7 +3,8 @@
 var log4js = require('log4js');
 var path = require('path');
 
-var DirWalker = require('./dir_walker');
+var MoguraUtils = require('./mogura_utils');
+var DirWalker = require('./mogura_dir_walker');
 
 log4js.configure('./config/log4js.json');
 var log = log4js.getLogger('list');
@@ -26,7 +27,10 @@ var MoguraList = function(dpath, options) {
       return name.indexOf('.') === -1 && names.indexOf(name) !== -1;
     });
   } else if (type === 'extensions') {
-    walker = new DirWalker(dpath);
+    walker = new DirWalker(dpath, (fpath) => {
+      var extension = MoguraUtils.getExtension(path.basename(fpath));
+      return (extension !== null && extensions.indexOf(extension));
+    });
   } else {
     throw new Error('not supported type');
   }
