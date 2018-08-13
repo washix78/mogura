@@ -1,21 +1,13 @@
 # mogura
 
-```
-npm mogura ${dir_path} list
-```
+node mogura ${dir path} list
 
-```
-npm mogura ${dir_path} list ${extension_group_name}
-```
+node mogura ${dir path} list -e txt
 
-```
-npm mogura ${dir_path} delete
-```
+node mogura ${dir path} list -n memo.txt
 
-```
-npm mogura ${dir_path} delete -f
-```
+node mogura ${dir path} list -eg documents
 
-```
-npm mogura ${dir_path} util extension
-```
+node mogura ${dir path} list -ng temporaries
+
+node mogura delete ${file path}

@@ -3,45 +3,15 @@
     "stdout": {
       "type": "stdout"
     },
-    "moguraDateFile": {
+    "dateFile": {
       "type": "dateFile",
       "filename": "./logs/mogura.log",
-      "pattern": "-yyyyMMdd"
-    },
-    "dirWalkerDateFile": {
-      "type": "dateFile",
-      "filename": "./logs/dir_walker.log",
-      "pattern": "-yyyyMMdd"
-    },
-    "utilsDateFile": {
-      "type": "dateFile",
-      "filename": "./logs/utils.log",
-      "pattern": "-yyyyMMdd"
+      "pattern": "-yyyyMMddhhmmssSSS"
     }
   },
   "categories": {
     "default": {
-      "appenders": [ "stdout" ],
-      "level": "debug"
-    },
-    "mogura": {
-      "appenders": [ "moguraDateFile", "stdout" ],
-      "level": "debug"
-    },
-    "mogura_list": {
-      "appenders": [],
-      "level": "debug"
-    },
-    "mogura_delete": {
-      "appenders": [],
-      "level": "debug"
-    },
-    "mogura_dir_walker": {
-      "appenders": [ "dirWalkerDateFile" ],
-      "level": "debug"
-    },
-    "mogura_writer": {
-      "appenders": [ "utilsDateFile" ],
+      "appenders": [ "dateFile" ],
       "level": "debug"
     }
   }
