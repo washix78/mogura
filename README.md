@@ -11,3 +11,5 @@ node list ${dir path} -eg documents
 node list ${dir path} -ng temporaries
 
 node delete ${file path}
+
+node scan ${dir path}

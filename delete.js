@@ -54,13 +54,15 @@ try {
     try {
       fs.unlinkSync(deleteFpath);
       deletedCount += 1;
-      okWriter(deleteFpath);
-    } catch (fail) {
-      logger.error(fail.stack);
-      ngWriter(deleteFpath);
+      okWriter.list(deleteFpath);
+    } catch (failure) {
+      logger.error(failure.stack);
+      ngWriter.list(deleteFpath);
     }
   }).on('close', () => {
-    logger.info('deleted count: ' + deletedCount + '/' + allCount);
+    logger.info('Deleted count: ' + deletedCount + '/' + allCount);
+    okWriter.end();
+    ngWriter.end();
   }).on('error', (err) => {
     throw err;
   })

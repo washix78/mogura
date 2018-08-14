@@ -4,6 +4,7 @@ var config = require('config');
 var dateformat = require('dateformat');
 var fs = require('fs');
 var log4js = require('log4js');
+var md5File = require('md5-file');
 var path = require('path');
 
 var FileWriter = require('./file_writer');
@@ -17,7 +18,7 @@ log4js.configure({
     },
     'file': {
       'type': 'file',
-      'filename': './logs/list-' + timestamp + '.log'
+      'filename': './logs/scan-' + timestamp + '.log'
     }
   },
   'categories': {
@@ -40,29 +41,7 @@ try {
     throw new Error('Not directory path.');
   }
 
-  var opt = { extensions: null, names: null };
-  if (5 <= process.argv.length) {
-    switch (process.argv[3]) {
-    case '-e':
-      opt.extensions = [ process.argv[4] ];
-      break;
-    case '-n':
-      opt.names = [ process.argv[4] ];
-      break;
-    case '-eg':
-      opt.extensions = config.list.extensions[process.argv[4]];
-      break;
-    case '-ng':
-      opt.names = config.list.names[process.argv[4]];
-      break;
-    default:
-      throw new Error('Unsuported option type.');
-    }
-  }
-
-  var writer = new FileWriter('./logs/list-' + timestamp + '.txt');
-
-  var fileCount = 0;
+  var allFpaths = [];
 
   var walkDir = (rootDpath) => {
     logger.debug(rootDpath);
@@ -79,37 +58,46 @@ try {
       }
     });
 
-    if (opt.extensions !== null) {
-      fpaths = fpaths.filter((fpath) => {
-        var i = fpath.lastIndexOf('.');
-        if (i === -1) {
-          return false;
-        }
-        var extension = fpath.substr(i + 1);
-        return opt.extensions.indexOf(extension) !== -1;
-      });
-    } else if (opt.names !== null) {
-      fpaths = fpaths.filter((fpath) => {
-        var name = path.basename(fpath);
-        return opt.names.indexOf(name) !== -1;
-      });
-    }
-
-    fileCount += fpaths.length;
-
-    fpaths.forEach((fpath) => {
-      writer.line(fpath);
-    });
+    Array.prototype.push.apply(allFpaths, fpaths);
 
     dpaths.forEach((dpath) => {
       walkDir(dpath);
     });
   };
-
   walkDir(path.resolve(targetDpath));
 
-  writer.end();
-  logger.info('File count: ' + fileCount);
+  var allCount = allFpaths.length;
+  logger.info('Done loading file paths. File count: ' + allCount);
+
+  var originCount = 0;
+  var copyCount = 0;
+
+  var originWriter = new FileWriter('./log/scan-origin-' + timestamp + '.txt');
+  var copyWriter = new FileWriter('./logs/scan-copy-' + timestamp + '.txt');
+
+  while (originCount + copyCount < allCount) {
+    var aPath = allFpaths.shift();
+    var aSize = fs.statSync(testFpath).size;
+    var aHash = md5File.sync(aPath);
+
+    logger.debug('check a: ' + aPath);
+
+    for (var i = allCount - 1; 0 <= i; i--) {
+      var bPath = allFpaths[i];
+      logger.debug('check b:' + bPath);
+
+      if (aSize === fs.statSync(bPath).size && aHash === md5File.sync(bPath)) {
+        copyWriter.line(bPath);
+        copyCount += 1;
+        allFpaths.splice(i, 1);
+      }
+    }
+
+    originCount += 1;
+    originWriter.line(aPath);
+  }
+
+  logger.info('Origin count: ' + originCount + '/Copy count: ' + copyCount);
 } catch (e) {
   logger.error(e.stack);
 }
