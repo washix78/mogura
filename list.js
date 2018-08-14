@@ -4,8 +4,9 @@ var config = require('config');
 var dateformat = require('dateformat');
 var fs = require('fs');
 var log4js = require('log4js');
-var os = require('os');
 var path = require('path');
+
+var FileWriter = require('./file_writer');
 
 var timestamp = dateformat(new Date(), 'yymmddHHMMssl');
 
@@ -59,9 +60,7 @@ try {
     }
   }
 
-  var ws = fs.createWriteStream('./logs/list-' + timestamp + '.txt').on('error', (err) => {
-    throw err;
-  });
+  var writer = new FileWriter('./logs/list-' + timestamp + '.txt');
 
   var fileCount = 0;
 
@@ -80,8 +79,6 @@ try {
       }
     });
 
-    fileCount += fpaths.length;
-
     if (opt.extensions !== null) {
       fpaths = fpaths.filter((fpath) => {
         var i = fpath.lastIndexOf('.');
@@ -97,9 +94,11 @@ try {
         return opt.names.indexOf(name) !== -1;
       });
     }
+
+    fileCount += fpaths.length;
+
     fpaths.forEach((fpath) => {
-      ws.write(fpath);
-      ws.write(os.EOL);
+      writer.line(fpath);
     });
 
     dpaths.forEach((dpath) => {
@@ -108,7 +107,8 @@ try {
   };
 
   walkDir(path.resolve(targetDpath));
-  ws.end();
+
+  writer.end();
   logger.info('file count: ' + fileCount);
 } catch (e) {
   logger.error(e.stack);
