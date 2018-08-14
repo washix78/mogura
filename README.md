@@ -1,13 +1,13 @@
 # mogura
 
-node mogura ${dir path} list
+node list ${dir path}
 
-node mogura ${dir path} list -e txt
+node list ${dir path} -e txt
 
-node mogura ${dir path} list -n memo.txt
+node list ${dir path} -n memo.txt
 
-node mogura ${dir path} list -eg documents
+node list ${dir path} -eg documents
 
-node mogura ${dir path} list -ng temporaries
+node list ${dir path} -ng temporaries
 
-node mogura delete ${file path}
+node delete ${file path}

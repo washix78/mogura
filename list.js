@@ -1,12 +1,11 @@
 'use strict';
 
+var config = require('config');
 var dateformat = require('dateformat');
 var fs = require('fs');
-var config = require('config');
 var log4js = require('log4js');
 var os = require('os');
 var path = require('path');
-
 
 var timestamp = dateformat(new Date(), 'yymmddHHMMssl');
 
@@ -17,7 +16,7 @@ log4js.configure({
     },
     'file': {
       'type': 'file',
-      'filename': './logs/mogura-' + timestamp
+      'filename': './logs/list-' + timestamp + '.log'
     }
   },
   'categories': {
@@ -31,7 +30,7 @@ log4js.configure({
 var logger = log4js.getLogger('default');
 
 try {
-  if (process.argv.length < 4) {
+  if (process.argv.length < 3) {
     throw new Error('Arguments are poor.');
   }
 
@@ -40,25 +39,20 @@ try {
     throw new Error('Not directory path.');
   }
 
-  var type = process.argv[3];
-  if ('list' !== type) {
-    throw new Error('Unsupported type.')
-  }
-
   var opt = { extensions: null, names: null };
-  if (6 <= process.argv.length) {
-    switch (process.argv[4]) {
+  if (5 <= process.argv.length) {
+    switch (process.argv[3]) {
     case '-e':
-      opt.extensions = [ process.argv[5] ];
+      opt.extensions = [ process.argv[4] ];
       break;
     case '-n':
-      opt.names = [ process.argv[5] ];
+      opt.names = [ process.argv[4] ];
       break;
     case '-eg':
-      opt.extensions = config.list.extensions[process.argv[5]];
+      opt.extensions = config.list.extensions[process.argv[4]];
       break;
     case '-ng':
-      opt.names = config.list.names[process.argv[5]];
+      opt.names = config.list.names[process.argv[4]];
       break;
     default:
       throw new Error('Unsuported option type.');
