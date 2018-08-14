@@ -1,9 +1,12 @@
 {
-  "result": {
-    "list": "./result/list.txt",
+  "logLevel": "info",
+  "outDirPath": "./result",
+  "list": {
+    "out": "./result/list.txt",
     "util": {
       "extension": "./result/util.extension.txt"
     },
+    "test": "Booooooo!",
     "delete": {
       "all": "./result/delete.all.txt",
       "unique": "./result/delete.unique.txt",
