@@ -3,32 +3,14 @@
 var config = require('config');
 var dateformat = require('dateformat');
 var fs = require('fs');
-var log4js = require('log4js');
 var path = require('path');
 
 var FileWriter = require('./file_writer');
+var utils = require('./utils');
 
 var timestamp = dateformat(new Date(), 'yymmddHHMMssl');
 
-log4js.configure({
-  'appenders': {
-    'stdout': {
-      'type': 'stdout'
-    },
-    'file': {
-      'type': 'file',
-      'filename': './logs/list-' + timestamp + '.log'
-    }
-  },
-  'categories': {
-    'default': {
-      'appenders': [ 'stdout', 'file' ],
-      'level': config.logLevel
-    }
-  }
-});
-
-var logger = log4js.getLogger('default');
+var logger = utils.logger('list', timestamp);
 
 try {
   if (process.argv.length < 3) {
@@ -81,11 +63,7 @@ try {
 
     if (opt.extensions !== null) {
       fpaths = fpaths.filter((fpath) => {
-        var i = fpath.lastIndexOf('.');
-        if (i === -1) {
-          return false;
-        }
-        var extension = fpath.substr(i + 1);
+        var extension = utils.extension(fpath);
         return opt.extensions.indexOf(extension) !== -1;
       });
     } else if (opt.names !== null) {

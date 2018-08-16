@@ -8,28 +8,11 @@ var md5File = require('md5-file');
 var path = require('path');
 
 var FileWriter = require('./file_writer');
+var utils = require('./utils');
 
 var timestamp = dateformat(new Date(), 'yymmddHHMMssl');
 
-log4js.configure({
-  'appenders': {
-    'stdout': {
-      'type': 'stdout'
-    },
-    'file': {
-      'type': 'file',
-      'filename': './logs/scan-' + timestamp + '.log'
-    }
-  },
-  'categories': {
-    'default': {
-      'appenders': [ 'stdout', 'file' ],
-      'level': config.logLevel
-    }
-  }
-});
-
-var logger = log4js.getLogger('default');
+var logger = utils.logger('scan', timestamp);
 
 try {
   if (process.argv.length < 3) {

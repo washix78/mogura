@@ -1,34 +1,15 @@
 'use strict';
 
-var config = require('config');
 var dateformat = require('dateformat');
 var fs = require('fs');
-var log4js = require('log4js');
 var readline = require('readline');
 
 var FileWriter = require('./file_writer');
+var utils = require('./utils');
 
 var timestamp = dateformat(new Date(), 'yymmddHHMMssl');
 
-log4js.configure({
-  'appenders': {
-    'stdout': {
-      'type': 'stdout'
-    },
-    'file': {
-      'type': 'file',
-      'filename': './logs/delete-' + timestamp + '.log'
-    }
-  },
-  'categories': {
-    'default': {
-      'appenders': [ 'stdout', 'file' ],
-      'level': config.logLevel
-    }
-  }
-});
-
-var logger = log4js.getLogger('default');
+var logger = utils.logger('delete', timestamp);
 
 try {
   if (process.argv.length < 3) {

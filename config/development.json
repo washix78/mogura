@@ -1,37 +1,26 @@
 {
-  "logLevel": "info",
-  "outDirPath": "./result",
   "list": {
-    "out": "./result/list.txt",
-    "util": {
-      "extension": "./result/util.extension.txt"
+    "extensions": {
+      "doc": [
+        "txt",
+        "doc",
+        "docx",
+        "html"
+      ],
+      "img": [
+        "jpeg",
+        "png",
+        "gif"
+      ]
     },
-    "test": "Booooooo!",
-    "delete": {
-      "all": "./result/delete.all.txt",
-      "unique": "./result/delete.unique.txt",
-      "same": "./result/delete.same.txt",
-      "deleted": "./result/delete.deleted.txt"
+    "names": {
+      "doc": [
+        "config",
+        "README.txt"
+      ],
+      "dot": [
+        ".bash_rc"
+      ]
     }
-  },
-  "extensions": {
-    "image": [
-      "bmp",
-      "jpeg",
-      "jpg",
-      "png"
-    ],
-    "document": [
-      "doc",
-      "html",
-      "txt"
-    ],
-    "archive": [
-      "7z",
-      "gz",
-      "tar",
-      "tgz",
-      "zip"
-    ]
   }
 }
