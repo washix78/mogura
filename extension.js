@@ -1,60 +1,48 @@
 'use strict';
 
-var dateformat = require('dateformat');
-var fs = require('fs');
-var path = require('path');
+var config = require('config');
+var os = require('os');
 
-var FileWriter = require('./file_writer');
-var utils = require('./utils');
+var utility = require('./utility');
 
-var timestamp = dateformat(new Date(), 'yymmddHHMMssl');
+var id = 'extension-' + dateFormat('yyyyMMddhhmmssSSS', new Date());
+
+var logger = utility.getLogger(id, config.logLevel);
 
 try {
-  if (process.argv.length < 3) {
-    throw new Error('Arguments are poor.');
+  // node extension {dir_path}
+  if (process.argv.length < 3 || !fs.statSync(process.argv[2]).isDirectory()) {
+    throw new Error('Please specify directory path.');
   }
 
-  var targetDpath = process.argv[2];
-  if (!fs.statSync(targetDpath)) {
-    throw new Error('Not directory path.');
-  }
+  var ws = fs.createWriteStream(
+    './logs/' + id + '.txt'
+  ).on('error', (err) => {
+    logger.error(err.stack);
+  }).on('', () => {
 
-  var set = new Set();
-
-  var walkDir = (rootDpath) => {
-    var dpaths = [];
-    var fpaths = [];
-    fs.readdirSync(rootDpath).map((testPath) => {
-      return path.resolve(rootDpath, testPath);
-    }).forEach((testPath) => {
-      if (fs.statSync(testPath).isDirectory()) {
-        dpaths.push(testPath);
-      } else {
-        fpaths.push(testPath);
-      }
-    });
-
-    fpaths.forEach((fpath) => {
-      var extension = utils.extension(fpath);
-      if (extension !== null) {
-        set.add(extension);
-      }
-    });
-
-    dpaths.forEach((dpath) => {
-      walkDir(dpath);
-    });
-  };
-  walkDir(path.resolve(targetDpath));
-
-  var extensions = Array.from(set).sort();
-  var writer = new FileWriter('./logs/extension-' + timestamp + '.txt');
-  extensions.forEach((extension) => {
-    writer.line(extension);
   });
-  writer.end();
 
-  console.log('Extension count: ' + extensions.length);
+  var dirPath = path.resolve(process.argv[2]);
+  logger.info(dirPath);
+
+  var extensions = new Set();
+
+  logger.info('Start.');
+
+  utility.walkDir(dirPath, (fpaths) => {
+    fpaths.forEach((fpath) => {
+      extensions.add(utility.getExtension(fpath));
+    });
+  });
+
+  Array.from(extensions).sort().forEach((fpath) => {
+    ws.write(fpath);
+    ws.write(os.EOL);
+  });
+
+  logger.info('End.')
+
 } catch (e) {
-  console.log(e.stack);
+  logger.error(e.stack);
 }

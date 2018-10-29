@@ -1,93 +1,83 @@
 'use strict';
 
 var config = require('config');
-var dateformat = require('dateformat');
+var dateFormat = require('dateformat');
 var fs = require('fs');
+var os = require('os');
 var path = require('path');
 
-var FileWriter = require('./file_writer');
-var utils = require('./utils');
+var utility = require('./utility');
 
-var timestamp = dateformat(new Date(), 'yymmddHHMMssl');
+var id = 'list-' + dateFormat('yyyyMMddhhmmssSSS', new Date());
 
-var logger = utils.logger('list', timestamp);
+var logger = utility.getLogger(id, config.logLevel);
+
+var getName = (fpath) => {
+  return path.basename(fpath);
+};
 
 try {
-  if (process.argv.length < 3) {
-    throw new Error('Arguments are poor.');
+  // node list {dir_path}
+  if (process.argv.length < 3 || !fs.statSync(process.argv[2]).isDirectory()) {
+    throw new Error('Please specify directory path.');
   }
 
-  var targetDpath = process.argv[2];
-  if (!fs.statSync(targetDpath).isDirectory()) {
-    throw new Error('Not directory path.');
-  }
+  var dirPath = path.resolve(process.argv[2]);
+  logger.info(dirPath);
 
-  var opt = { extensions: null, names: null };
+  var extension = null;
+  var name = null;
+  var extensions = [];
+  var names = [];
+
+  var fpathsFilter = null;
+  // node list {dir_path} -{e_or_n_or_-eg_or_-ng} {extension_or_name}
   if (5 <= process.argv.length) {
     switch (process.argv[3]) {
     case '-e':
-      opt.extensions = [ process.argv[4] ];
+      extension = process.argv[4];
+      fpathsFilter = (fpath) => {
+        return extension === utility.getExtension(fpath);
+      };
       break;
     case '-n':
-      opt.names = [ process.argv[4] ];
+      name = process.argv[4];
+      fpathsFilter = (fpath) => {
+        return name === getName(fpath);
+      };
       break;
     case '-eg':
-      opt.extensions = config.list.extensions[process.argv[4]];
+      extensions = config.list.extensions[process.argv[4]];
+      fpathsFilter = (fpath) => {
+        return 0 <= extensions.indexOf(utility.getExtension(fpath));
+      };
       break;
     case '-ng':
-      opt.names = config.list.names[process.argv[4]];
+      names = config.list.names[process.argv[4]];
+      fpathsFilter = (fpath) => {
+        return 0 <= names.indexOf(getName(fpath));
+      };
       break;
-    default:
-      throw new Error('Unsuported option type.');
     }
   }
 
-  var writer = new FileWriter('./logs/list-' + timestamp + '.txt');
-
-  var fileCount = 0;
-
-  var walkDir = (rootDpath) => {
-    logger.debug(rootDpath);
-
-    var dpaths = [];
-    var fpaths = [];
-    fs.readdirSync(rootDpath).map((testPath) => {
-      return path.resolve(rootDpath, testPath);
-    }).forEach((testPath) => {
-      if (fs.statSync(testPath).isDirectory()) {
-        dpaths.push(testPath);
-      } else {
-        fpaths.push(testPath);
-      }
-    });
-
-    if (opt.extensions !== null) {
-      fpaths = fpaths.filter((fpath) => {
-        var extension = utils.extension(fpath);
-        return opt.extensions.indexOf(extension) !== -1;
+  utility.walkDir(dirPath, (fpaths) => {
+    if (fpathsFilter) {
+      fpaths.filter(
+        fpathsFilter
+      ).forEach((fpath) => {
+        ws.write(fpath);
+        ws.write(os.EOL);
       });
-    } else if (opt.names !== null) {
-      fpaths = fpaths.filter((fpath) => {
-        var name = path.basename(fpath);
-        return opt.names.indexOf(name) !== -1;
+    } else {
+      fpaths.forEach((fpath) => {
+        ws.write(fpath);
+        ws.write(os.EOL);
       });
     }
+  });
 
-    fileCount += fpaths.length;
-
-    fpaths.forEach((fpath) => {
-      writer.line(fpath);
-    });
-
-    dpaths.forEach((dpath) => {
-      walkDir(dpath);
-    });
-  };
-
-  walkDir(path.resolve(targetDpath));
-
-  writer.end();
-  logger.info('File count: ' + fileCount);
+  ws.end();
 } catch (e) {
   logger.error(e.stack);
 }

@@ -1,86 +1,38 @@
 'use strict';
 
 var config = require('config');
-var dateformat = require('dateformat');
+var dateFormat = require('dateformat');
 var fs = require('fs');
-var log4js = require('log4js');
-var md5File = require('md5-file');
+var os = require('os');
 var path = require('path');
 
-var FileWriter = require('./file_writer');
-var utils = require('./utils');
+var utility = require('./utility');
 
-var timestamp = dateformat(new Date(), 'yymmddHHMMssl');
+var id = 'scan-' + dateFormat('yyyyMMddhhmmssSSS', new Date());
 
-var logger = utils.logger('scan', timestamp);
+var logger = utility.getLogger(id, config.logLevel);
 
 try {
-  if (process.argv.length < 3) {
-    throw new Error('Arguments are poor.');
+  // node scan {dir_path}
+  if (process.argv.length < 3 || !fs.statSync(process.argv[2]).isDirectory()) {
+    throw new Error('Please specify directory path.');
   }
 
-  var targetDpath = process.argv[2];
-  if (!fs.statSync(targetDpath).isDirectory()) {
-    throw new Error('Not directory path.');
-  }
+  var ws = fs.createWriteStream(
+    './logs/' + id + '.txt'
+  ).on('error', (err) => {
+    logger.error(err.stack);
+  }).on('', () => {
 
-  var allFpaths = [];
+  });
 
-  var walkDir = (rootDpath) => {
-    logger.debug(rootDpath);
+  var dirPath = (path.resolve(process.argv[2]));
 
-    var dpaths = [];
-    var fpaths = [];
-    fs.readdirSync(rootDpath).map((testPath) => {
-      return path.resolve(rootDpath, testPath);
-    }).forEach((testPath) => {
-      if (fs.statSync(testPath).isDirectory()) {
-        dpaths.push(testPath);
-      } else {
-        fpaths.push(testPath);
-      }
-    });
+  utility.walkDir(dirPath, (fpaths) => {
 
-    Array.prototype.push.apply(allFpaths, fpaths);
+  });
 
-    dpaths.forEach((dpath) => {
-      walkDir(dpath);
-    });
-  };
-  walkDir(path.resolve(targetDpath));
 
-  var allCount = allFpaths.length;
-  logger.info('Done loading file paths. File count: ' + allCount);
-
-  var originCount = 0;
-  var copyCount = 0;
-
-  var originWriter = new FileWriter('./log/scan-origin-' + timestamp + '.txt');
-  var copyWriter = new FileWriter('./logs/scan-copy-' + timestamp + '.txt');
-
-  while (originCount + copyCount < allCount) {
-    var aPath = allFpaths.shift();
-    var aSize = fs.statSync(testFpath).size;
-    var aHash = md5File.sync(aPath);
-
-    logger.debug('check a: ' + aPath);
-
-    for (var i = allCount - 1; 0 <= i; i--) {
-      var bPath = allFpaths[i];
-      logger.debug('check b:' + bPath);
-
-      if (aSize === fs.statSync(bPath).size && aHash === md5File.sync(bPath)) {
-        copyWriter.line(bPath);
-        copyCount += 1;
-        allFpaths.splice(i, 1);
-      }
-    }
-
-    originCount += 1;
-    originWriter.line(aPath);
-  }
-
-  logger.info('Origin count: ' + originCount + '/Copy count: ' + copyCount);
 } catch (e) {
   logger.error(e.stack);
 }
