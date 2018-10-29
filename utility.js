@@ -56,12 +56,10 @@ module.exports.getExtension = (fpath) => {
   return (0 <= idx) ? fpath.substr(idx + 1) : null;
 };
 
-module.exports.getFileWriter = (logger, fpath) => {
-  return new function(logger, fpath) {
+module.exports.getFileWriter = (fpath) => {
+  return new function() {
     var ws = fs.createWriteStream(fpath).on('error', (err) => {
-      logger.error(err);
-    }).on('finish', () => {
-      logger.info('End.');
+      throw err;
     });
 
     this.write = (line) => {

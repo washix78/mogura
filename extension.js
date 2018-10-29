@@ -1,7 +1,6 @@
 'use strict';
 
 var config = require('config');
-var os = require('os');
 
 var utility = require('./utility');
 
@@ -15,14 +14,6 @@ try {
     throw new Error('Please specify directory path.');
   }
 
-  var ws = fs.createWriteStream(
-    './logs/' + id + '.txt'
-  ).on('error', (err) => {
-    logger.error(err.stack);
-  }).on('', () => {
-
-  });
-
   var dirPath = path.resolve(process.argv[2]);
   logger.info(dirPath);
 
@@ -35,12 +26,15 @@ try {
       extensions.add(utility.getExtension(fpath));
     });
   });
+  logger.info(extensions.size);
 
-  Array.from(extensions).sort().forEach((fpath) => {
-    ws.write(fpath);
-    ws.write(os.EOL);
+  var writer = utility.getFileWriter(logger, './logs/' + id + '.txt');
+
+  Array.from(extensions).sort().forEach((extension) => {
+    writer.write(extension);
   });
 
+  writer.finish();
   logger.info('End.')
 
 } catch (e) {
