@@ -17,11 +17,13 @@
   },
   "homepage": "https://github.com/washix78/mogura#readme",
   "devDependencies": {
-    "config": "^1.30.0",
-    "dateformat": "^3.0.3",
-    "eslint": "^4.19.1",
-    "log4js": "^2.8.0",
-    "md5-file": "^4.0.0"
+    "eslint": "^4.19.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "config": "^1.31.0",
+    "dateformat": "^3.0.3",
+    "log4js": "^2.11.0",
+    "md5-file": "^4.0.0",
+    "unzip": "^0.1.11"
+  }
 }
