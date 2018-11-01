@@ -1,10 +1,13 @@
 'use strict';
 
 var config = require('config');
+var dateFormat = require('dateformat');
+var fs = require('fs');
+var path = require('path');
 
 var utility = require('./utility');
 
-var id = 'extension-' + dateFormat('yyyyMMddhhmmssSSS', new Date());
+var id = 'extension-' + dateFormat(new Date(), 'yyyymmddHHMMssl');
 
 var logger = utility.getLogger(id, config.logLevel);
 
@@ -23,12 +26,15 @@ try {
 
   utility.walkDir(dirPath, (fpaths) => {
     fpaths.forEach((fpath) => {
-      extensions.add(utility.getExtension(fpath));
+      var extension = utility.getExtension(fpath);
+      if (extension !== undefined && extension !== null) {
+        extensions.add(extension);
+      }
     });
   });
   logger.info(extensions.size);
 
-  var writer = utility.getFileWriter(logger, './logs/' + id + '.txt');
+  var writer = utility.getFileWriter('./logs/' + id + '.txt');
 
   Array.from(extensions).sort().forEach((extension) => {
     writer.write(extension);

@@ -14,7 +14,7 @@ module.exports.getLogger = (name, level) => {
       file: {
         type: 'file',
         // ./logs/name.log
-        filename: './logs/' + name + './log'
+        filename: './logs/' + name + '.log'
       }
     },
     categories: {
@@ -34,11 +34,13 @@ var walkDir = (parentDpath, execToFpaths) => {
   var paths = fs.readdirSync(parentDpath);
   var dpaths = [];
   var fpaths = [];
-  paths.forEach((testPath) => {
+  paths.map((testPath) => {
+    return path.resolve(parentDpath, testPath);
+  }).forEach((testPath) => {
     if (fs.statSync(testPath).isDirectory()) {
-      dpaths.push(path.resolve(parentDpath, testPath));
+      dpaths.push(testPath);
     } else {
-      fpaths.push(path.resolve(parentDpath, testPath));
+      fpaths.push(testPath);
     }
   });
 
