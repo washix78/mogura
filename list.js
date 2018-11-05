@@ -8,7 +8,7 @@ var path = require('path');
 
 var utility = require('./utility');
 
-var id = 'list-' + dateFormat('yyyyMMddhhmmssSSS', new Date());
+var id = 'list-' + dateFormat(new Date(), 'yyyymmddHHMMssl');
 
 var logger = utility.getLogger(id, config.logLevel);
 
@@ -22,8 +22,8 @@ try {
     throw new Error('Please specify directory path.');
   }
 
-  var dirPath = path.resolve(process.argv[2]);
-  logger.info(dirPath);
+  var startDirPath = path.resolve(process.argv[2]);
+  logger.info('Start ' + startDirPath);
 
   var extension = null;
   var name = null;
@@ -36,48 +36,59 @@ try {
     switch (process.argv[3]) {
     case '-e':
       extension = process.argv[4];
+      logger.info('List by a extension "' + extension + '".');
       fpathsFilter = (fpath) => {
         return extension === utility.getExtension(fpath);
       };
       break;
     case '-n':
       name = process.argv[4];
+      logger.info('List by a name "' + name + '".');
       fpathsFilter = (fpath) => {
         return name === getName(fpath);
       };
       break;
     case '-eg':
       extensions = config.list.extensions[process.argv[4]];
+      logger.info('List by extension group "' + process.argv[4] + '".');
       fpathsFilter = (fpath) => {
         return 0 <= extensions.indexOf(utility.getExtension(fpath));
       };
       break;
     case '-ng':
       names = config.list.names[process.argv[4]];
+      logger.info('List by name group "' + process.argv[4] + '".');
       fpathsFilter = (fpath) => {
         return 0 <= names.indexOf(getName(fpath));
       };
       break;
     }
+  } else {
+    logger.info('List all.');
   }
 
-  utility.walkDir(dirPath, (fpaths) => {
+  var fileCount = 0;
+  var writer = utility.getFileWriter('./logs/' + id + '.txt');
+
+  utility.walkDir(startDirPath, (fpaths) => {
+    logger.info('File count: ' + fpaths.length);
+    fileCount += fpaths.length;
     if (fpathsFilter) {
       fpaths.filter(
         fpathsFilter
       ).forEach((fpath) => {
-        ws.write(fpath);
-        ws.write(os.EOL);
+        writer.write(fpath);
       });
     } else {
       fpaths.forEach((fpath) => {
-        ws.write(fpath);
-        ws.write(os.EOL);
+        writer.write(fpath);
       });
     }
   });
 
-  ws.end();
+  writer.finish();
+  logger.info('End. File count: ' + fileCount);
+
 } catch (e) {
   logger.error(e.stack);
 }

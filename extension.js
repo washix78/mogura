@@ -18,7 +18,7 @@ try {
   }
 
   var dirPath = path.resolve(process.argv[2]);
-  logger.info(dirPath);
+  logger.info('Target directory path: ' + dirPath);
 
   var extensions = new Set();
 
@@ -32,7 +32,7 @@ try {
       }
     });
   });
-  logger.info(extensions.size);
+  logger.info('Extension count: ' + extensions.size);
 
   var writer = utility.getFileWriter('./logs/' + id + '.txt');
 
@@ -41,7 +41,7 @@ try {
   });
 
   writer.finish();
-  logger.info('End.')
+  logger.info('End.');
 
 } catch (e) {
   logger.error(e.stack);

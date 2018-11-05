@@ -2,13 +2,13 @@
 
 var childProcess = require('child_process');
 
-var testUtility = require('./test_utility');
+var testUnitily = require('./test_utility');
 
 Promise.resolve().then(() => {
-  return testUtility.unzip('./test/resources/extension_test.zip');
+  return testUnitily.unzip('./test/resources/list_test.zip');
 }).then(() => {
   return new Promise((resolve, reject) => {
-    childProcess.exec('node ./extension ./tmp/extension_test', (err, stdout, stderr) => {
+    childProcess.exec('node ./list ./tmp/list_test', (err, stdout, stderr) => {
       if (err) {
         reject(err);
       } else {
@@ -17,7 +17,7 @@ Promise.resolve().then(() => {
     });
   });
 }).then(() => {
-  console.log('End.');
+  console.log('End');
 }).catch((err) => {
   console.error(err.stack);
 });
