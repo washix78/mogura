@@ -1,0 +1,26 @@
+{
+  logLevel: 'info',
+
+  list: {
+
+    extensions: {
+      doc: [
+        'txt',
+        'doc',
+      ],
+      img: [
+        'png',
+        'jpg',
+      ]
+    },
+
+    names: {
+      note: [
+        'config',
+        '.gitignore',
+      ]
+    },
+
+  },
+
+}
