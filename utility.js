@@ -4,6 +4,7 @@ var fs = require('fs');
 var log4js = require('log4js');
 var os = require('os');
 var path = require('path');
+var readline = require('readline');
 
 module.exports.getLogger = (name, level) => {
   log4js.configure({
@@ -74,4 +75,19 @@ module.exports.getFileWriter = (fpath) => {
       ws.close();
     };
   };
+};
+
+module.exports.getLinesFromFile = (fpath) => {
+  return new Promise((resolve, reject) => {
+    var lines = [];
+    readline.createInterface({
+      input: fs.createReadStream(fpath)
+    }).on('error', (err) => {
+      reject(err);
+    }).on('close', () => {
+      resolve(lines);
+    }).on('line', (line) => {
+      lines.push(line);
+    });
+  });
 };
