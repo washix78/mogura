@@ -1,15 +1,29 @@
 # mogura
 
-node list ${dir path}
+## List
 
-node list ${dir path} -e txt
+```
+node list {directory_path}
+```
 
-node list ${dir path} -n memo.txt
+```
+node list {directory_path} -e {extension}
+```
 
-node list ${dir path} -eg documents
+```
+node list {directory_path} -n {file_name}
+```
 
-node list ${dir path} -ng temporaries
+```
+node list {directory_path} -eg {extension_group_name}
+```
 
-node delete ${file path}
+```
+node list {directory_path} -ng {file_name_group_name}
+```
 
-node scan ${dir path}
+## Delete
+
+```
+node delete {file_path}
+```
