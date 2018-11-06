@@ -9,6 +9,7 @@ Promise.resolve().then(() => {
   return testUtility.unzip('./test/resources/scan_directory_test.zip');
 
 }).then(() => {
+
   return new Promise((resolve, reject) => {
     childProcess.exec('node scan -d ./tmp/scan_directory_test', (err, stdout, stderr) => {
       if (err) {
@@ -18,8 +19,13 @@ Promise.resolve().then(() => {
       }
     });
   });
+
 }).then(() => {
+
   console.log('End.');
+
 }).catch((err) => {
+
   console.error(err.stack);
+
 });
