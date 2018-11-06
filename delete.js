@@ -20,8 +20,11 @@ try {
   logger.info('Load from "' + listFpath + '".');
 
   Promise.resolve().then(() => {
+
     return utility.getLinesFromFile(listFpath);
+
   }).then((fpaths) => {
+
     logger.info('Target file count: ' + fpaths.length);
     var deletedCount = 0;
     fpaths.forEach((fpath) => {
@@ -34,8 +37,11 @@ try {
       }
     });
     logger.info('End. Deleted file count: ' + deletedCount);
+
   }).catch((err) => {
+
     logger.error(err.stack);
+
   });
 } catch (e) {
   logger.error(e.stack);

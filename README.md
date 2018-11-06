@@ -27,3 +27,13 @@ node list {directory_path} -ng {file_name_group_name}
 ```
 node delete {file_path}
 ```
+
+## Scan
+
+```
+node scan -f {file_path}
+```
+
+```
+node scan -d {directory_path}
+```
