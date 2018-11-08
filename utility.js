@@ -77,7 +77,7 @@ module.exports.getFileWriter = (fpath) => {
   };
 };
 
-module.exports.getLinesFromFile = (fpath) => {
+module.exports.getLinesFromFile = (fpath, lineFilter) => {
   return new Promise((resolve, reject) => {
     var lines = [];
     readline.createInterface({
@@ -87,7 +87,13 @@ module.exports.getLinesFromFile = (fpath) => {
     }).on('close', () => {
       resolve(lines);
     }).on('line', (line) => {
-      lines.push(line);
+      if (lineFilter !== undefined && lineFilter !== null) {
+        if (lineFilter(line)) {
+          lines.push(line);
+        }
+      } else {
+        lines.push(line);
+      }
     });
   });
 };

@@ -21,7 +21,9 @@ try {
 
   Promise.resolve().then(() => {
 
-    return utility.getLinesFromFile(listFpath);
+    return utility.getLinesFromFile(listFpath, (line) => {
+      return !line.startsWith('#');
+    });
 
   }).then((fpaths) => {
 

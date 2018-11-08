@@ -1,4 +1,0 @@
-./tmp/delete_test/file1
-./tmp/delete_test/file2
-./tmp/delete_test/dir1/file2
-./tmp/delete_test/dir2/file1
