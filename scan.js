@@ -76,9 +76,10 @@ try {
 
     while (0 < fpaths.length) {
       var testPath = fpaths.shift();
-      logger.info('Check "' + testPath + '".');
+      logger.info(testPath);
       try {
         if (isMultiple(testPath)) {
+          logger.info('  - ' + testPath);
           multiples.push(testPath);
         } else {
           singles.push(testPath);
