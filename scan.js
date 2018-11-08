@@ -12,21 +12,9 @@ var id = 'scan-' + dateFormat(new Date(), 'yyyymmddHHMMssl');
 
 var logger = utility.getLogger(id, config.logLevel);
 
-var singles = [];
-var multiples = [];
-var errors = [];
-var isMultiple = (testFpath) => {
-  var testFsize = fs.statSync(testFpath).size;
-  var testFhash = md5File.sync(testFpath);
-
-  for (var i = 0; i < singles.length; i++) {
-    var single = singles[i];
-    if (testFsize === fs.statSync(single).size && testFhash === md5File.sync(single)) {
-      return true;
-    }
-  }
-  return false;
-};
+var isMultiple = (aSize, aHash, bPath) => {
+  return (aSize === fs.statSync(bPath).size && aHash === md5File.sync(bPath));
+}
 
 try {
   // node scan -(d|f) {dir_or_file_path}
@@ -70,41 +58,52 @@ try {
       return utility.getLinesFromFile(listFpath);
     }
 
-  }).then((fpaths) => {
+  }).then((testPaths) => {
 
-    logger.info('Loaded file path count: ' + fpaths.length);
+    logger.info('Loaded file path count: ' + testPaths.length);
 
-    while (0 < fpaths.length) {
-      var testPath = fpaths.shift();
-      logger.info(testPath);
+    var writer = utility.getFileWriter('./logs/' + id + '.txt');
+
+    while (0 < testPaths.length) {
+      var aPath = testPaths.shift();
+      var aSize = null;
+      var aHash = null;
+      logger.info('A: ' + aPath);
       try {
-        if (isMultiple(testPath)) {
-          logger.info('  - ' + testPath);
-          multiples.push(testPath);
-        } else {
-          singles.push(testPath);
-        }
+        aSize = fs.statSync(aPath).size;
+        aHash = md5File.sync(aPath);
       } catch (e) {
-        logger.error('Failed "' + testPath + '".');
-        logger.error(e.stack);
-        errors.push(testPath);
+        logger.error(aPath + ': ' + e.stack);
+        continue;
+      } finally {
+        writer.write('#' + aPath);
+      }
+
+      var checkedIdxes = [];
+
+      for (var idx = 0; idx < testPaths.length; idx++) {
+        var bPath = testPaths[idx];
+        logger.info('  B: ' + bPath);
+        try {
+          if (isMultiple(aSize, aHash, bPath)) {
+            checkedIdxes.push(idx);
+            writer.write(bPath);
+            logger.info(' - same');
+          }
+        } catch (e) {
+          logger.error(bPath + ': ' + e.stack);
+          checkedIdxes.push(idx);
+        }
+      }
+
+      // exclude checked indexes
+      while (0 < checkedIdxes.length) {
+        var idx = checkedIdxes.pop();
+        testPaths.splice(idx, 1);
       }
     }
-    logger.info('Single count: ' + singles.length);
-    logger.info('Multiple count: ' + multiples.length);
-    logger.info('Error count: ' + errors.length);
 
-    var singlesWriter = utility.getFileWriter('./logs/' + id + '-singles.txt');
-    singles.forEach((single) => {
-      singlesWriter.write(single);
-    });
-    singlesWriter.finish();
-
-    var multiplesWriter = utility.getFileWriter('./logs/' + id + '-multiples.txt');
-    multiples.forEach((multiple) => {
-      multiplesWriter.write(multiple);
-    });
-
+    writer.finish();
     logger.info('End.');
 
   }).catch((err) => {

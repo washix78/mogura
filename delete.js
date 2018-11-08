@@ -32,7 +32,7 @@ try {
     fpaths.forEach((fpath) => {
       try {
         fs.unlinkSync(fpath);
-        logger.info('Delete "' + fpath + '".');
+        logger.info('Deleted "' + fpath + '".');
         deletedCount += 1;
       } catch (err) {
         logger.error(err.stack);
