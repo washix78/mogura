@@ -55,7 +55,9 @@ try {
       });
     } else {
       logger.info('Load from file "' + listFpath + '".');
-      return utility.getLinesFromFile(listFpath);
+      return utility.getLinesFromFile(listFpath, (line) => {
+        return !line.startsWith('#');
+      });
     }
 
   }).then((testPaths) => {

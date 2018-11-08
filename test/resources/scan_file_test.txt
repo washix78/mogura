@@ -1,0 +1,11 @@
+./tmp/scan_file_test/no_dir/no_file
+./tmp/scan_file_test/file1.txt
+./tmp/scan_file_test/file2.txt
+./tmp/scan_file_test/same.1.txt
+./tmp/scan_file_test/same.2.txt
+./tmp/scan_file_test/dir1/file3.txt
+#./tmp/scan_file_test/dir1/non_target.txt
+./tmp/scan_file_test/dir1/same.1.txt
+./tmp/scan_file_test/dir2/file4.txt
+#./tmp/scan_file_test/dir2/non_target.txt
+./tmp/scan_file_test/dir2/same.2.txt
