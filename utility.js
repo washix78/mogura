@@ -21,7 +21,7 @@ module.exports.getLogger = (name, level) => {
     categories: {
       default: {
         appenders: [
-          'stdout',
+          // 'stdout',
           'file'
         ],
         level: level
@@ -55,8 +55,9 @@ var walkDir = (parentDpath, execToFpaths) => {
 module.exports.walkDir = walkDir;
 
 module.exports.getExtension = (fpath) => {
-  var idx = fpath.lastIndexOf('.');
-  return (0 <= idx) ? fpath.substr(idx + 1) : null;
+  var fileName = path.basename(fpath);
+  var idx = fileName.lastIndexOf('.');
+  return (0 <= idx) ? fileName.substr(idx + 1) : null;
 };
 
 module.exports.getFileWriter = (fpath) => {
