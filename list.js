@@ -3,7 +3,6 @@
 var config = require('config');
 var dateFormat = require('dateformat');
 var fs = require('fs');
-var os = require('os');
 var path = require('path');
 
 var utility = require('./utility');
@@ -71,7 +70,6 @@ try {
   var writer = utility.getFileWriter('./logs/' + id + '.txt');
 
   utility.walkDir(startDirPath, (fpaths) => {
-    logger.info('File count: ' + fpaths.length);
     fileCount += fpaths.length;
     if (fpathsFilter) {
       fpaths.filter(
