@@ -22,8 +22,6 @@ try {
 
   var extensions = new Set();
 
-  logger.info('Start.');
-
   utility.walkDir(dirPath, (fpaths) => {
     fpaths.forEach((fpath) => {
       var extension = utility.getExtension(fpath);
@@ -32,7 +30,6 @@ try {
       }
     });
   });
-  logger.info('Extension count: ' + extensions.size);
 
   var writer = utility.getFileWriter('./logs/' + id + '.txt');
 
@@ -41,7 +38,7 @@ try {
   });
 
   writer.finish();
-  logger.info('End.');
+  logger.info('End. Extension count: ' + extensions.size);
 
 } catch (e) {
   logger.error(e.stack);
