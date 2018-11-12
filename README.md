@@ -37,3 +37,15 @@ node scan -f {file_path}
 ```
 node scan -d {directory_path}
 ```
+
+## Extension
+
+```
+node extension {directory_path}
+```
+
+## Name
+
+```
+node name {directory_path}
+```
