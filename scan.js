@@ -48,7 +48,7 @@ try {
       logger.info('Load directory "' + startDirPath + '".');
       return new Promise((resolve, reject) => {
         var fpaths = [];
-        utility.walkDir(startDirPath, (plus) => {
+        utility.walkDir(startDirPath, (dpaths, plus) => {
           Array.prototype.push.apply(fpaths, plus);
         });
         resolve(fpaths);

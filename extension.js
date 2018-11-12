@@ -22,7 +22,7 @@ try {
 
   var extensions = new Set();
 
-  utility.walkDir(dirPath, (fpaths) => {
+  utility.walkDir(dirPath, (dpaths, fpaths) => {
     fpaths.forEach((fpath) => {
       var extension = utility.getExtension(fpath);
       if (extension !== undefined && extension !== null) {

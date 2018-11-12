@@ -31,7 +31,7 @@ module.exports.getLogger = (name, level) => {
   return log4js.getLogger('default');
 };
 
-var walkDir = (parentDpath, execToFpaths) => {
+var walkDir = (parentDpath, before, after) => {
   var paths = fs.readdirSync(parentDpath);
   var dpaths = [];
   var fpaths = [];
@@ -45,11 +45,17 @@ var walkDir = (parentDpath, execToFpaths) => {
     }
   });
 
-  execToFpaths(fpaths);
+  if (before !== undefined && before !== null) {
+    before(dpaths, fpaths);
+  }
 
   dpaths.forEach((dpath) => {
-    walkDir(dpath, execToFpaths);
+    walkDir(dpath, before, after);
   });
+
+  if (after !== undefined && after !== null) {
+    after(dpaths, fpaths);
+  }
 };
 
 module.exports.walkDir = walkDir;

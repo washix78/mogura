@@ -22,7 +22,7 @@ try {
 
   var names = new Set();
 
-  utility.walkDir(dirPath, (fpaths) => {
+  utility.walkDir(dirPath, (dpaths, fpaths) => {
     fpaths.forEach((fpath) => {
       if (utility.getExtension(fpath) === null) {
         names.add(path.basename(fpath));

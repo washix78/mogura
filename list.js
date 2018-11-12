@@ -69,7 +69,7 @@ try {
   var fileCount = 0;
   var writer = utility.getFileWriter('./logs/' + id + '.txt');
 
-  utility.walkDir(startDirPath, (fpaths) => {
+  utility.walkDir(startDirPath, (dpaths, fpaths) => {
     fileCount += fpaths.length;
     if (fpathsFilter) {
       fpaths.filter(

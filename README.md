@@ -49,3 +49,9 @@ node extension {directory_path}
 ```
 node name {directory_path}
 ```
+
+## Clean
+
+```
+node clean {directory_path}
+```
