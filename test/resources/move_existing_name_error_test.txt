@@ -1,0 +1,4 @@
+./tmp/dir/dir1
+./tmp/dir/file1
+./tmp/file2
+./tmp/file

@@ -24,6 +24,7 @@ try {
 
   Promise.resolve().then(() => {
 
+    logger.info('Get file paths:' + srcFpath);
     return utility.getLinesFromFile(srcFpath, (line) => {
       return !line.startsWith('#');
     })
@@ -33,50 +34,59 @@ try {
     var oldPaths = lines.map((line) => {
       return path.resolve(line);
     });
-    var names = oldPaths.map((oldPath) => {
-      return path.basename(oldPath);
+
+    var nameMap = {};
+    oldPaths.forEach((oldPath) => {
+      var name = path.basename(oldPath);
+      if (!(name in nameMap)) {
+        nameMap[name] = [];
+      }
+      nameMap[name].push(oldPath);
     });
 
-    // check targets
-    var duplicates = {};
-    names.forEach((name1, i1) => {
-      var idxes = [];
-      names.forEach((name2, i2) => {
-        if (i1 !== i2 && name1 === name2) {
-          idxes.push(i2);
-        }
-      });
-      if (0 < idxes.length) {
-        duplicates[i1] = idxes;
-      }
-    });
-    if (0 < Object.keys(duplicates).length) {
-      for (var i in duplicates) {
-        var idxes = duplicates[i];
-        var errorMsg = idxes.reduce((str, idx) => {
-          return str += ('\n' + oldPaths[idx]);
-        }, 'Same name file paths:\n' + oldPaths[i]);
+    var isContinuable = true;
+
+    for (var name in nameMap) {
+      var oldPaths = nameMap[name];
+      if (1 < oldPaths.length) {
+        isContinuable = false;
+        var errorMsg = oldPaths.reduce((str, oldPath) => {
+          return str += ('\n' + oldPath);
+        }, 'Same name file paths:');
         logger.error(errorMsg);
       }
+    }
+    if (!isContinuable) {
       throw new Error('End with error.');
     }
 
-    // check directory children
     var childNames = fs.readdirSync(toDpath);
-    var natives = {};
     childNames.forEach((childName) => {
-      var idx = names.indexOf(childName);
-      if (-1 < idx) {
-        var childPath = path.resolve(toDpath, childName);
-        natives[childPath] = oldPaths[idx];
+      if (childName in nameMap) {
+        isContinuable = false;
+        var errorMsg = 'Existing: ' + path.resolve(toDpath, childName) + '\n' + nameMap[childName];
+        logger.error(errorMsg);
       }
     });
-    if (0 < Object.keys(natives).length) {
-      for (var childPath in natives) {
-        logger.error('Existing "' + childPath + '"\n' + natives[childPath]);
-      }
+    if (!isContinuable) {
+      throw new Error('End with error');
     }
 
+    var successCount = 0;
+    var failureCount = 0;
+    oldPaths.forEach((oldPath, i) => {
+      var newPath = path.resolve(toDpath, names[i]);
+      try {
+        fs.renameSync(oldPath, newPath);
+        successCount += 1;
+        logger.info(oldPath + ' -> ' + newPath);
+      } catch (e) {
+        failureCount += 1;
+        logger.error(e.stak);
+      }
+    });
+
+    logger.info('End. Success: ' + successCount + '. Failure: ' + failureCount);
 
   }).catch((err) => {
 
