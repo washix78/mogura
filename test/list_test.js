@@ -11,7 +11,7 @@ Promise.resolve().then(() => {
 }).then(() => {
 
   return new Promise((resolve, reject) => {
-    childProcess.exec('node ./list ./tmp/list_test', (err, stdout, stderr) => {
+    childProcess.exec('node list ./tmp/list_test', (err, stdout, stderr) => {
       if (err) {
         reject(err);
       } else {

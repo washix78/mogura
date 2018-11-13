@@ -1,0 +1,6 @@
+./tmp/unique1
+./tmp/dir1/file
+./tmp/dir2/file
+./tmp/dir1/file2
+./tmp/dir2/file2
+./tmp/dir3/file
