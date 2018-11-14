@@ -37,7 +37,7 @@ try {
 
     var nameMap = {};
     oldPaths.forEach((oldPath) => {
-      var name = path.basename(oldPath);
+      var name = path.basename(oldPath).toUpperCase();
       if (!(name in nameMap)) {
         nameMap[name] = [];
       }
@@ -52,7 +52,7 @@ try {
         isContinuable = false;
         var errorMsg = oldPaths.reduce((str, oldPath) => {
           return str += ('\n' + oldPath);
-        }, 'Same name file paths:');
+        }, 'Same name file paths by ' + name);
         logger.error(errorMsg);
       }
     }
@@ -62,9 +62,10 @@ try {
 
     var childNames = fs.readdirSync(toDpath);
     childNames.forEach((childName) => {
-      if (childName in nameMap) {
+      var key = childName.toUpperCase();
+      if (key in nameMap) {
         isContinuable = false;
-        var errorMsg = 'Existing: ' + path.resolve(toDpath, childName) + '\n' + nameMap[childName];
+        var errorMsg = 'Existing: ' + path.resolve(toDpath, childName) + '\n' + nameMap[key];
         logger.error(errorMsg);
       }
     });
@@ -74,17 +75,21 @@ try {
 
     var successCount = 0;
     var failureCount = 0;
-    oldPaths.forEach((oldPath, i) => {
-      var newPath = path.resolve(toDpath, names[i]);
-      try {
-        fs.renameSync(oldPath, newPath);
-        successCount += 1;
-        logger.info(oldPath + ' -> ' + newPath);
-      } catch (e) {
-        failureCount += 1;
-        logger.error(e.stak);
-      }
-    });
+    for (var key in nameMap) {
+      var oldPaths = nameMap[key];
+      oldPaths.forEach((oldPath) => {
+        var name = path.basename(oldPath);
+        var newPath = path.resolve(toDpath, name);
+        try {
+          fs.renameSync(oldPath, newPath);
+          successCount += 1;
+          logger.info(oldPath + ' -> ' + newPath);
+        } catch (e) {
+          failureCount += 1;
+          logger.error(oldPath + '\n' + e.stack);
+        }
+      });
+    }
 
     logger.info('End. Success: ' + successCount + '. Failure: ' + failureCount);
 

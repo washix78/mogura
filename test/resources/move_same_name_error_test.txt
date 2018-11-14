@@ -1,6 +1,7 @@
+./tmp/dir/file1
+./tmp/dir/file2
 ./tmp/unique1
-./tmp/dir1/file1
-./tmp/dir2/file1
-./tmp/dir1/file2
-./tmp/dir2/file2
-./tmp/dir3/file
+./tmp/dir/dir/file1
+./tmp/dir/dir/file2
+./tmp/FILE1
+./tmp/FILE2

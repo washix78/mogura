@@ -1,0 +1,4 @@
+./tmp/move_test_from/no_existing.txt
+./tmp/move_test_from/file3.txt
+./tmp/move_test_from/dir1/file4.txt
+./tmp/move_test_from/dir2/dir1/FILE5.txt
