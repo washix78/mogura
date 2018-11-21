@@ -64,44 +64,45 @@ try {
 
     logger.info('Loaded file path count: ' + testPaths.length);
 
+    var sizeMap = {};
+    testPaths.forEach((testPath) => {
+      try {
+        var size = fs.statSync(testPath).size;
+        if (!(size in sizeMap)) {
+          sizeMap[size] = [];
+        }
+        sizeMap[size].push(testPath);
+      } catch (e) {
+        logger.error(testPath + ' ' + e.stack);
+      }
+    });
+
     var writer = utility.getFileWriter('./logs/' + id + '.txt');
 
-    while (0 < testPaths.length) {
-      var aPath = testPaths.shift();
-      var aSize = null;
-      var aHash = null;
-      logger.info('A: ' + aPath);
-      try {
-        aSize = fs.statSync(aPath).size;
-        aHash = md5File.sync(aPath);
-      } catch (e) {
-        logger.error(aPath + ': ' + e.stack);
-        continue;
-      } finally {
-        writer.write('#' + aPath);
-      }
-
-      var checkedIdxes = [];
-
-      for (var idx = 0; idx < testPaths.length; idx++) {
-        var bPath = testPaths[idx];
-        logger.info('  B: ' + bPath);
-        try {
-          if (isMultiple(aSize, aHash, bPath)) {
-            checkedIdxes.push(idx);
-            writer.write(bPath);
-            logger.info(' - same');
-          }
-        } catch (e) {
-          logger.error(bPath + ': ' + e.stack);
-          checkedIdxes.push(idx);
+    for (var size in sizeMap) {
+      var hashMap = {};
+      sizeMap[size].forEach((fpath) => {
+        var hash = md5File.sync(fpath);
+        if (!(hash in hashMap)) {
+          hashMap[hash] = [];
         }
-      }
+        hashMap[hash].push(fpath);
+      });
 
-      // exclude checked indexes
-      while (0 < checkedIdxes.length) {
-        var idx = checkedIdxes.pop();
-        testPaths.splice(idx, 1);
+      for (var hash in hashMap) {
+        var sameCount = hashMap[hash].length;
+        if (1 < sameCount) {
+          logger.debug('Same count: ' + sameCount + ', hash: ' + hash);
+        }
+
+        hashMap[hash].forEach((fpath, i) => {
+          if (i == 0) {
+            writer.write('#' + fpath);
+          } else {
+            writer.write(fpath);
+            logger.debug(fpath);
+          }
+        });
       }
     }
 
