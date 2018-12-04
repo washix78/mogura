@@ -32,14 +32,14 @@ node list {directory_path} -z
 node delete {file_path}
 ```
 
-## Scan
+## Same
 
 ```
-node scan -f {file_path}
+node same {file_path} digest
 ```
 
 ```
-node scan -d {directory_path}
+node same {file_path} name
 ```
 
 ## Extension
