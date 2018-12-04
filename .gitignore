@@ -1,4 +1,4 @@
 logs/
 node_modules/
-config/local-*
+config/local*
 tmp/
