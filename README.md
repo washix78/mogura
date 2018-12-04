@@ -22,6 +22,10 @@ node list {directory_path} -eg {extension_group_name}
 node list {directory_path} -ng {file_name_group_name}
 ```
 
+```
+node list {directory_path} -z
+```
+
 ## Delete
 
 ```
@@ -54,4 +58,10 @@ node name {directory_path}
 
 ```
 node clean {directory_path}
+```
+
+## Move
+
+```
+node move {directory_path} {file_path}
 ```

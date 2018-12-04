@@ -61,6 +61,12 @@ try {
         return 0 <= names.indexOf(getName(fpath));
       };
       break;
+    case '-z':
+      logger.info('List 0 size file paths.');
+      fpathsFilter = (fpath) => {
+        return 0 === fs.statSync(fpath).size;
+      };
+      break;
     }
   } else {
     logger.info('List all.');
