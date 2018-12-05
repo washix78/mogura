@@ -56,7 +56,13 @@ try {
       for (var size in sizeMap) {
         var list = sizeMap[size];
         if (1 < list.length) {
-
+          list.forEach((item) => {
+            var digest = md5File.sync(item);
+            if (!(digest in map)) {
+              map[digest] = [];
+            }
+            map[digest].push(item);
+          });
         } else {
           writer.write('#' + list[0]);
         }
@@ -87,134 +93,6 @@ try {
           writer.write(item);
         }
       });
-    }
-
-    var sizeMap = {};
-
-
-    {
-      0: [ '' ],
-      1: [ '' ],
-      2: ['' ]
-    }
-
-
-
-    for (var size in sizeMap) {
-      var hashMap = {};
-      sizeMap[size].forEach((fpath) => {
-        var hash = md5File.sync(fpath);
-        if (!(hash in hashMap)) {
-          hashMap[hash] = [];
-        }
-        hashMap[hash].push(fpath);
-      });
-
-      for (var hash in hashMap) {
-        var sameCount = hashMap[hash].length;
-        if (1 < sameCount) {
-          logger.debug('Same count: ' + sameCount + ', hash: ' + hash);
-        }
-
-        hashMap[hash].forEach((fpath, i) => {
-          if (i == 0) {
-            writer.write('#' + fpath);
-          } else {
-            writer.write(fpath);
-            logger.debug(fpath);
-          }
-        });
-      }
-    }
-
-    writer.finish();
-    logger.info('End.');
-
-  }).catch((err) => {
-
-    logger.error(err.stack);
-
-  });
-
-  switch (process.argv[2]) {
-  case '-d':
-    startDirPath = path.resolve(process.argv[3]);
-    if (!fs.statSync(startDirPath).isDirectory()) {
-      throw new Error('Please specify a directory path.');
-    }
-    break;
-  case '-f':
-    listFpath = path.resolve(process.argv[3]);
-    if (fs.statSync(listFpath).isDirectory()) {
-      throw new Error('Please specify a file path.');
-    }
-    break;
-  default:
-    throw new Error('Please specify "-d" or "-f".');
-  }
-
-  Promise.resolve().then(() => {
-
-    if (startDirPath !== null) {
-      logger.info('Load directory "' + startDirPath + '".');
-      return new Promise((resolve, reject) => {
-        var fpaths = [];
-        utility.walkDir(startDirPath, (dpaths, plus) => {
-          Array.prototype.push.apply(fpaths, plus);
-        });
-        resolve(fpaths);
-      });
-    } else {
-      logger.info('Load from file "' + listFpath + '".');
-      return utility.getLinesFromFile(listFpath, (line) => {
-        return !line.startsWith('#');
-      });
-    }
-
-  }).then((testPaths) => {
-
-    logger.info('Loaded file path count: ' + testPaths.length);
-
-    var sizeMap = {};
-    testPaths.forEach((testPath) => {
-      try {
-        var size = fs.statSync(testPath).size;
-        if (!(size in sizeMap)) {
-          sizeMap[size] = [];
-        }
-        sizeMap[size].push(testPath);
-      } catch (e) {
-        logger.error(testPath + ' ' + e.stack);
-      }
-    });
-
-    var writer = utility.getFileWriter('./logs/' + id + '.txt');
-
-    for (var size in sizeMap) {
-      var hashMap = {};
-      sizeMap[size].forEach((fpath) => {
-        var hash = md5File.sync(fpath);
-        if (!(hash in hashMap)) {
-          hashMap[hash] = [];
-        }
-        hashMap[hash].push(fpath);
-      });
-
-      for (var hash in hashMap) {
-        var sameCount = hashMap[hash].length;
-        if (1 < sameCount) {
-          logger.debug('Same count: ' + sameCount + ', hash: ' + hash);
-        }
-
-        hashMap[hash].forEach((fpath, i) => {
-          if (i == 0) {
-            writer.write('#' + fpath);
-          } else {
-            writer.write(fpath);
-            logger.debug(fpath);
-          }
-        });
-      }
     }
 
     writer.finish();

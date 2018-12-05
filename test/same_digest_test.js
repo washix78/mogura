@@ -6,12 +6,12 @@ var testUtility = require('./test_utility');
 
 Promise.resolve().then(() => {
 
-  return testUtility.unzip('./test/resources/scan_file_test.zip');
+  return testUtility.unzip('./test/resources/same_digest_test.zip');
 
 }).then(() => {
 
   return new Promise((resolve, reject) => {
-    childProcess.exec('node scan -f ./test/resources/scan_file_test.txt', (err, stdout, stderr) => {
+    childProcess.exec('node same ./test/resources/same_digest_test.txt digest', (err, stdout, stderr) => {
       if (err) {
         reject(err);
       } else {
