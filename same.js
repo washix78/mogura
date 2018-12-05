@@ -4,6 +4,7 @@ var config = require('config');
 var dateFormat = require('dateformat');
 var fs = require('fs');
 var md5File = require('md5-file');
+var os = require('os');
 var path = require('path');
 
 var utility = require('./utility');
@@ -12,14 +13,10 @@ var id = 'same-' + dateFormat(new Date(), 'yyyymmddHHMMssl');
 
 var logger = utility.getLogger(id, config.logLevel);
 
-var isMultiple = (aSize, aHash, bPath) => {
-  return (aSize === fs.statSync(bPath).size && aHash === md5File.sync(bPath));
-}
-
 try {
   // node same {file_path} {type}
   if (process.argv.length < 4 || !fs.statSync(process.argv[2]).isFile() ||
-      process.argv[3] !== 'digest' || process.argv[3] !== 'name') {
+      !(process.argv[3] === 'digest' || process.argv[3] === 'name')) {
     throw new Error('Please specify a file path & type.');
   }
 
@@ -52,6 +49,8 @@ try {
           logger.error(testPath + ' ' + e.stack);
         }
       });
+
+      logger.debug(os.EOL + JSON.stringify(sizeMap, undefined, 2));
 
       for (var size in sizeMap) {
         var list = sizeMap[size];

@@ -1,0 +1,27 @@
+{
+  logLevel: 'debug',
+
+  list: {
+
+    extensions: {
+      doc: [
+        'txt',
+        'doc',
+        'html',
+      ],
+      img: [
+        'png',
+        'jpg',
+      ]
+    },
+
+    names: {
+      tmp: [
+        'config',
+        '.gitignore',
+      ]
+    },
+
+  },
+
+}

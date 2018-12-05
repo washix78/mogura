@@ -11,7 +11,7 @@ Promise.resolve().then(() => {
 }).then(() => {
 
   return new Promise((resolve, reject) => {
-    childProcess.exec('node scan ./tmp/same_name_test', (err, stdout, stderr) => {
+    childProcess.exec('node same ./test/resources/same_name_test.txt name', (err, stdout, stderr) => {
       if (err) {
         reject(err);
       } else {

@@ -1,0 +1,8 @@
+./tmp/same_name_test/file1.txt
+./tmp/same_name_test/same.txt
+./tmp/same_name_test/dir1/file2.txt
+./tmp/same_name_test/dir1/same.txt
+./tmp/same_name_test/dir2/file3.txt
+./tmp/same_name_test/dir2/same.txt
+./tmp/same_name_test/dir2/dir1/file4.txt
+./tmp/same_name_test/dir2/dir1/SAME.TXT

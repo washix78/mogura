@@ -1,0 +1,8 @@
+./tmp/same_digest_test/file1.txt
+./tmp/same_digest_test/same.txt
+./tmp/same_digest_test/dir1/file2.txt
+./tmp/same_digest_test/dir1/same.txt
+./tmp/same_digest_test/dir2/file3.txt
+./tmp/same_digest_test/dir2/same.txt
+./tmp/same_digest_test/dir2/dir1/file4.txt
+./tmp/same_digest_test/dir2/dir1/same.txt
