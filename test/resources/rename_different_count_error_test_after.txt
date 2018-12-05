@@ -1,0 +1,4 @@
+./tmp/rename_different_count_error_test/after1.txt
+./tmp/rename_different_count_error_test/after2.txt
+./tmp/rename_different_count_error_test/after3.txt
+./tmp/rename_different_count_error_test/after4.txt

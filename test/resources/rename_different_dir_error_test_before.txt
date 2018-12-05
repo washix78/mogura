@@ -1,0 +1,2 @@
+./tmp/rename_different_dir_error_test/dir/file.txt
+./tmp/rename_different_dir_error_test/file.txt

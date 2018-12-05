@@ -1,0 +1,8 @@
+./tmp/rename_test/renamed1.txt
+#./tmp/rename_test/renamed.txt
+./tmp/rename_test/dir1/renamed2.txt
+#./tmp/rename_test/dir1/renamed.txt
+./tmp/rename_test/dir2/renamed3.txt
+#./tmp/rename_test/dir2/renamed.txt
+./tmp/rename_test/dir2/dir1/renamed4.txt
+#./tmp/rename_test/dir2/dir1/renamed.txt

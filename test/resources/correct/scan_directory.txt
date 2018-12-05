@@ -1,8 +1,0 @@
-#tmp/scan_directory/file1.txt
-#tmp/scan_directory/file2.txt
-#tmp/scan_directory/same.1.txt
-tmp/scan_directory/dir1/same.1.txt
-#tmp/scan_directory/same.2.txt
-tmp/scan_directory/dir2/same.2.txt
-#tmp/scan_directory/dir1/file3.txt
-#tmp/scan_directory/dir2/file4.txt

@@ -1,0 +1,3 @@
+./tmp/rename_existed_error_test/dir
+./tmp/rename_existed_error_test/file4.txt
+./tmp/rename_existed_error_test/after

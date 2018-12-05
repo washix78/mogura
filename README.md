@@ -60,6 +60,12 @@ node name {directory_path}
 node clean {directory_path}
 ```
 
+## Rename
+
+```
+node rename {before_file_path} {after_file_path}
+```
+
 ## Move
 
 ```
