@@ -29,8 +29,12 @@ try {
       return !line.startsWith('#');
     });
 
-  }).then((testPaths) => {
-    logger.debug('Loaded: ' + testPaths.length);
+  }).then((lines) => {
+    logger.debug('Loaded: ' + lines.length);
+
+    var testPaths = lines.map((line) => {
+      return path.resolve(line);
+    });
 
     var writer = utility.getFileWriter('./logs/' + id + '.txt');
 
