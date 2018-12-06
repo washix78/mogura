@@ -3,6 +3,7 @@
 var config = require('config');
 var dateFormat = require('dateformat');
 var fs = require('fs');
+var os = require('os');
 var path = require('path');
 
 var utility = require('./utility');
@@ -11,11 +12,23 @@ var id = 'move-' + dateFormat(new Date(), 'yyyymmddHHMMssl');
 
 var logger = utility.getLogger(id, config.logLevel);
 
+var isMovable = (map) => {
+  for (var key in map) {
+    var list = map[key];
+    if (1 < list.length) {
+      return false;
+    } else {
+      continue;
+    }
+  }
+  return true;
+};
+
 try {
   // node move {dir_path} {file_path}
-  if (process.argv.length < 4 ||
-      !fs.statSync(process.argv[2]).isDirectory() ||
-      fs.statSync(process.argv[3]).isDirectory()) {
+  if (!(4 <= process.argv.length &&
+      fs.statSync(process.argv[2]).isDirectory() &&
+      fs.statSync(process.argv[3]).isFile())) {
     throw new Error('Please specify directory path & file path.');
   }
 
@@ -31,72 +44,64 @@ try {
 
   }).then((lines) => {
 
-    var oldPaths = lines.map((line) => {
+    // read from directory (existing)
+    var nameMap = {};
+    fs.readdirSync(toDpath).forEach((name) => {
+      var key = name.toUpperCase();
+      nameMap[key] = [ path.resolve(toDpath, name) ];
+    });
+
+    var beforePaths = lines.map((line) => {
       return path.resolve(line);
     });
 
-    var nameMap = {};
-    oldPaths.forEach((oldPath) => {
-      var name = path.basename(oldPath).toUpperCase();
-      if (!(name in nameMap)) {
-        nameMap[name] = [];
+    beforePaths.forEach((testPath) => {
+      var key = path.basename(testPath).toUpperCase();
+      if (!(key in nameMap)) {
+        nameMap[key] = [];
       }
-      nameMap[name].push(oldPath);
+      nameMap[key].push(testPath);
     });
 
-    var isContinuable = true;
+    if (isMovable(nameMap)) {
+      logger.info('Move.');
 
-    for (var name in nameMap) {
-      var oldPaths = nameMap[name];
-      if (1 < oldPaths.length) {
-        isContinuable = false;
-        var errorMsg = oldPaths.reduce((str, oldPath) => {
-          return str += ('\n' + oldPath);
-        }, 'Same name file paths by ' + name);
-        logger.error(errorMsg);
-      }
-    }
-    if (!isContinuable) {
-      throw new Error('End with error.');
-    }
-
-    var childNames = fs.readdirSync(toDpath);
-    childNames.forEach((childName) => {
-      var key = childName.toUpperCase();
-      if (key in nameMap) {
-        isContinuable = false;
-        var errorMsg = 'Existing: ' + path.resolve(toDpath, childName) + '\n' + nameMap[key];
-        logger.error(errorMsg);
-      }
-    });
-    if (!isContinuable) {
-      throw new Error('End with error');
-    }
-
-    var successCount = 0;
-    var failureCount = 0;
-    for (var key in nameMap) {
-      var oldPaths = nameMap[key];
-      oldPaths.forEach((oldPath) => {
-        var name = path.basename(oldPath);
-        var newPath = path.resolve(toDpath, name);
-        try {
-          fs.renameSync(oldPath, newPath);
-          successCount += 1;
-          logger.info(oldPath + ' -> ' + newPath);
-        } catch (e) {
-          failureCount += 1;
-          logger.error(oldPath + '\n' + e.stack);
-        }
+      var afterPaths = beforePaths.map((beforePath) => {
+        return path.resolve(toDpath, path.basename(beforePath));
       });
-    }
 
-    logger.info('End. Success: ' + successCount + '. Failure: ' + failureCount);
+      for (var i = 0; i < beforePaths.length; i++) {
+        var before = beforePaths[i];
+        var after = afterPaths[i];
+        try {
+          fs.renameSync(before, after);
+          logger.debug(before + ' -> ' + after);
+        } catch(e) {
+          logger.error(e.stack + os.EOL + before + ' -> ' + after);
+        }
+      }
+    } else {
+      logger.error('Same name file exist.');
+
+      var writer = utility.getFileWriter('./logs/' + id + '.txt');
+      for (var key in nameMap) {
+        var list = nameMap[key];
+        list.forEach((fpath, i) => {
+          if (0 === i) {
+            writer.write('#' + fpath);
+          } else {
+            writer.write(fpath);
+          }
+        });
+      }
+    }
 
   }).catch((err) => {
 
     logger.error(err.stack);
 
+  }).finally(() => {
+    logger.info('End');
   });
 } catch (e) {
   logger.error(e.stack);
