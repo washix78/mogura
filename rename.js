@@ -14,9 +14,11 @@ var logger = utility.getLogger(id, config.logLevel);
 
 try {
   // node rename {before_file_path} {after_file_path}
-  if (process.argv.length < 4 ||
-    !fs.statSync(process.argv[2]).isFile() ||
-    !fs.statSync(process.argv[3]).isFile()) {
+  if (!(
+      4 <= process.argv.length &&
+      fs.statSync(process.argv[2]).isFile() &&
+      fs.statSync(process.argv[3]).isFile())
+   ) {
 
     throw new Error('Please specify 2 file path.');
   }
