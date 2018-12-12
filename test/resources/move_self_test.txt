@@ -1,0 +1,3 @@
+./tmp/move_self_test/dir/file1.txt
+./tmp/move_self_test/self.txt
+./tmp/move_self_test/dir/file2.txt
