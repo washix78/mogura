@@ -12,6 +12,27 @@ var id = 'rename-' + dateFormat(new Date(), 'yyyymmddHHMMssl');
 
 var logger = utility.getLogger(id, config.logLevel);
 
+var isRenamable = (beforeFpaths, afterFpaths) => {
+  var okIdxs = [];
+  for (var i = 0, lineI = 1; i < beforeFpaths.length; i++, lineI++) {
+    var beforeFpath = beforeFpaths[i];
+    var afterFpath = afterFpaths[i];
+
+    if (!fs.existsSync(beforeFpath)) {
+      logger.error('Not exist: ' + lineI);
+    } else  if (!fs.statSync(beforeFpath).isFile()) {
+      logger.error('Not file: ' + lineI);
+    } else if (!(path.dirname(beforeFpath).toLowerCase() === path.dirname(afterFpath).toLowerCase())) {
+      logger.error('Not same parent directory: ' + lineI);
+    } else if (fs.existsSync(afterFpath)) {
+      logger.error('Exist: ' + lineI);
+    } else {
+      okIdxs.push(i);
+    }
+  }
+  return okIdxs.length === beforeFpaths.length;
+};
+
 try {
   // node rename {before_file_path} {after_file_path}
   if (!(
@@ -53,20 +74,11 @@ try {
         beforeFpaths.length + ', after: ' + afterFpaths.length + '.');
     }
 
-    for (var i = 0, lineI = 1; i < beforeFpaths.length; i++, lineI++) {
-      var beforeFpath = beforeFpaths[i];
-      var afterFpath = afterFpaths[i];
+    if (isRenamable(beforeFpaths, afterFpaths)) {
+      for (var i = 0, lineI = 1; i < beforeFpaths.length; i++, lineI++) {
+        var beforeFpath = beforeFpaths[i];
+        var afterFpath = afterFpaths[i];
 
-      if (!fs.existsSync(beforeFpath)) {
-        logger.error('Not exist: ' + lineI);
-      } else  if (!fs.statSync(beforeFpath).isFile()) {
-        logger.error('Not file: ' + lineI);
-      } else if (!(path.dirname(beforeFpath).toLowerCase() === path.dirname(afterFpath).toLowerCase())) {
-        logger.error('Not same parent directory: ' + lineI);
-      } else if (fs.existsSync(afterFpath)) {
-        logger.error('Exist: ' + lineI);
-      } else {
-        // OK
         try {
           fs.renameSync(beforeFpath, afterFpath);
           logger.debug(beforeFpath + ' -> ' + afterFpath);
