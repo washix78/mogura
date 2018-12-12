@@ -1,0 +1,5 @@
+./tmp/rename_item_count_error_test/file1.txt
+./tmp/rename_item_count_error_test/file2.txt
+./tmp/rename_item_count_error_test/file3.txt
+./tmp/rename_item_count_error_test/file4.txt
+./tmp/rename_item_count_error_test/file5.txt
