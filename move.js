@@ -53,6 +53,27 @@ try {
 
     var beforePaths = lines.map((line) => {
       return path.resolve(line);
+    }).filter((testPath) => {
+      // exist
+      var exists = fs.existsSync(testPath);
+      if (!exists) {
+        logger.error('Not exist: ' + testPath);
+      }
+      return exists;
+    }).filter((testPath) => {
+      var isFile = fs.statSync(testPath).isFile();
+      if (!isFile) {
+        logger.error('Directory: ' + testPath);
+      }
+      return isFile;
+    }).filter((testPath) => {
+      // exclude self
+      var key = path.basename(testPath).toUpperCase();
+      var isSelf = key in nameMap && nameMap[key][0] === testPath;
+      if (isSelf) {
+        logger.debug('Self: ' + testPath);
+      }
+      return !isSelf;
     });
 
     beforePaths.forEach((testPath) => {
@@ -81,7 +102,7 @@ try {
         }
       }
     } else {
-      logger.error('Same name file exist.');
+      logger.error('Same name files exists.');
 
       var writer = utility.getFileWriter('./logs/' + id + '.txt');
       for (var key in nameMap) {
