@@ -1,0 +1,5 @@
+./tmp/move_same_name_error_test/dir/dir
+./tmp/move_same_name_error_test/dir/FILE1.TXT
+./tmp/move_same_name_error_test/dir/FILE2.TXT
+./tmp/move_same_name_error_test/dir/file3.TXT
+./tmp/move_same_name_error_test/dir/file4.txt
