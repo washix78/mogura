@@ -32,20 +32,24 @@ try {
   Promise.resolve().then(() => {
     logger.debug('Before from: ' + beforeSrcFpath);
 
-    return utility.getLinesFromFile(beforeSrcFpath);
+    return utility.getLinesFromFile(beforeSrcFpath, (line) => {
+      return !line.startsWith('#');
+    });
 
   }).then((lines) => {
     beforeFpaths = lines;
 
     logger.debug('After from: ' + afterSrcFpath);
 
-    return utility.getLinesFromFile(afterSrcFpath);
+    return utility.getLinesFromFile(afterSrcFpath, (line) => {
+      return !line.startsWith('#');
+    });
 
   }).then((lines) => {
     afterFpaths = lines;
 
     if (beforeFpaths.length !== afterFpaths.length) {
-      throw new Error('File count is not same. Before: ' +
+      throw new Error('Item count is not same. Before: ' +
         beforeFpaths.length + ', after: ' + afterFpaths.length + '.');
     }
 
@@ -53,26 +57,24 @@ try {
       var beforeFpath = beforeFpaths[i];
       var afterFpath = afterFpaths[i];
 
-      if (beforeFpath.startsWith('#') && afterFpath.startsWith('#')) {
-        continue;
-      } else if (!beforeFpath.startsWith('#') && !afterFpath.startsWith('#')) {
-        if (path.dirname(beforeFpath) !== path.dirname(afterFpath)) {
-          logger.error('Not same directory path: ' + lineI);
-        } else if (fs.existsSync(afterFpath)) {
-          logger.error('Existed: ' + lineI);
-        } else {
-          try {
-            fs.renameSync(beforeFpath, afterFpath);
-            logger.debug(beforeFpath + ' -> ' + afterFpath);
-          } catch(e) {
-            logger.error(beforeFpath + ' -> ' + afterFpath + os.EOL + e.stack);
-          }
-        }
+      if (!fs.existsSync(beforeFpath)) {
+        logger.error('Not exist: ' + lineI);
+      } else  if (!fs.statSync(beforeFpath).isFile()) {
+        logger.error('Not file: ' + lineI);
+      } else if (!(path.dirname(beforeFpath).toLowerCase() === path.dirname(afterFpath).toLowerCase())) {
+        logger.error('Not same parent directory: ' + lineI);
+      } else if (fs.existsSync(afterFpath)) {
+        logger.error('Exist: ' + lineI);
       } else {
-        logger.error('Illegal: ' + lineI);
+        // OK
+        try {
+          fs.renameSync(beforeFpath, afterFpath);
+          logger.debug(beforeFpath + ' -> ' + afterFpath);
+        } catch (e) {
+          logger.error(lineI + os.EOL + e.stack);
+        }
       }
     }
-
   }).catch((err) => {
 
     logger.error(err.stack);

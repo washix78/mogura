@@ -1,2 +1,0 @@
-./tmp/rename_different_dir_error_test/after.txt
-./tmp/rename_different_dir_error_test/dir/after.txt
