@@ -48,11 +48,11 @@ try {
     var nameMap = {};
     fs.readdirSync(toDpath).forEach((name) => {
       var key = name.toUpperCase();
-      nameMap[key] = [ path.resolve(toDpath, name) ];
+      nameMap[key] = [ path.resolve(toDpath, name).toLowerCase() ];
     });
 
     var beforePaths = lines.map((line) => {
-      return path.resolve(line);
+      return path.resolve(line).toLowerCase();
     }).filter((testPath) => {
       // exist
       var exists = fs.existsSync(testPath);
@@ -69,7 +69,6 @@ try {
     }).filter((testPath) => {
       // exclude self
       var key = path.basename(testPath).toUpperCase();
-      // TODO lower case upper case dir
       var isSelf = key in nameMap && nameMap[key][0] === testPath;
       if (isSelf) {
         logger.debug('Self: ' + testPath);
