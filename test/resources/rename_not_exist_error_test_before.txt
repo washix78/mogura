@@ -1,0 +1,3 @@
+./tmp/rename_not_exist_error_test/file1.txt
+./tmp/rename_not_exist_error_test/file.txt
+./tmp/rename_not_exist_error_test/file2.txt
