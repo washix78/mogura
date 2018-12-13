@@ -1,0 +1,4 @@
+./tmp/rename_different_dir_error_test/file1.png
+./tmp/rename_different_dir_error_test/dir/file2.png
+./tmp/rename_different_dir_error_test/file3.png
+./tmp/rename_different_dir_error_test/dir/file4.png
