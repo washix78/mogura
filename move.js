@@ -69,6 +69,7 @@ try {
     }).filter((testPath) => {
       // exclude self
       var key = path.basename(testPath).toUpperCase();
+      // TODO lower case upper case dir
       var isSelf = key in nameMap && nameMap[key][0] === testPath;
       if (isSelf) {
         logger.debug('Self: ' + testPath);
