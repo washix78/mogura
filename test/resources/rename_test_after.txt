@@ -1,0 +1,4 @@
+./tmp/rename_test/file1.png
+./tmp/rename_test/FILE2.PNG
+./TMP/RENAME_TEST/DIR1/file3.png
+./tmp/rename_test/dir2/file4.png
