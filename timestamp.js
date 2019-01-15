@@ -3,8 +3,6 @@
 var config = require('config');
 var dateFormat = require('dateformat');
 var fs = require('fs');
-var md5File = require('md5-file');
-var os = require('os');
 var path = require('path');
 
 var utility = require('./utility');
@@ -15,38 +13,50 @@ var logger = utility.getLogger(id, config.logLevel);
 
 try {
 
-  // node timestamp {dir_path}
+  // node timestamp {dir_path} {type: year, month, th}
   if (process.argv.length < 3 || !fs.statSync(process.argv[2]).isDirectory()) {
     throw new Error('Please specify a directory path.');
   }
 
   var startDpath = path.resolve(process.argv[2]);
+
+  var type = (4 <= process.argv.length) ? process.argv[3] : 'all';
+
   logger.info('Start ' + startDpath);
 
-  var files = [];
+  // key is timestamp
+  var fpathMap = {};
+
   utility.walkDir(startDpath, (dpaths, fpaths) => {
     fpaths.forEach((fpath) => {
-      var file = [];
-      file.push(fpath);
-      file.push(fs.statSync(fpath).birthtimeMs);
-      files.push(file);
+      var timestamp = fs.statSync(fpath).birthtimeMs;
+      var date = new Date(timestamp);
+      var key = (type === 'year') ? dateFormat(date, 'yyyy') :
+          (type === 'month') ? dateFormat(date, 'yyyy-mm') :
+          (type === 'th') ? dateFormat(date, 'yyyy-mm-dd') :
+          dateFormat(date, 'yyyy-mm-dd HH:MM:ss.l');
+      if (!(key in fpathMap)) {
+        fpathMap[key] = [];
+      }
+      fpathMap[key].push(fpath);
     });
   });
 
-  files.sort((fileA, fileB) => {
-    return (fileA[1] < fileB[1]) ? -1 :
-      (fileA[1] === fileB[1]) ? 0 :
-      1;
-  });
 
   var writer = utility.getFileWriter('./logs/' + id + '.txt');
-  files.forEach((file) => {
-    var fpath = file[0];
-    var timestamp = file[1];
-    writer.write('#' + dateFormat(new Date(timestamp), 'yyyy-mm-dd HH:MM:ss.l'));
-    writer.write(fpath);
+  var count = 0;
+  var keys = Object.keys(fpathMap).sort();
+  keys.forEach((key) => {
+    var fpaths = fpathMap[key];
+    writer.write('# ' + key);
+
+    fpaths.forEach((fpath) => {
+      writer.write(fpath);
+      count += 1;
+    });
   });
 
+  logger.info('File count: ' + count);
 } catch (e) {
   logger.error(e.stack);
 }
