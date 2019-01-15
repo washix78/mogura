@@ -71,3 +71,9 @@ node rename {before_file_path} {after_file_path}
 ```
 node move {directory_path} {file_path}
 ```
+
+## Timestamp
+
+```
+node timestamp {directory_path}
+```
