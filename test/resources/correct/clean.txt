@@ -1,4 +1,0 @@
-tmp/clean_test/dir3
-tmp/clean_test/dir4/
-tmp/clean_test/dir4/dir1
-tmp/clean_test/dir4/dir1/dir1

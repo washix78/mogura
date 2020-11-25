@@ -1,8 +1,0 @@
-./tmp/no_dir/no_file
-#./tmp/delete_test/file1.txt
-#./tmp/delete_test/file2.txt
-./tmp/delete_test/target.txt
-#./tmp/delete_test/dir1/file3.txt
-./tmp/delete_test/dir1/target.txt
-#./tmp/delete_test/dir2/file4.txt
-./tmp/delete_test/dir2/target.txt

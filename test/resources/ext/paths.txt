@@ -1,0 +1,24 @@
++extension
+  +d1
+    -f1.a
+    -f2.
+  +d2
+    +d1
+      -f1
+      -f1.b
+      -f2.c
+      -f2.d
+    -f1.A
+    -f2.b
+  -.a
+  -f2.B
++name
+  +d1
+    -f3
+  +d2
+    +d1
+      -.a
+    -F3
+  -f1.a
+  -f2.
+  -f3

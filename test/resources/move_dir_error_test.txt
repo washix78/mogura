@@ -1,3 +1,0 @@
-./tmp/move_dir_error_test/dir1/file3.txt
-./tmp/move_dir_error_test/dir2/dir
-./tmp/move_dir_error_test/dir2/file4.txt

@@ -1,6 +1,0 @@
-tmp/list_test/file1.txt
-tmp/list_test/file2.txt
-tmp/list_test/dir1/file1.txt
-tmp/list_test/dir1/file2.txt
-tmp/list_test/dir2/dir1/file1.txt
-tmp/list_test/dir2/dir2/file1.txt

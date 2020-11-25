@@ -1,4 +1,0 @@
-tmp/list_name_group_test/.gitignore
-tmp/list_name_group_test/config
-tmp/list_name_group_test/dir1/.gitignore
-tmp/list_name_group_test/dir2/config

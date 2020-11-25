@@ -1,6 +1,0 @@
-tmp/list_extension_test/file1.txt
-tmp/list_extension_test/file3.txt
-tmp/list_extension_test/dir1/file2.txt
-tmp/list_extension_test/dir1/file4.txt
-tmp/list_extension_test/dir2/file1.txt
-tmp/list_extension_test/dir2/file2.txt

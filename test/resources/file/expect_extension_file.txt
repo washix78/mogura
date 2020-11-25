@@ -1,0 +1,4 @@
+extension_file/f1.a
+extension_file/d1/f3.a
+extension_file/d2/d1/f5.c
+extension_file/d2/d2/f6.

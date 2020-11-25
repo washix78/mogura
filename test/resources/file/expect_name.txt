@@ -1,0 +1,4 @@
+name/NAME
+name/f1.a
+name/d1/NAME
+name/d2/d1/NAME

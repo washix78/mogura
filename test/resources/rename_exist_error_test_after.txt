@@ -1,4 +1,0 @@
-./tmp/rename_exist_error_test/file1.png
-./tmp/rename_exist_error_test/file1.txt
-./tmp/rename_exist_error_test/file3.png
-./tmp/rename_exist_error_test/file3.txt

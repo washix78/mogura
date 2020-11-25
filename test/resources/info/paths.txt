@@ -1,0 +1,18 @@
++directory
+  +d1
+    -f3.txt [16, C]
+    -f4.txt [8, B]
+  +d2
+    +d1
+      -f1.txt [8, B]
+    +d2
+      -f6.txt [16, D]
+    -f5.txt [8, E]
+  -f1.txt [8, A]
+  -f2.txt [8, B]
+
++file
+  +d1
+  +d2
+  -f1.txt
+  -f2.txt

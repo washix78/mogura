@@ -1,0 +1,9 @@
+test/resources/info/directory/f1.txt
+test/resources/info/directory/f2.txt
+test/resources/info/directory/not_exists.txt
+test/resources/info/directory/d1/f3.txt
+test/resources/info/directory/d1/f4.txt
+test/resources/info/directory/d2/f5.txt
+test/resources/info/directory/d2/d1/f1.txt
+test/resources/info/directory/d2/d1/not_exists.txt
+test/resources/info/directory/d2/d2/f6.txt

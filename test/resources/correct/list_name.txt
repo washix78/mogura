@@ -1,3 +1,0 @@
-tmp/list_name_test/a.txt
-tmp/list_name_test/dir1/a.txt
-tmp/list_name_test/dir2/a.txt

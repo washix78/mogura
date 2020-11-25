@@ -1,38 +1,46 @@
 const childProcess = require('child_process');
 const fs = require('fs');
 
-try {
-  const marker = '_test';
+const testResourceBase = './test/resources/ext';
+
+const testExtension = () => {
+  const marker = '__TEST_EXTENSION';
   const outputPath = `./logs/ext-${marker}.txt`;
   if (fs.existsSync(outputPath)) {
     fs.unlinkSync(outputPath);
   }
-  childProcess.execSync('node ext ./test/ext -m _test');
-  const a = fs.readFileSync('./test/ext.txt', 'utf8');
+
+  childProcess.execSync(`node ext ${testResourceBase}/extension -m ${marker}`);
+  const a = fs.readFileSync(`${testResourceBase}/expect_extension.txt`, 'utf8');
   const b = fs.readFileSync(outputPath, 'utf8');
-  if (a === b) {
-    console.log('Test succeeded.');
-  } else {
-    throw new Error('Test failed.');
+
+  if (a !== b) {
+    throw new Error('testExtension: a !== b');
   }
-} catch (e) {
-  console.error(e.stack);
-}
+};
+
+const testName = () => {
+  const marker = '__TEST_NAME';
+  const outputPath = `./logs/ext-${marker}.txt`;
+  if (fs.existsSync(outputPath)) {
+    fs.unlinkSync(outputPath);
+  }
+
+  childProcess.execSync(`node ext ${testResourceBase}/name -m ${marker} -n`);
+  const a = fs.readFileSync(`${testResourceBase}/expect_name.txt`, 'utf8');
+  const b = fs.readFileSync(outputPath, 'utf8');
+
+  if (a !== b) {
+    throw new Error('testName: a !== b');
+  }
+};
 
 try {
-  const marker = '_test_n';
-  const outputPath = `./logs/ext-${marker}.txt`;
-  if (fs.existsSync(outputPath)) {
-    fs.unlinkSync(outputPath);
-  }
-  childProcess.execSync('node ext ./test/ext -m _test_n -n');
-  const a = fs.readFileSync('./test/ext_n.txt', 'utf8');
-  const b = fs.readFileSync(outputPath, 'utf8');
-  if (a === b) {
-    console.log('Test succeeded.');
-  } else {
-    throw new Error('Test failed.');
-  }
+  testExtension();
+  testName();
+
+  console.log('Succeeded.')
 } catch (e) {
+  console.error('Failed.')
   console.error(e.stack);
 }

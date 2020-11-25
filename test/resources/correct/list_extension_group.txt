@@ -1,4 +1,0 @@
-tmp/list_extension_group_test/file.doc
-tmp/list_extension_group_test/file.txt
-tmp/list_extension_group_test/dir1/file_a.doc
-tmp/list_extension_group_test/dir1/file_a.txt

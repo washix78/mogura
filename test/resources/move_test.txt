@@ -1,3 +1,0 @@
-#./tmp/move_test/dir/not_move.txt
-./tmp/move_test/dir/file3.txt
-./tmp/move_test/dir/file4.txt
