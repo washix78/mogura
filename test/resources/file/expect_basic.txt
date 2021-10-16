@@ -1,7 +1,0 @@
-basic/f1
-basic/f2
-basic/d1/f3
-basic/d1/f4
-basic/d2/f5
-basic/d2/d1/f6
-basic/d2/d2/f7

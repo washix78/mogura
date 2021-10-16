@@ -1,146 +1,77 @@
 const childProcess = require('child_process');
-const fs = require('fs');
-const readline = require('readline');
+const path = require('path');
+const utility = require('../utility');
 
-const getLineFromFile = (fpath) => {
-  return new Promise((resolve, reject) => {
-    const lines = [];
-    readline.createInterface({
-      input: fs.createReadStream(fpath),
-    }).
-    on('error', (err) => { reject(err); }).
-    on('close', () => { resolve(lines); }).
-    on('line', (line) => { lines.push(line); });
-  });
-};
+const startTime = Date.now();
+const timestamp = utility.getTimestamp(startTime);
 
-const testResourceBase = './test/resources/info';
-
-const testDirectory = async () => {
-  const marker = '__TEST_DIRECTORY';
-
-  const outputPath = `./logs/info-${marker}.txt`;
-  if (fs.existsSync(outputPath)) {
-    fs.unlinkSync(outputPath);
-  }
-
-  childProcess.execSync(`node info -d ${testResourceBase}/directory -m ${marker}`);
-
-  const alines = await getLineFromFile(`${testResourceBase}/expect_directory.txt`);
-  const blines = await getLineFromFile(outputPath);
-  if (alines.length !== blines.length) {
-    throw new Error('testDirectory');
-  }
-  for (let i = 0; i < alines.length; i++) {
-    const a = alines[i];
-    const b = blines[i];
-    const aelms = a.split('\t');
-    const belms = b.split('\t');
-    // [ # fpath size md5 sha1 birthtime mtime]
-    if (belms.length !== 7) {
-      throw new Error('testDirectory: belms.length !== 7');
-    }
-    if (aelms[0] !== belms[0]) {
-      throw new Error('testDirectory: #');
-    }
-    if (`${process.cwd()}/${aelms[1]}` !== belms[1]) {
-      throw new Error('testDirectory: fpath');
-    }
-    if (aelms[2] !== belms[2]) {
-      throw new Error('testDirectory: size');
-    }
-    if (aelms[3] !== belms[3]) {
-      throw new Error('testDirectory: md5');
-    }
-    if (aelms[4] !== belms[4]) {
-      throw new Error('testDirectory: sha1');
-    }
-    if (!/^[0-9]{17}$/.test(belms[5])) {
-      throw new Error('testDirectory: birthtime');
-    }
-    if (!/^[0-9]{17}$/.test(belms[6])) {
-      throw new Error('testDirectory: mtime');
-    }
-    if (!(belms[5] <= belms[6])) {
-      throw new Error('testDirectory: birthtime <= mtime');
-    }
-  }
-};
-
-const testFile = async () => {
-  const marker = '__TEST_FILE';
-
-  const outputPath = `./logs/info-${marker}.txt`;
-  if (fs.existsSync(outputPath)) {
-    fs.unlinkSync(outputPath);
-  }
-
-  childProcess.execSync(`node info -f ${testResourceBase}/src_test_file.txt -m ${marker}`);
-
-  const alines = await getLineFromFile(`${testResourceBase}/expect_file.txt`);
-  const blines = await getLineFromFile(outputPath);
-  if (alines.length !== blines.length) {
-    throw new Error('testFile');
-  }
-
-  for (let i = 0; i < alines.length; i++) {
-    const a = alines[i];
-    const b = blines[i];
-    const aelms = a.split('\t');
-    const belms = b.split('\t');
-    // [ # fpath size md5 sha1 birthtime mtime]
-    if (aelms[0] === '#ERR') {
-      if (belms.length !== 2) {
-        throw new Error('testFile: belms.length !== 2');
-      }
-    } else {
-      if (belms.length !== 7) {
-        throw new Error('testFile: belms.length !== 7');
-      }
-    }
-
-    if (aelms[0] !== belms[0]) {
-      throw new Error('testFile: #');
-    }
-    if (aelms[1] !== belms[1]) {
-      throw new Error('testFile: fpath');
-    }
-
-    if (aelms[0] === '#ERR') {
-      continue;
-    }
-
-    if (aelms[2] !== belms[2]) {
-      throw new Error('testFile: size');
-    }
-    if (aelms[3] !== belms[3]) {
-      throw new Error('testFile: md5');
-    }
-    if (aelms[4] !== belms[4]) {
-      throw new Error('testFile: sha1');
-    }
-    if (!/^[0-9]{17}$/.test(belms[5])) {
-      throw new Error('testFile: birthtime');
-    }
-    if (!/^[0-9]{17}$/.test(belms[6])) {
-      throw new Error('testFile: mtime');
-    }
-    if (!(belms[5] <= belms[6])) {
-      throw new Error('testFile: birthtime <= mtime');
-    }
-  }
+const expectLog = {
+  'Target directory': `${process.cwd()}/test/resources/info`,
+  'Target file count': 8,
+  'Target symbolic link count': 6,
+  'File extensions': {
+    'HTML': 2,
+    'TXT': 3,
+    'ext_none.d': 2,
+    'ext_zero.d': 1
+  },
+  'Symbolic link extensions': {
+    'TXT': 3,
+    'ext_none.d': 1,
+    'ext_zero.d': 2
+  },
+  'Time': -1
 };
 
 const test = async () => {
-  try {
-    await testDirectory();
-    await testFile();
+  childProcess.execSync(`node info ./test/resources/info -s TEST`);
 
-    console.log('Succeeded.');
-  } catch (e) {
+  const logFpath = utility.getLatestFpath('./logs', timestamp, 'info_TEST.json');
+  const log = require(logFpath);
 
-    console.error('Failed.')
-    console.error(e.stack);
+  if (Object.keys(log).length !== Object.keys(expectLog).length) {
+    throw new Error(`${Object.keys(log).length}`);
+  }
+  if (log['Target directory'] !== expectLog['Target directory']) {
+    throw new Error(`${log['Target directory']}`);
+  }
+  if (log['Target file count'] !== expectLog['Target file count']) {
+    throw new Error(`${log['Target file count']}`);
+  }
+  if (log['Symbolic link count'] !== expectLog['Symbolic link count']) {
+    throw new Error(`${log['Symbolic link count']}`);
+  }
+  const fileExtensions = Object.keys(log['File extensions']);
+  if (fileExtensions.length !== Object.keys(expectLog['File extensions']).length) {
+    throw new Error(`${fileExtensions.length}`);
+  }
+  for (let i = 0; i < fileExtensions.length; i++) {
+    const extension = fileExtensions[i];
+    const count = log['File extensions'][extension];
+    if (count !== expectLog['File extensions'][extension]) {
+      throw new Error(`${extension}: ${log['File extensions'][extension]}`);
+    }
+  }
+  const slExtensions = Object.keys(log['Symbolic link extensions']);
+  if (slExtensions.length !== Object.keys(expectLog['Symbolic link extensions']).length) {
+    throw new Error(`${slExtensions.length}`);
+  }
+  for (let i = 0; i < slExtensions.length; i++) {
+    const extension = slExtensions[i];
+    const count = log['Symbolic link extensions'][extension];
+    if (count !== expectLog['Symbolic link extensions'][extension]) {
+      throw new Error(`${log['Symbolic link extensions'][extension]}`);
+    }
+  }
+  if (!(-1 < log['Time'])) {
+    throw new Error(`${log['Time']}`);
   }
 };
-test();
+
+const main = async () => {
+  await test();
+};
+
+main().
+catch(e => console.error(e.stack)).
+finally(() => console.log('End'));

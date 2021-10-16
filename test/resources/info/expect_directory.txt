@@ -1,7 +1,0 @@
-	test/resources/info/directory/f1.txt	8	25d55ad283aa400af464c76d713c07ad	7c222fb2927d828af22f592134e8932480637c0d	
-	test/resources/info/directory/f2.txt	8	e8dc4081b13434b45189a720b77b6818	425af12a0743502b322e93a015bcf868e324d56a	
-#	test/resources/info/directory/d1/f4.txt	8	e8dc4081b13434b45189a720b77b6818	425af12a0743502b322e93a015bcf868e324d56a	
-#	test/resources/info/directory/d2/d1/f1.txt	8	e8dc4081b13434b45189a720b77b6818	425af12a0743502b322e93a015bcf868e324d56a	
-	test/resources/info/directory/d2/f5.txt	8	4783e784b4fa2fba9e4d6502dbc64f8f	c15eb4b55bd000f4a876c1d715bee42e62b3e576	
-	test/resources/info/directory/d1/f3.txt	16	1d64dce239c4437b7736041db089e1b9	14f3995288acd189e6e50a7af47ee7099aa682b9	
-	test/resources/info/directory/d2/d2/f6.txt	16	9f7a9279be94d6b32959e1ca3c7d08af	6e74488318850b56d73f0a6763538291a9e2bd60	

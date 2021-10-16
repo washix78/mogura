@@ -1,19 +1,95 @@
-const fs = require('fs');
+const fs = require('fs-extra');
 const utility = require('../utility');
 
-
-const testResourceBase = './test/resources/utility';
-
-const testGetTimestamp = async () => {
-  const timestamp = utility.getTimestamp();
-  if (timestamp.length !== 'yyyymmddhhmmssSSS'.length) {
-    throw new Error('testGetTimestamp');
+const testGetAllPaths = async () => {
+  const expectPaths = [
+    `${process.cwd()}/test/resources/utility_get_paths/dir1`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2`,
+    `${process.cwd()}/test/resources/utility_get_paths/file0`,
+    `${process.cwd()}/test/resources/utility_get_paths/file1`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir1/file2`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir1/file3`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/file4`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/file5`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1/file1.sl`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1/file6`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1/file7`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2/file0.sl`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2/file8`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2/file9`
+  ];
+  const allPaths = utility.getAllPaths('./test/resources/utility_get_paths');
+  if (allPaths.length !== expectPaths.length) {
+    throw new Error(`${allPaths.length}`);
   }
+  for (let i = 0; i < allPaths.length; i++) {
+    const testPath = allPaths[i];
+    if (!expectPaths.includes(testPath)) {
+      throw new Error(`${testPath}`);
+    }
+  }
+};
 
-  const srcDate = new Date();
-  const timestamp2 = utility.getTimestamp(srcDate);
-  if (timestamp2.length !== 'yyyymmddhhmmssSSS'.length) {
-    throw new Error('testGetTimestamp: srcDate');
+const testGetDirectoryPaths = async () => {
+  const expectPaths = [
+    `${process.cwd()}/test/resources/utility_get_paths/dir1`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2`
+  ];
+  const allPaths = utility.getDirectoryPaths('./test/resources/utility_get_paths');
+  if (allPaths.length !== expectPaths.length) {
+    throw new Error(`${allPaths.length}`);
+  }
+  for (let i = 0; i < allPaths.length; i++) {
+    const testPath = allPaths[i];
+    if (!expectPaths.includes(testPath)) {
+      throw new Error(`${testPath}`);
+    }
+  }
+};
+
+const testGetFilePaths = async () => {
+  const expectPaths = [
+    `${process.cwd()}/test/resources/utility_get_paths/file0`,
+    `${process.cwd()}/test/resources/utility_get_paths/file1`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir1/file2`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir1/file3`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/file4`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/file5`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1/file6`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1/file7`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2/file9`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2/file8`
+  ];
+  const allPaths = utility.getFilePaths('./test/resources/utility_get_paths');
+  if (allPaths.length !== expectPaths.length) {
+    throw new Error(`${allPaths.length}`);
+  }
+  for (let i = 0; i < allPaths.length; i++) {
+    const testPath = allPaths[i];
+    if (!expectPaths.includes(testPath)) {
+      throw new Error(`${testPath}`);
+    }
+  }
+};
+
+const testGetSymblicLinkPaths = async () => {
+  const expectPaths = [
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1/file1.sl`,
+    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2/file0.sl`
+  ];
+  const allPaths = utility.getSymbolicLinkPaths('./test/resources/utility_get_paths');
+  if (allPaths.length !== expectPaths.length) {
+    throw new Error(`${allPaths.length}`);
+  }
+  for (let i = 0; i < allPaths.length; i++) {
+    const testPath = allPaths[i];
+    if (!expectPaths.includes(testPath)) {
+      throw new Error(`${testPath}`);
+    }
   }
 };
 
@@ -37,6 +113,67 @@ const testGetExtension = async () => {
       throw new Error('testGetExtension');
     }
   });
+};
+
+const testGetFileDigest = async () => {
+  const testFpath = './test/resources/file0-3749f52bb326ae96782b42dc0a97b4c1_3a30948f8cd5655fede389d73b5fecd91251df4a.txt';
+  const expect = '3749f52bb326ae96782b42dc0a97b4c1';
+  const digest = await utility.getFileDigest(testFpath, 'md5');
+  if (expect !== digest) {
+    throw new Error('testGetFileDigest');
+  }
+
+  const expect2 = '3a30948f8cd5655fede389d73b5fecd91251df4a';
+  const digest2 = await utility.getFileDigest(testFpath, 'sha1');
+  if (expect2 !== digest2) {
+    throw new Error('testGetFileDigest: expect2 !== digest2');
+  }
+};
+
+const testGetFileWriter = async () => {
+  const outputPath = './testwork/utility/actual_test_get_file_writer.txt';
+  const writer = utility.getFileWriter(outputPath);
+  writer.write('1');
+  writer.write([ '2', '3' ]);
+  await writer.end();
+  const expectFpath = './test/resources/expect_test_get_file_writer.txt';
+  const a = fs.readFileSync(expectFpath, 'utf8');
+  const b = fs.readFileSync(outputPath, 'utf8');
+
+  if (a !== b) {
+    throw new Error('testGetFileWriter');
+  }
+};
+
+const testGetFormattedName = async () => {
+  const src = [
+    'file',
+    'file.txt',
+    '99_12345678901234567-file',
+    '99_12345678901234567-file.txt',
+    '00_12345678901234567-00_12345678901234567-file'
+  ];
+  const expect = [
+    '007_76543210987654321-file',
+    '007_76543210987654321-file.txt',
+    '007_76543210987654321-file',
+    '007_76543210987654321-file.txt',
+    '007_76543210987654321-00_12345678901234567-file'
+  ];
+  for (let i = 0; i < src.length; i++) {
+    const actual = utility.getFormattedName(src[i], '007', '76543210987654321');
+    if (expect[i] !== actual) {
+      throw new Error(`${expect[i]} !== ${actual}`);
+    }
+  }
+};
+
+const testGetLatestDpath = async () => {
+
+};
+
+const testGetLatestFpath = async () => {
+
 };
 
 const testGetOptionValue = async () => {
@@ -93,117 +230,45 @@ const testGetOptionValues = async () => {
   });
 };
 
-const testGetFileWriter = async () => {
-  const outputPath = './logs/actual_test_get_file_writer.txt';
-  if (fs.existsSync(outputPath)) {
-    fs.unlinkSync(outputPath);
+const testGetTimestamp = async () => {
+  const timestamp = utility.getTimestamp();
+  if (timestamp.length !== 'yyyymmddhhmmssSSS'.length) {
+    throw new Error('testGetTimestamp');
   }
-  const writer = utility.getFileWriter(outputPath);
-  writer.write('1');
-  writer.write([ '2', '3' ]);
-  await writer.end();
-  const expectFpath = `${testResourceBase}/expect_test_get_file_writer.txt`;
-  const a = fs.readFileSync(expectFpath, 'utf8');
-  const b = fs.readFileSync(outputPath, 'utf8');
 
-  if (a !== b) {
-    throw new Error('testGetFileWriter');
+  const src = Date.now();
+  const timestamp2 = utility.getTimestamp(src);
+  if (timestamp2.length !== 'yyyymmddhhmmssSSS'.length) {
+    throw new Error('testGetTimestamp: src');
   }
 };
 
-const testGetLinesFromFile = async () => {
-  const srcFpath = `${testResourceBase}/src_test_get_lines_from_file.txt`;
-
-  utility.getLinesFromFile(srcFpath).then(lines => {
-    const a = [ '1', '2', '3', '4', '5' ];
-    lines.forEach((line, i) => {
-      if (line !== a[i]) {
-        throw new Error('testGetLinesFromFile');
-      }
-    });
-  });
-};
-
-const testConvertByte = async () => {
-  const expect = [
-    null,
-    null,
-    1,
-    1024,
-    Math.pow(1024, 2),
-    Math.pow(1024, 3),
-  ];
-  const actual = [
-    utility.convertByte('0test'),
-    utility.convertByte('-1'),
-    utility.convertByte('1'),
-    utility.convertByte('1k'),
-    utility.convertByte('1m'),
-    utility.convertByte('1g'),
-  ];
-  expect.forEach((exp, i) => {
-    if (exp !== actual[i]) {
-      throw new Error('testConvertByte');
-    }
-  });
-};
-
-const testGetFileDigest = async () => {
-  const testFpath = `${testResourceBase}/src_test_get_file_digest.txt`;
-  const expect = '7c12772809c1c0c3deda6103b10fdfa0';
-  const digest = await utility.getFileDigest(testFpath, 'md5');
-  if (expect !== digest) {
-    throw new Error('testGetFileDigest');
-  }
-
-  const expect2 = '12039d6dd9a7e27622301e935b6eefc78846802e';
-  const digest2 = await utility.getFileDigest(testFpath, 'sha1');
-  if (expect2 !== digest2) {
-    throw new Error('testGetFileDigest: expect2 !== digest2');
-  }
-};
-
-const testGetTvsFileWriter = async () => {
-  const outputPath = './logs/actual_test_get_tvs_file_writer.txt';
-  if (fs.existsSync(outputPath)) {
-    fs.unlinkSync(outputPath);
-  }
-  const writer = utility.getTvsFileWriter(outputPath);
-  writer.write();
-  writer.write([]);
-  writer.write('a', 'b');
-  writer.write([ 'c', 'd' ]);
-  writer.write('e', 'f', [ 'g', 'h' ], 'i', 'j');
-  writer.write(null, undefined, [ null, undefined ]);
-  writer.write(1, [ '2' ]);
-  await writer.end();
-
-  const expectFpath = `${testResourceBase}/expect_test_get_tvs_file_writer.txt`;
-  const a = fs.readFileSync(expectFpath, 'utf8');
-  const b = fs.readFileSync(outputPath, 'utf8');
-  if (a !== b) {
-    throw new Error('testGetTvsFileWriter');
+const testOmitPath = async () => {
+  const actual = utility.omitPath('/dir1/dir2/dir3/dir4/file', '/dir1/dir2');
+  if ('dir3/dir4/file' !== actual) {
+    throw new Error(`${actual}`);
   }
 };
 
 const test = async () => {
-  try {
-    await testGetTimestamp();
-    await testGetExtension();
-    await testGetOptionValue();
-    await testGetOptionValues();
-    // walkDir
-    await testGetFileWriter();
-    await testGetLinesFromFile();
-    await testConvertByte();
-    await testGetFileDigest();
-    await testGetTvsFileWriter();
+  fs.emptyDirSync('./testwork/utility');
 
-    console.log('Succeeded.');
-  } catch (e) {
-
-    console.error('Failed.')
-    console.error(e.stack);
-  }
+  await testGetAllPaths();
+  await testGetDirectoryPaths();
+  await testGetFilePaths();
+  await testGetSymblicLinkPaths();
+  await testGetExtension();
+  await testGetFileDigest();
+  await testGetFileWriter();
+  await testGetFormattedName();
+  // await testGetLatestDpath();
+  // await testGetLatestFpath();
+  await testGetOptionValue();
+  await testGetOptionValues();
+  await testGetTimestamp();
+  await testOmitPath();
 };
-test();
+
+test().
+catch(e => console.error(`Failed: ${e.stack}`)).
+finally(() => console.log('End.'));

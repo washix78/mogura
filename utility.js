@@ -2,20 +2,88 @@ const crypto = require('crypto');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const readline = require('readline');
 
-module.exports.getTimestamp = (srcDate) => {
-  const date = (srcDate === null || srcDate === undefined) ? new Date() : srcDate;
+module.exports.getAllPaths = (targetDpath) => {
+  const allPaths = [];
+  const walk = (parentDpath) => {
+    const direntList = fs.readdirSync(parentDpath, { withFileTypes: true });
 
-  const y = date.getFullYear();
-  const m = (date.getMonth() + 1).toString().padStart(2, 0);
-  const d = date.getDate().toString().padStart(2, 0);
-  const h = date.getHours().toString().padStart(2, 0);
-  const min = date.getMinutes().toString().padStart(2, 0);
-  const s = date.getSeconds().toString().padStart(2, 0);
-  const ms = date.getMilliseconds().toString().padStart(3, 0);
-  const timestamp = `${y}${m}${d}${h}${min}${s}${ms}`;
-  return timestamp;
+    const paths = direntList.
+      map(dirent => dirent.name).
+      sort().
+      map(name => path.resolve(parentDpath, name));
+    Array.prototype.push.apply(allPaths, paths);
+
+    const dpaths = direntList.
+      filter(dirent => dirent.isDirectory()).
+      map(dirent => dirent.name).
+      sort().
+      map(name => path.resolve(parentDpath, name));
+    dpaths.forEach(dpath => walk(dpath));
+  };
+  walk(targetDpath);
+  return allPaths;
+};
+
+module.exports.getDirectoryPaths = (targetDpath) => {
+  const allPaths = [];
+  const walk = (parentDpath) => {
+    const dpaths = fs.readdirSync(parentDpath, { withFileTypes: true }).
+      filter(dirent => dirent.isDirectory()).
+      map(dirent => dirent.name).
+      sort().
+      map(name => path.resolve(parentDpath, name));
+    Array.prototype.push.apply(allPaths, dpaths);
+    dpaths.forEach(dpath => walk(dpath));
+  };
+  walk(targetDpath);
+  return allPaths;
+};
+
+module.exports.getFilePaths = (targetDpath) => {
+  const allPaths = [];
+  const walk = (parentDpath) => {
+    const direntList = fs.readdirSync(parentDpath, { withFileTypes: true });
+
+    const fpaths = direntList.
+      filter(dirent => dirent.isFile()).
+      map(dirent => dirent.name).
+      sort().
+      map(name => path.resolve(parentDpath, name));
+    Array.prototype.push.apply(allPaths, fpaths);
+
+    const dpaths = direntList.
+      filter(dirent => dirent.isDirectory()).
+      map(dirent => dirent.name).
+      sort().
+      map(name => path.resolve(parentDpath, name));
+    dpaths.forEach(dpath => walk(dpath));
+  };
+  walk(targetDpath);
+  return allPaths;
+};
+
+module.exports.getSymbolicLinkPaths = (targetDpath) => {
+  const allPaths = [];
+  const walk = (parentDpath) => {
+    const direntList = fs.readdirSync(parentDpath, { withFileTypes: true });
+
+    const slpaths = direntList.
+      filter(dirent => dirent.isSymbolicLink()).
+      map(dirent => dirent.name).
+      sort().
+      map(name => path.resolve(parentDpath, name));
+    Array.prototype.push.apply(allPaths, slpaths);
+
+    const dpaths = direntList.
+      filter(dirent => dirent.isDirectory()).
+      map(dirent => dirent.name).
+      sort().
+      map(name => path.resolve(parentDpath, name));
+    dpaths.forEach(dpath => walk(dpath));
+  };
+  walk(targetDpath);
+  return allPaths;
 };
 
 module.exports.getExtension = (src) => {
@@ -33,6 +101,82 @@ module.exports.getExtension = (src) => {
   }
 
   return src.substring(dotI + 1);
+};
+
+module.exports.getFileDigest = (fpath, algorithm) => {
+  return new Promise((resolve, _) => {
+    const hash = crypto.createHash(algorithm);
+    fs.createReadStream(fpath).
+      on('data', chunk => hash.update(chunk)).
+      on('close', () => resolve(hash.digest('hex')));
+  });
+};
+
+module.exports.getFileWriter = (fpath) => {
+  return new class {
+    constructor(fpath) {
+      this.ws = fs.createWriteStream(fpath).
+        on('error', (err) => { throw err });
+    }
+
+    write(lines) {
+      if (Array.isArray(lines)) {
+        lines.forEach(line => {
+          this.ws.write(line);
+          this.ws.write(os.EOL);
+        });
+      } else {
+        this.ws.write(lines);
+        this.ws.write(os.EOL);
+      }
+    }
+
+    end() {
+      return new Promise((resolve, _) => {
+        this.ws.on('close', () => resolve());
+        this.ws.end();
+        this.ws.close();
+      });
+    }
+  }(fpath);
+};
+
+module.exports.getFormattedName = (name, no, btime) => {
+  const prefix = `${no}_${btime}-`;
+  const newName = /^\d+_\d{17}\-/.test(name) ?
+    name.replace(/^\d+_\d{17}\-/, prefix) : `${prefix}${name}`;
+  if (255 <= newName.length) {
+    throw new Error(`New file name is too long. "${newName}"`);
+  }
+  return newName;
+};
+
+module.exports.getLatestDpath = (targetDpath, timestamp, suffix) => {
+  const dnames = fs.readdirSync(targetDpath, { withFileTypes: true }).
+    filter(dirent => dirent.isDirectory()).
+    map(dirent => dirent.name).
+    filter(name => /^[0-9]{17}_/.test(name) && name.substring(18) === suffix).
+    sort((a, b) => -(a.localeCompare(b)));
+
+  if (timestamp <= dnames[0]) {
+    return path.resolve(targetDpath, dnames[0]);
+  } else {
+    return null;
+  }
+};
+
+module.exports.getLatestFpath = (targetDpath, timestamp, suffix) => {
+  const fnames = fs.readdirSync(targetDpath, { withFileTypes: true }).
+    filter(dirent => dirent.isFile()).
+    map(dirent => dirent.name).
+    filter(name => /^[0-9]{17}_/.test(name) && name.substring(18) === suffix).
+    sort((a, b) => -(a.localeCompare(b)));
+
+  if (timestamp <= fnames[0]) {
+    return path.resolve(targetDpath, fnames[0]);
+  } else {
+    return null;
+  }
 };
 
 module.exports.getOptionValue = (type, values) => {
@@ -64,150 +208,24 @@ module.exports.getOptionValues = (type, values) => {
   }
 };
 
-const walkDir = (topDpath, after) => {
-  const names = fs.readdirSync(topDpath);
-  let dnames = [];
-  let fnames = [];
-  names.forEach(name => {
-    if (fs.statSync(path.resolve(topDpath, name)).isDirectory()) {
-      dnames.push(name);
-    } else {
-      fnames.push(name);
-    }
-  });
-
-  if (after) {
-    after(topDpath, fnames);
+module.exports.getTimestamp = (src) => {
+  if (src !== undefined && src !== null && typeof src !== 'number') {
+    throw new Error(`Invalid value`);
   }
 
-  dnames.sort().forEach(name => walkDir(path.resolve(topDpath, name), after));
-};
-module.exports.walkDir = walkDir;
+  const date = (src === undefined || src === null) ? new Date() : new Date(src);
 
-module.exports.getFileWriter = (fpath) => {
-  return new class {
-    constructor(fpath) {
-      this.ws = fs.createWriteStream(fpath).
-        on('error', (err) => { throw err });
-    }
-
-    write(lines) {
-      if (Array.isArray(lines)) {
-        lines.forEach(line => {
-          this.ws.write(line);
-          this.ws.write(os.EOL);
-        });
-      } else {
-        this.ws.write(lines);
-        this.ws.write(os.EOL);
-      }
-    }
-
-    end() {
-      return new Promise((resolve, _) => {
-        this.ws.end();
-        this.ws.close();
-        this.ws.on('close', () => resolve());
-      });
-    }
-  }(fpath);
+  const y = date.getFullYear();
+  const m = (date.getMonth() + 1).toString().padStart(2, 0);
+  const d = date.getDate().toString().padStart(2, 0);
+  const h = date.getHours().toString().padStart(2, 0);
+  const min = date.getMinutes().toString().padStart(2, 0);
+  const s = date.getSeconds().toString().padStart(2, 0);
+  const ms = date.getMilliseconds().toString().padStart(3, 0);
+  const timestamp = `${y}${m}${d}${h}${min}${s}${ms}`;
+  return timestamp;
 };
 
-module.exports.getLinesFromFile = (fpath) => {
-  return new Promise((resolve, reject) => {
-    if (!fs.statSync(fpath).isFile()) {
-      reject();
-    }
-
-    let lines = [];
-    readline.createInterface({
-      input: fs.createReadStream(fpath),
-    }).
-      on('error', (err) => reject(err)).
-      on('close', () => resolve(lines)).
-      on('line', line => lines.push(line));
-  });
-};
-
-module.exports.convertByte = (src) => {
-  if (!/^[0-9]+(k|m|g)?$/.test(src)) {
-    return null;
-  }
-
-  const num = parseInt(src.match(/[0-9]+/)[0]);
-  const unit = src.match(/k|m|g/);
-  if (unit && 1 <= unit.length) {
-    let result = null;
-    if (unit[0] === 'k') {
-      result = num * 1024;
-    } else if (unit[0] === 'm') {
-      result = num * Math.pow(1024, 2)
-    } else if (unit[0] === 'g') {
-      result = num * Math.pow(1024, 3)
-    }
-    return result;
-  } else {
-    return num;
-  }
-};
-
-module.exports.getFileDigest = (fpath, algorithm) => {
-  return new Promise((resolve, _) => {
-    const hash = crypto.createHash(algorithm);
-    fs.createReadStream(fpath).
-      on('data', chunk => hash.update(chunk)).
-      on('close', () => resolve(hash.digest('hex')));
-  });
-};
-
-module.exports.getTvsFileWriter = (fpath) => {
-  return new class {
-    constructor(fpath) {
-      this.ws = fs.createWriteStream(fpath).
-        on('error', (err) => { console.log(err); });
-    }
-
-    write(...array) {
-      const dig = (subArray) => {
-        for (let i = 0; i < subArray.length; i++) {
-          if (0 < i) {
-            this.ws.write('\t');
-          }
-          const elm = subArray[i];
-          if (elm !== null && elm !== undefined) {
-            if (typeof(elm) === 'string') {
-              this.ws.write(elm);
-            } else {
-              this.ws.write(String(elm));
-            }
-          }
-        }
-      };
-      for (let i = 0; i < array.length; i++) {
-        if (0 < i) {
-          this.ws.write('\t');
-        }
-
-        const elm = array[i];
-        if (Array.isArray(elm)) {
-          dig(elm);
-        } else if (elm !== null && elm !== undefined) {
-          if (typeof elm === 'string') {
-            this.ws.write(elm);
-          } else {
-            this.ws.write(String(elm));
-          }
-        }
-      }
-      this.ws.write(os.EOL);
-    }
-
-    end() {
-      return new Promise((resolve, _) => {
-        this.ws.on('close', () => resolve());
-        this.ws.end();
-        this.ws.close();
-      });
-    }
-  }(fpath);
+module.exports.omitPath = (full, part) => {
+  return full.substring(part.length + 1);
 };

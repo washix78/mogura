@@ -1,4 +1,0 @@
-name_file/NAME
-name_file/f1.a
-name_file/d1/NAME
-name_file/d2/d1/NAME

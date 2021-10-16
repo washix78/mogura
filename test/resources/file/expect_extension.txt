@@ -1,4 +1,0 @@
-extension/f1.a
-extension/d1/f3.a
-extension/d2/d1/f5.c
-extension/d2/d2/f6.
