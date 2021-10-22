@@ -4,7 +4,7 @@ const utility = require('./utility');
 
 const startTime = Date.now();
 const timestamp = utility.getTimestamp(startTime);
-let execId = null;
+let execId = `${timestamp}_info_`;
 const info = {
   'Target directory': null,
   'Target file count': null,
@@ -32,8 +32,8 @@ const main = async () => {
   info['Target directory'] = targetDpath;
 
   const sign = utility.getOptionValue('-s', options);
-  execId = (sign === undefined || sign === null || sign === '') ?
-    `${timestamp}_info` : `${timestamp}_info_${sign}`;
+  execId += (sign !== undefined && sign !== null && sign !== '') ?
+    sign : path.basename(targetDpath).toUpperCase();
 
   const allFpaths = utility.getFilePaths(targetDpath);
   info['Target file count'] = allFpaths.length;

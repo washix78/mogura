@@ -33,9 +33,8 @@ const main = async () => {
   info['Target directory'] = targetDpath;
 
   const sign = utility.getOptionValue('-s', options);
-  execId += (
-    (sign === undefined || sign === null || sign === '') ? path.basename(targetDpath) : sign
-  );
+  execId += (sign !== undefined && sign !== null && sign !== '') ?
+    sign : path.basename(targetDpath).toUpperCase();
 
   const isForced = options.includes('-F');
   info['Forced'] = isForced;

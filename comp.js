@@ -4,7 +4,7 @@ const utility = require('./utility');
 
 const startTime = Date.now();
 const timestamp = utility.getTimestamp(startTime);
-let execId = null;
+let execId = `${timestamp}_comp_`;
 const info = {
   'Base directory': null,
   'Base file count': null,
@@ -47,8 +47,8 @@ const main = async () => {
   info['Forced'] = isForced;
 
   const sign = utility.getOptionValue('-s', options);
-  execId = (sign === undefined || sign === null || sign === '') ?
-    `${timestamp}_comp` : `${timestamp}_comp_${sign}`;
+  execId += (sign !== undefined && sign !== null && sign !== '') ?
+    sign : `${path.basename(baseDpath).toUpperCase()}_${path.basename(targetDpath).toUpperCase()}`;
 
   const execIdDpath = path.resolve('./extra', `${execId}`);
   if (fs.existsSync(execIdDpath)) {

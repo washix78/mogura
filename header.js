@@ -31,9 +31,8 @@ const main = async () => {
   info['Target directory'] = targetDpath;
 
   const sign = utility.getOptionValue('-s', options);
-  execId += (
-    (sign === undefined || sign === null || sign === '') ? path.basename(targetDpath) : sign
-  );
+  execId += (sign !== undefined && sign !== null && sign !== '') ?
+    sign : path.basename(targetDpath).toUpperCase();
 
   const testMaxByteCount = utility.getOptionValue('-n', options);
   const maxByteCount = (
