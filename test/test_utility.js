@@ -168,6 +168,41 @@ const testGetFormattedName = async () => {
   }
 };
 
+const testGetFormattedNameWithExtension = async () => {
+  const src = [
+    'name',
+    'name.',
+    'name.x',
+    'name.txt.x',
+    '99_76543210987654321-name',
+    '99_76543210987654321-name.',
+    '99_76543210987654321-name.x',
+    '99_76543210987654321-9_76543210987654321-name',
+    '99_76543210987654321-',
+    '99_76543210987654321-.',
+    '99_76543210987654321-.x',
+  ];
+  const expect = [
+    '777_12345678901234567-name.txt',
+    '777_12345678901234567-name.txt',
+    '777_12345678901234567-name.txt',
+    '777_12345678901234567-name.txt.txt',
+    '777_12345678901234567-name.txt',
+    '777_12345678901234567-name.txt',
+    '777_12345678901234567-name.txt',
+    '777_12345678901234567-9_76543210987654321-name.txt',
+    '777_12345678901234567-.txt',
+    '777_12345678901234567-.txt',
+    '777_12345678901234567-.txt'
+  ];
+  for (let i = 0; i < src.length; i++) {
+    const actual = utility.getFormattedNameWithExtension(src[i], '777', '12345678901234567', 'txt');
+    if (actual !== expect[i]) {
+      throw new Error(`${i}: ${actual} !== ${expect[i]}`);
+    }
+  }
+};
+
 const testGetLatestDpath = async () => {
 
 };
@@ -261,6 +296,7 @@ const test = async () => {
   await testGetFileDigest();
   await testGetFileWriter();
   await testGetFormattedName();
+  await testGetFormattedNameWithExtension();
   // await testGetLatestDpath();
   // await testGetLatestFpath();
   await testGetOptionValue();

@@ -151,6 +151,19 @@ module.exports.getFormattedName = (name, no, btime) => {
   return newName;
 };
 
+module.exports.getFormattedNameWithExtension = (name, no, btime, ext) => {
+  let newName = name.replace(/^(?:\d+_\d{17}\-)?(?<subName>.*)$/, (_, subName) => subName);
+  const extI = newName.lastIndexOf('.');
+  if (0 <= extI) {
+    newName = newName.substring(0, extI);
+  }
+  newName = `${no}_${btime}-${newName}.${ext}`;
+  if (255 <= newName.length) {
+    throw new Error(`New file name is too long. "${newName}"`);
+  }
+  return newName;
+};
+
 module.exports.getLatestDpath = (targetDpath, timestamp, suffix) => {
   const dnames = fs.readdirSync(targetDpath, { withFileTypes: true }).
     filter(dirent => dirent.isDirectory()).
