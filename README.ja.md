@@ -9,6 +9,8 @@
 * unique: ファイルおよびシンボリックリンクを指定ディレクトリ以下で単一にします。
 * extension: ファイルおよびシンボリックリンクを拡張子ごとに分けます。
 * comp: あるディレクトリ以下のファイルおよびシンボリックリンクと重複しているものを移動します。
+* header: 指定したディレクトリ以下のファイルの最初の数バイトを出力します。
+* image: 指定したディレクトリ以下のファイルをBMP、GIF、JPG、PNGかそれ以外かに分けます。
 
 ## ログファイル
 
@@ -133,6 +135,47 @@ node comp ${base directory path} ${target directory path} ${options}
 ```
 
 実際にファイルおよびシンボリックリンクを移動する場合は、`-F`を指定します。
+
+```
+-F
+```
+
+## header
+
+指定したディレクトリ以下のファイルおよびシンボリックリンクのサイズと最初の数バイトを出力します。  
+出力するバイト数は`${options}`で指定できます。`${options}`で指定しなかった場合は、10バイト以下になります。  
+
+```
+node header ${directory path} ${options}
+```
+
+### options
+
+```
+-s ${sign}
+```
+
+```
+-n ${byte count}
+```
+
+## image
+
+指定したディレクトリ以下に`BMP`、`GIF`、`JPG`、`PNG`と`binary.d`、`syml.d`という名前のディレクトリを作成します。  
+ファイルがBMPであれば`BMP`ディレクトリ、GIFであれば`GIF`ディレクトリに移動します。  
+名前は`1${no}_${btime}-${name}.${extension}`の形式になります。  
+BMP、GIF、JPG、PNGのいずれでもないファイルは`binary.d`ディレクトリに移動します。  
+名前は`1${no}_${btime}-${name}`の形式になります。  
+シンボリックリンクは`syml.d`ディレクトリに移動します。
+```
+node image ${directory path} ${options}
+```
+
+### options
+
+```
+-s ${sign}
+```
 
 ```
 -F

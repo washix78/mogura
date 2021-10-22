@@ -9,7 +9,8 @@ These are tools that search and move files and symbolic links.
 * unique: Moves duplicate digest file or symbolic link.
 * extension: Groups file or symbolic link by extension.
 * comp: Moves duplicated file or symbolic link between base directory and target directory.
-
+* header: Outputs some byte from file beginning.
+* image: Moves files to directory named "BMP", "GIF", "JPG", "PNG", "binary.d". 
 
 ## Log file
 
@@ -70,6 +71,38 @@ node extension ${directory path} ${options}
 
 ```
 node comp ${base directory path} ${target directory path} ${options}
+```
+
+### options
+
+```
+-s ${sign}
+```
+
+```
+-F
+```
+
+## header
+
+```
+node header ${directory path} ${options}
+```
+
+### options
+
+```
+-s ${sign}
+```
+
+```
+-n ${byte count}
+```
+
+## image
+
+```
+node image ${directory path} ${options}
 ```
 
 ### options
