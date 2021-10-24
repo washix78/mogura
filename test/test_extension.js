@@ -302,12 +302,18 @@ const test_forced = async () => {
     }
   }
   // test extra directory
-  const extraPaths = utility.getAllPaths(execIdDpath).sort();
+  const extraPaths = utility.getAllPaths(execIdDpath);
   if (extraPaths.length !== expectExtraPathList.length) {
     throw new Error(``);
   }
   for (let i = 0; i < extraPaths.length; i++) {
     if (fs.lstatSync(extraPaths[i]).isFile()) {
+      throw new Error(``);
+    }
+  }
+  const omittedExtraPaths = extraPaths.map(testPath => utility.omitPath(testPath, execIdDpath)).sort();
+  for (let i = 0; i < omittedExtraPaths.length; i++) {
+    if (omittedExtraPaths[i] !== expectExtraPathList[i]) {
       throw new Error(``);
     }
   }
