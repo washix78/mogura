@@ -55,6 +55,9 @@ const main = async () => {
     throw new Error(`Sorry, can not create. "${execIdDpath}"`);
   }
   info['Extra directory'] = isForced ? execIdDpath : null;
+  if (isForced) {
+    fs.mkdirSync(execIdDpath);
+  }
 
   const digestMap = new Map();
 
@@ -68,7 +71,7 @@ const main = async () => {
     if (!digestMap.has(digest)) {
       digestMap.set(digest, []);
     }
-    const record = `01:${testPath}`;
+    const record = `0:${testPath}`;
     digestMap.get(digest).push(record);
   }
 
@@ -80,62 +83,21 @@ const main = async () => {
     const digest2 = await utility.getFileDigest(testPath, 'sha1');
     const digest = `${digest1}_${digest2}`;
     if (digestMap.has(digest)) {
-      const record = `11:${testPath}`;
+      const record = `1:${testPath}`;
       digestMap.get(digest).push(record);
     }
   }
 
-  const baseSlpaths = utility.getSymbolicLinkPaths(baseDpath);
-  info['Base symbolic link count'] = baseSlpaths.length;
-  for (let i = 0; i < baseSlpaths.length; i++) {
-    const testPath = baseSlpaths[i];
-    const digest1 = await utility.getFileDigest(testPath, 'md5');
-    const digest2 = await utility.getFileDigest(testPath, 'sha1');
-    const digest = `${digest1}_${digest2}`;
-    if (!digestMap.has(digest)) {
-      const record = `00:${testPath}`;
-      digestMap.set(digest, [ record ]);
-    }
-  }
-
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath);
-  info['Target symbolic link count'] = targetSlpaths.length;
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    const testPath = targetSlpaths[i];
-    const digest1 = await utility.getFileDigest(testPath, 'md5');
-    const digest2 = await utility.getFileDigest(testPath, 'sha1');
-    const digest = `${digest1}_${digest2}`;
-    if (digestMap.has(digest)) {
-      const record = `10:${testPath}`;
-      digestMap.get(digest).push(record);
-    }
-  }
-
-  if (isForced) {
-    fs.mkdirSync(execIdDpath);
-  }
-
-  for (const [ digest, allRecords ] of digestMap) {
-    if (allRecords.every(record => record.startsWith('0'))) {
-      continue;
-    }
-    const records = allRecords.map(record => {
+  const move = (digest, records) => {
+    const digitCount = (records.length - 1).toString().length;
+    const pairs = records.map(record => {
       const [ type, testPath ] = record.split(':');
-      const btime = utility.getTimestamp(fs.lstatSync(testPath).birthtimeMs);
-      return `${type}:${btime}:${testPath}`;
+      const btime = fs.lstatSync(testPath).birthtimeMs;
+      return `${type}:${utility.getTimestamp(btime)}:${testPath}`;
     }).
     sort().
-    filter((record, i) => {
-      return record.startsWith('1') ||
-        (record.startsWith('01') && i === 0);
-    });
-    const digitCount = (records.length - 1).toString().length;
-    let bfi = 0, tsli = 0, tfi = 0;
-    const pairs = records.map(record => {
+    map((record, i) => {
       const [ type, btime, testPath ] = record.split(':');
-      const i = (type === '01') ? bfi++ :
-        (type === '10') ? tsli++ :
-        tfi++;
       const no = i.toString().padStart(digitCount, '0');
       const newName = utility.getFormattedName(path.basename(testPath), `${type}${no}`, btime);
       return [ newName, testPath ];
@@ -149,18 +111,31 @@ const main = async () => {
       const [ newName, testPath ] = pairs[i];
       const newPath = path.resolve(digestDpath, newName);
       if (isForced) {
-        if (newName.startsWith('01')) {
+        if (newName.startsWith('0')) {
           fs.symlinkSync(testPath, newPath);
         } else {
           fs.renameSync(testPath, newPath);
         }
       }
       const omittedNew = utility.omitPath(newPath, execIdDpath);
-      const parentDpath = newName.startsWith('0') ? baseDpath : targetDpath;
-      const omittedOld = utility.omitPath(testPath, parentDpath);
+      const omittedOld = utility.omitPath(testPath, targetDpath);
       info['Records'].push(`${omittedNew}:${omittedOld}`);
     }
+  };
+
+  for (const [ digest, records ] of digestMap) {
+    if (records.some(record => record.startsWith('1'))) {
+      move(digest, records);
+    }
   }
+
+  const baseSlpaths = utility.getSymbolicLinkPaths(baseDpath);
+  info['Base symbolic link count'] = baseSlpaths.length;
+
+  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath);
+  info['Target symbolic link count'] = targetSlpaths.length;
+  const targetSlrecords = targetSlpaths.map(testPath => `1:${testPath}`);
+  move('syml.d', targetSlrecords);
 };
 
 main().
