@@ -6,7 +6,7 @@ These are tools that search and move files and symbolic links.
 `mogura` means "Mole" in japanese.  
 
 * info: Outputs file count, symbolic link count, extensions.
-* unique: Moves duplicate digest file or symbolic link.
+* unique: Moves duplicate digest file and symbolic link.
 * extension: Groups file or symbolic link by extension.
 * comp: Moves duplicated file or symbolic link between base directory and target directory.
 * header: Outputs some byte from file beginning.

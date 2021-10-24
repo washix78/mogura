@@ -44,55 +44,38 @@ const main = async () => {
     throw new Error(`Sorry, can not create. "${execIdDpath}"`);
   }
   info['Extra directory'] = isForced ? execIdDpath : null;
-
   if (isForced) {
     fs.mkdirSync(execIdDpath);
   }
 
   const digestMap = new Map();
-  const setDigestMap = async (paths, type) => {
-    for (let i = 0; i < paths.length; i++) {
-      const testPath = paths[i];
-      const digest1 = await utility.getFileDigest(testPath, 'md5');
-      const digest2 = await utility.getFileDigest(testPath, 'sha1');
-      const digest = `${digest1}_${digest2}`;
-      if (!digestMap.has(digest)) {
-        digestMap.set(digest, []);
-      }
-      const record = `${type}:${testPath}`;
-      digestMap.get(digest).push(record);
+  const fpaths = utility.getFilePaths(targetDpath);
+  info['Target file count'] = fpaths.length;
+  for (let i = 0; i < fpaths.length; i++) {
+    const testPath = fpaths[i];
+    const digest1 = await utility.getFileDigest(testPath, 'md5');
+    const digest2 = await utility.getFileDigest(testPath, 'sha1');
+    const digest = `${digest1}_${digest2}`;
+    if (!digestMap.has(digest)) {
+      digestMap.set(digest, []);
     }
-  };
-  const allSlpaths = utility.getSymbolicLinkPaths(targetDpath);
-  info['Target symbolic link count'] = allSlpaths.length;
-  await setDigestMap(allSlpaths, '0');
-  const allFpaths = utility.getFilePaths(targetDpath);
-  info['Target file count'] = allFpaths.length;
-  await setDigestMap(allFpaths, '1');
+    digestMap.get(digest).push(testPath);
+  }
 
-  for (const [ digest, allRecords ] of digestMap) {
-    if (allRecords.length <= 1) {
-      continue;
-    }
-    const records = allRecords.
-      map(record => {
-        const [ type, testPath ] = record.split(':');
-        const btime = utility.getTimestamp(fs.lstatSync(testPath).birthtimeMs);
-        return `${type}:${btime}:${testPath}`;
-      }).
-      sort();
-    if (records.every(record => record.startsWith('0'))) {
-      records.splice(0, 1);
-    }
+  const move = (digest, records) => {
     const digitCount = (records.length - 1).toString().length;
-    let sli = 0, fi = 0;
-    const pairs = records.map(record => {
-      const [ type, btime, testPath ] = record.split(':');
-      const i = (type === '0') ? (sli++) : (fi++);
-      const no = i.toString().padStart(digitCount, '0');
-      const newName = utility.getFormattedName(path.basename(testPath), `${type}${no}`, btime);
-      return [ newName, testPath ];
-    });
+    const pairs = records.
+      map(testPath => {
+        const btime = fs.lstatSync(testPath).birthtimeMs;
+        return `${utility.getTimestamp(btime)}:${testPath}`;
+      }).
+      sort().
+      map((record, i) => {
+        const [ btime, testPath ] = record.split(':');
+        const no = i.toString().padStart(digitCount, '0');
+        const newName = utility.getFormattedName(path.basename(testPath), no, btime);
+        return [ newName, testPath ];
+      });
 
     const digestDpath = path.resolve(execIdDpath, digest);
     if (isForced) {
@@ -102,7 +85,7 @@ const main = async () => {
       const [ newName, testPath ] = pairs[i];
       const newPath = path.resolve(digestDpath, newName);
       if (isForced) {
-        if (/^10+_/.test(newName)) {
+        if (i === 0 && fs.lstatSync(testPath).isFile()) {
           fs.symlinkSync(testPath, newPath);
         } else {
           fs.renameSync(testPath, newPath);
@@ -112,7 +95,17 @@ const main = async () => {
       const omittedOld = utility.omitPath(testPath, targetDpath);
       info['Records'].push(`${omittedNew}:${omittedOld}`);
     }
+  };
+
+  for (const [ digest, records ] of digestMap) {
+    if (2 <= records.length) {
+      move(digest, records);
+    }
   }
+
+  const slpaths = utility.getSymbolicLinkPaths(targetDpath);
+  info['Target symbolic link count'] = slpaths.length;
+  move('syml.d', slpaths);
 };
 
 main().
