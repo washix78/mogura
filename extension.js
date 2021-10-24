@@ -49,42 +49,34 @@ const main = async () => {
   }
 
   const extMap = new Map();
-  const setExtMap = (type, paths) => {
-    for (let i = 0; i < paths.length; i++) {
-      const testPath = paths[i];
-      const testExt = utility.getExtension(path.basename(testPath));
-      const ext = (testExt === undefined || testExt === null) ? 'ext_none.d' :
-        (testExt === '') ? 'ext_zero.d' :
-        testExt.toUpperCase();
-      if (!extMap.has(ext)) {
-        extMap.set(ext, []);
-      }
-      const record = `${type}:${testPath}`;
-      extMap.get(ext).push(record);
+  const fpaths = utility.getFilePaths(targetDpath);
+  info['Target file count'] = fpaths.length;
+  for (let i = 0; i < fpaths.length; i++) {
+    const testPath = fpaths[i];
+    const testExt = utility.getExtension(path.basename(testPath));
+    const ext = (testExt === undefined || testExt === null) ? 'ext_none.d' :
+      (testExt === '') ? 'ext_zero.d' :
+      testExt.toUpperCase();
+    if (!extMap.has(ext)) {
+      extMap.set(ext, []);
     }
-  };
-  const allSlpaths = utility.getSymbolicLinkPaths(targetDpath);
-  info['Target symbolic link count'] = allSlpaths.length;
-  setExtMap('0', allSlpaths);
-  const allFpaths = utility.getFilePaths(targetDpath);
-  info['Target file count'] = allFpaths.length;
-  setExtMap('1', allFpaths);
+    extMap.get(ext).push(testPath);
+  }
+  const slpaths = utility.getSymbolicLinkPaths(targetDpath);
+  info['Target symbolic link count'] = slpaths.length;
 
   for (const [ ext, records ] of extMap) {
-    let sli = 0, fi = 0;
     const digitCount = (records.length - 1).toString().length;
     const pairs = records.
-      map(record => {
-        const [ type, testPath ] = record.split(':');
+      map(testPath => {
         const btime = utility.getTimestamp(fs.lstatSync(testPath).birthtimeMs);
-        return `${type}:${btime}:${testPath}`;
+        return `${btime}:${testPath}`;
       }).
       sort().
-      map(record => {
-        const [ type, btime, testPath ] = record.split(':');
-        const i = (type === '0') ? (sli++) : (fi++);
+      map((record, i) => {
+        const [ btime, testPath ] = record.split(':');
         const no = i.toString().padStart(digitCount, '0');
-        const newName = utility.getFormattedName(path.basename(testPath), `${type}${no}`, btime);
+        const newName = utility.getFormattedName(path.basename(testPath), no, btime);
         return [ newName, testPath ];
       });
 
