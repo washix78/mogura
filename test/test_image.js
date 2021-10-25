@@ -5,6 +5,23 @@ const utility = require('../utility');
 const startTime = Date.now();
 const timestamp = utility.getTimestamp(startTime);
 
+const expectRecordList = [
+  'BMP/0_12345678901234567-file_bmp.bmp:file_bmp.EXT',
+  'BMP/1_12345678901234567-file_bmp.bmp:dir2/dir2/file_bmp',
+  'JPG/0_12345678901234567-file_jpg.jpg:file_jpg',
+  'JPG/1_12345678901234567-file_jpg.jpg:dir1/file_jpg.EXT',
+  'GIF/0_12345678901234567-file_gif1.gif:dir1/file_gif1',
+  'GIF/1_12345678901234567-file_gif1.gif:dir2/file_gif1.EXT',
+  'GIF/2_12345678901234567-file_gif2.gif:dir2/dir1/file_gif2',
+  'GIF/3_12345678901234567-file_gif2.gif:dir2/dir2/file_gif2.EXT',
+  'PNG/0_12345678901234567-file_png.png:dir2/file_png',
+  'PNG/1_12345678901234567-file_png.png:dir2/dir1/file_png.EXT',
+  'binary.d/0_12345678901234567-file_0:file_0',
+  'binary.d/1_12345678901234567-file_0.EXT:dir1/file_0.EXT',
+  'binary.d/2_12345678901234567-file_10:dir2/file_10',
+  'binary.d/3_12345678901234567-file_10.EXT:dir2/dir1/file_10.EXT'
+];
+const recordRegExp = /^(?<ext>.+)\/(?<no>\d+)_\d{17}\-(?<newName>.+)\:(?<oldPath>.+)$/;
 const expectBeforeTargetFpathList = [
   `${process.cwd()}/testwork/image/file_0`,
   `${process.cwd()}/testwork/image/file_bmp.EXT`,
@@ -20,7 +37,7 @@ const expectBeforeTargetFpathList = [
   `${process.cwd()}/testwork/image/dir2/dir1/file_png.EXT`,
   `${process.cwd()}/testwork/image/dir2/dir2/file_bmp`,
   `${process.cwd()}/testwork/image/dir2/dir2/file_gif2.EXT`
-];
+].sort();
 const expectBeforeTargetSLpathList = [
   `${process.cwd()}/testwork/image/syml_0.EXT`,
   `${process.cwd()}/testwork/image/syml_gif1`,
@@ -36,81 +53,35 @@ const expectBeforeTargetSLpathList = [
   `${process.cwd()}/testwork/image/dir2/dir2/syml_0`,
   `${process.cwd()}/testwork/image/dir2/dir2/syml_bmp.EXT`,
   `${process.cwd()}/testwork/image/dir2/dir2/syml_jpg`
-];
-const expectExtraDpathList = [
+].sort();
+const expectExtraPathList = [
   'extra.d',
+  'extra.d/syml_0.EXT',
+  'extra.d/syml_gif1',
+  'extra.d/syml_jpg.EXT',
   'extra.d/dir1',
+  'extra.d/dir1/syml_10',
+  'extra.d/dir1/syml_gif1.EXT',
+  'extra.d/dir1/syml_png',
   'extra.d/dir2',
+  'extra.d/dir2/syml_10.EXT',
+  'extra.d/dir2/syml_gif2',
+  'extra.d/dir2/syml_png.EXT',
   'extra.d/dir2/dir1',
-  'extra.d/dir2/dir2'
-];
-const expectRecordList = [
-  'BMP/10_12345678901234567-file_bmp.bmp:file_bmp.EXT',
-  'BMP/11_12345678901234567-file_bmp.bmp:dir2/dir2/file_bmp',
-  'JPG/10_12345678901234567-file_jpg.jpg:file_jpg',
-  'JPG/11_12345678901234567-file_jpg.jpg:dir1/file_jpg.EXT',
-  'GIF/10_12345678901234567-file_gif1.gif:dir1/file_gif1',
-  'GIF/11_12345678901234567-file_gif1.gif:dir2/file_gif1.EXT',
-  'GIF/12_12345678901234567-file_gif2.gif:dir2/dir1/file_gif2',
-  'GIF/13_12345678901234567-file_gif2.gif:dir2/dir2/file_gif2.EXT',
-  'PNG/10_12345678901234567-file_png.png:dir2/file_png',
-  'PNG/11_12345678901234567-file_png.png:dir2/dir1/file_png.EXT',
-  'binary.d/10_12345678901234567-file_0:file_0',
-  'binary.d/11_12345678901234567-file_0.EXT:dir1/file_0.EXT',
-  'binary.d/12_12345678901234567-file_10:dir2/file_10',
-  'binary.d/13_12345678901234567-file_10.EXT:dir2/dir1/file_10.EXT',
-  'syml.d/000_12345678901234567-syml_0:dir2/dir2/syml_0',
-  'syml.d/001_12345678901234567-syml_0.EXT:syml_0.EXT',
-  'syml.d/002_12345678901234567-syml_10:dir1/syml_10',
-  'syml.d/003_12345678901234567-syml_10.EXT:dir2/syml_10.EXT',
-  'syml.d/004_12345678901234567-syml_bmp:dir2/dir1/syml_bmp',
-  'syml.d/005_12345678901234567-syml_bmp.EXT:dir2/dir2/syml_bmp.EXT',
-  'syml.d/006_12345678901234567-syml_gif1:syml_gif1',
-  'syml.d/007_12345678901234567-syml_gif1.EXT:dir1/syml_gif1.EXT',
-  'syml.d/008_12345678901234567-syml_gif2:dir2/syml_gif2',
-  'syml.d/009_12345678901234567-syml_gif2.EXT:dir2/dir1/syml_gif2.EXT',
-  'syml.d/010_12345678901234567-syml_jpg:dir2/dir2/syml_jpg',
-  'syml.d/011_12345678901234567-syml_jpg.EXT:syml_jpg.EXT',
-  'syml.d/012_12345678901234567-syml_png:dir1/syml_png',
-  'syml.d/013_12345678901234567-syml_png.EXT:dir2/syml_png.EXT'
-];
-// const recordRegexp = /^(?<digest>[0-9a-z]{32}_[0-9a-z]{40})\/(?<type>\d)(?<no>\d+)_\d{17}\-(?<newName>.+)\:(?<oldPath>(?:.+\/)*.+)$/;
-const recordRegexp = /^(?<ext>.+)\/(?<type>\d)(?<no>\d+)_\d{17}\-(?<newName>.+)\:(?<oldPath>.+)$/;
+  'extra.d/dir2/dir1/syml_bmp',
+  'extra.d/dir2/dir1/syml_gif2.EXT',
+  'extra.d/dir2/dir2',
+  'extra.d/dir2/dir2/syml_0',
+  'extra.d/dir2/dir2/syml_bmp.EXT',
+  'extra.d/dir2/dir2/syml_jpg'
+].sort();
 
-/*
- * test target directory
- * test extra directory
- * test log
- */
+// test log
+// test target directory
+// test extra directory
 const test_not_forced = async () => {
   childProcess.execSync(`node image ./testwork/image -s TEST_NOT_FORCED`);
 
-  // test target directory
-  const targetFpaths = utility.getFilePaths('./testwork/image');
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(``);
-  }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    const matched = expectBeforeTargetFpathList.filter(expect => expect === targetFpaths[i]);
-    if (matched.length !== 1) {
-      throw new Error(``);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths('./testwork/image');
-  if (targetSlpaths.length !== expectBeforeTargetSLpathList.length) {
-    throw new Error(``);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    const matched = expectBeforeTargetSLpathList.filter(expect => expect === targetSlpaths[i]);
-    if (matched.length !== 1) {
-      throw new Error(``);
-    }
-  }
-  // test extra directory
-  const execIdDpath = utility.getLatestDpath('./extra', timestamp, 'image_TEST_NOT_FORCED');
-  if (execIdDpath !== null) {
-    throw new Error(`${execIdDpath}`);
-  }
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'image_TEST_NOT_FORCED.json'));
   if (info['Target directory'] !== `${process.cwd()}/testwork/image`) {
@@ -133,31 +104,31 @@ const test_not_forced = async () => {
   }
   for (let i = 0; i < info['Records'].length; i++) {
     const record = info['Records'][i];
-    if (!recordRegexp.test(record)) {
+    if (!recordRegExp.test(record)) {
       throw new Error(``);
     }
   }
-  const actualRecord_ext_type_no = info['Records'].map(record => {
-    const groups = recordRegexp.exec(record).groups;
-    return `${groups.ext}:${groups.type}:${groups.no}`;
+  const actualRecord_ext_no = info['Records'].map(record => {
+    const groups = recordRegExp.exec(record).groups;
+    return `${groups.ext}:${groups.no}`;
   }).sort();
-  const expectRecord_ext_type_no = expectRecordList.map(record => {
-    const groups = recordRegexp.exec(record).groups;
-    return `${groups.ext}:${groups.type}:${groups.no}`;
+  const expectRecord_ext_no = expectRecordList.map(record => {
+    const groups = recordRegExp.exec(record).groups;
+    return `${groups.ext}:${groups.no}`;
   }).sort();
-  for (let i = 0; i < actualRecord_ext_type_no.length; i++) {
-    const actual = actualRecord_ext_type_no[i];
-    const expect = expectRecord_ext_type_no[i];
+  for (let i = 0; i < actualRecord_ext_no.length; i++) {
+    const actual = actualRecord_ext_no[i];
+    const expect = expectRecord_ext_no[i];
     if (actual !== expect) {
       throw new Error(``);
     }
   }
   const actualRecord_ext_newName_oldPath = info['Records'].map(record => {
-    const groups = recordRegexp.exec(record).groups;
+    const groups = recordRegExp.exec(record).groups;
     return `${groups.ext}:${groups.newName}:${groups.oldPath}`;
   }).sort();
   const expectRecord_ext_newName_oldPath = expectRecordList.map(record => {
-    const groups = recordRegexp.exec(record).groups;
+    const groups = recordRegExp.exec(record).groups;
     return `${groups.ext}:${groups.newName}:${groups.oldPath}`;
   }).sort();
   for (let i = 0; i < actualRecord_ext_newName_oldPath.length; i++) {
@@ -170,72 +141,38 @@ const test_not_forced = async () => {
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
-};
-
-/*
- * test target directory
- * test log
- * test extra directory
- */
-const test_forced = async () => {
-  childProcess.execSync(`node image ./testwork/image -s TEST_FORCED -F`);
-
   // test target directory
-  const targetPaths = utility.getFilePaths('./testwork/image').concat(
-    utility.getSymbolicLinkPaths('./testwork/image')
-  );
-  if (targetPaths.length !== expectRecordList.length) {
+  const targetFpaths = utility.getFilePaths('./testwork/image').sort();
+  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
     throw new Error(``);
   }
-  const targetPathRegexp = /^(?:\/.+)+\/(?<ext>.+)\/(?<type>\d)(?<no>\d+)_\d{17}\-(?<name>.+)$/;
-  for (let i = 0; i < targetPaths.length; i++) {
-    const testPath = targetPaths[i];
-    if (!targetPathRegexp.test(testPath)) {
-      throw new Error(``);
-    }
-    const actual = targetPathRegexp.exec(testPath).groups;
-    if (actual.type === '0') {
-      if (!fs.lstatSync(testPath).isSymbolicLink()) {
-        throw new Error(``);
-      }
-    } else if (actual.type === '1') {
-      if (!fs.lstatSync(testPath).isFile()) {
-        throw new Error(``);
-      }
-    } else {
+  for (let i = 0; i < targetFpaths.length; i++) {
+    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
       throw new Error(``);
     }
   }
-  const actualTargetPath_ext_type_name = targetPaths.map(testPath => {
-    const groups = targetPathRegexp.exec(testPath).groups;
-    return `${groups.ext}:${groups.type}:${groups.name}`;
-  }).sort();
-  const expectTargetPath_ext_type_name = expectRecordList.map(record => {
-    const groups = recordRegexp.exec(record).groups;
-    return `${groups.ext}:${groups.type}:${groups.newName}`;
-  }).sort();
-  for (let i = 0; i < actualTargetPath_ext_type_name.length; i++) {
-    const actual = actualTargetPath_ext_type_name[i];
-    const expect = expectTargetPath_ext_type_name[i];
-    if (actual !== expect) {
+  const targetSlpaths = utility.getSymbolicLinkPaths('./testwork/image').sort();
+  if (targetSlpaths.length !== expectBeforeTargetSLpathList.length) {
+    throw new Error(``);
+  }
+  for (let i = 0; i < targetSlpaths.length; i++) {
+    if (targetSlpaths[i] !== expectBeforeTargetSLpathList[i]) {
       throw new Error(``);
     }
   }
   // test extra directory
-  const execIdDpath = utility.getLatestDpath('./extra', timestamp, 'image_TEST_FORCED');
-  const extraPaths = utility.getAllPaths(execIdDpath);
-  if (extraPaths.length !== expectExtraDpathList.length) {
-    throw new Error(``);
+  const execIdDpath = utility.getLatestDpath('./extra', timestamp, 'image_TEST_NOT_FORCED');
+  if (execIdDpath !== null) {
+    throw new Error(`${execIdDpath}`);
   }
-  for (let i = 0; i < extraPaths.length; i++) {
-    const testPath = extraPaths[i];
-    if (!fs.lstatSync(testPath).isDirectory()) {
-      throw new Error(``);
-    }
-    if (utility.omitPath(testPath, execIdDpath) !== expectExtraDpathList[i]) {
-      throw new Error(``);
-    }
-  }
+};
+
+// test log
+// test target directory
+// test extra directory
+const test_forced = async () => {
+  childProcess.execSync(`node image ./testwork/image -s TEST_FORCED -F`);
+
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'image_TEST_FORCED.json'));
   if (info['Target directory'] !== `${process.cwd()}/testwork/image`) {
@@ -250,6 +187,7 @@ const test_forced = async () => {
   if (info['Forced'] !== true) {
     throw new Error(`Forced: ${info['Forced']}`);
   }
+  const execIdDpath = utility.getLatestDpath('./extra', timestamp, 'image_TEST_FORCED');
   if (info['Extra directory'] !== execIdDpath) {
     throw new Error(`Extra directory: ${info['Extra directory']}`);
   }
@@ -258,31 +196,31 @@ const test_forced = async () => {
   }
   for (let i = 0; i < info['Records'].length; i++) {
     const record = info['Records'][i];
-    if (!recordRegexp.test(record)) {
+    if (!recordRegExp.test(record)) {
       throw new Error(``);
     }
   }
-  const actualRecord_ext_type_no = info['Records'].map(record => {
-    const groups = recordRegexp.exec(record).groups;
-    return `${groups.ext}:${groups.type}:${groups.no}`;
+  const actualRecord_ext_no = info['Records'].map(record => {
+    const groups = recordRegExp.exec(record).groups;
+    return `${groups.ext}:${groups.no}`;
   }).sort();
-  const expectRecord_ext_type_no = expectRecordList.map(record => {
-    const groups = recordRegexp.exec(record).groups;
-    return `${groups.ext}:${groups.type}:${groups.no}`;
+  const expectRecord_ext_no = expectRecordList.map(record => {
+    const groups = recordRegExp.exec(record).groups;
+    return `${groups.ext}:${groups.no}`;
   }).sort();
-  for (let i = 0; i < actualRecord_ext_type_no.length; i++) {
-    const actual = actualRecord_ext_type_no[i];
-    const expect = expectRecord_ext_type_no[i];
+  for (let i = 0; i < actualRecord_ext_no.length; i++) {
+    const actual = actualRecord_ext_no[i];
+    const expect = expectRecord_ext_no[i];
     if (actual !== expect) {
       throw new Error(``);
     }
   }
   const actualRecord_ext_newName_oldPath = info['Records'].map(record => {
-    const groups = recordRegexp.exec(record).groups;
+    const groups = recordRegExp.exec(record).groups;
     return `${groups.ext}:${groups.newName}:${groups.oldPath}`;
   }).sort();
   const expectRecord_ext_newName_oldPath = expectRecordList.map(record => {
-    const groups = recordRegexp.exec(record).groups;
+    const groups = recordRegExp.exec(record).groups;
     return `${groups.ext}:${groups.newName}:${groups.oldPath}`;
   }).sort();
   for (let i = 0; i < actualRecord_ext_newName_oldPath.length; i++) {
@@ -294,6 +232,53 @@ const test_forced = async () => {
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
+  }
+
+  // test target directory
+  const targetPaths = utility.getFilePaths('./testwork/image').concat(
+    utility.getSymbolicLinkPaths('./testwork/image')
+  );
+  if (targetPaths.length !== expectRecordList.length) {
+    throw new Error(``);
+  }
+  const targetPathRegExp = /^(?:.+)\/(?<ext>.+)\/(?<no>\d+)_\d{17}\-(?<name>.+)$/;
+  for (let i = 0; i < targetPaths.length; i++) {
+    const testPath = targetPaths[i];
+    if (!targetPathRegExp.test(testPath)) {
+      throw new Error(``);
+    }
+  }
+  const actualTargetPath_ext_name = targetPaths.map(testPath => {
+    const groups = targetPathRegExp.exec(testPath).groups;
+    return `${groups.ext}:${groups.name}`;
+  }).sort();
+  const expectTargetPath_ext_name = expectRecordList.map(record => {
+    const groups = recordRegExp.exec(record).groups;
+    return `${groups.ext}:${groups.newName}`;
+  }).sort();
+  for (let i = 0; i < actualTargetPath_ext_name.length; i++) {
+    const actual = actualTargetPath_ext_name[i];
+    const expect = expectTargetPath_ext_name[i];
+    if (actual !== expect) {
+      throw new Error(``);
+    }
+  }
+  // test extra directory
+  const extraPaths = utility.getAllPaths(execIdDpath);
+  if (extraPaths.length !== expectExtraPathList.length) {
+    throw new Error(``);
+  }
+  for (let i = 0; i < extraPaths.length; i++) {
+    const testPath = extraPaths[i];
+    if (fs.lstatSync(testPath).isFile()) {
+      throw new Error(``);
+    }
+  }
+  const omittedExtraPaths = extraPaths.map(testPath => utility.omitPath(testPath, execIdDpath)).sort();
+  for (let i = 0; i < omittedExtraPaths.length; i++) {
+    if (omittedExtraPaths[i] !== expectExtraPathList[i]) {
+      throw new Error(``);
+    }
   }
 };
 

@@ -158,12 +158,13 @@ node header ${directory path} ${options}
 
 ## image
 
-指定したディレクトリ以下に`BMP`、`GIF`、`JPG`、`PNG`と`binary.d`、`syml.d`という名前のディレクトリを作成します。  
+指定したディレクトリ以下に`BMP`、`GIF`、`JPG`、`PNG`と`binary.d`という名前のディレクトリを作成します。  
 ファイルがBMPであれば`BMP`ディレクトリ、GIFであれば`GIF`ディレクトリに移動します。  
-名前は`1${no}_${btime}-${name}.${extension}`の形式になります。  
+名前は`${no}_${btime}-${name}.${extension}`の形式になります。  
 BMP、GIF、JPG、PNGのいずれでもないファイルは`binary.d`ディレクトリに移動します。  
-名前は`1${no}_${btime}-${name}`の形式になります。  
-シンボリックリンクは`syml.d`ディレクトリに移動します。
+名前は`${no}_${btime}-${name}`の形式になります。  
+
+指定したディレクトリ以下のすべてのディレクトリとシンボリックリンクは"移動先ディレクトリ"の`extra.d`ディレクトリに移動します。  
 ```
 node image ${directory path} ${options}
 ```

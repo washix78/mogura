@@ -45,7 +45,7 @@ const main = async () => {
   info['Target symbolic link count'] = utility.getSymbolicLinkPaths(targetDpath).length;
 
   const extMap = new Map();
-  [ 'BMP', 'GIF', 'JPG', 'PNG', 'binary.d', 'syml.d' ].forEach(ext => extMap.set(ext, []));
+  [ 'BMP', 'GIF', 'JPG', 'PNG', 'binary.d' ].forEach(ext => extMap.set(ext, []));
   const getExt = (testPath) => {
     const fd = fs.openSync(testPath);
     try {
@@ -82,36 +82,32 @@ const main = async () => {
   for (let i = 0; i < fpaths.length; i++) {
     const testPath = fpaths[i];
     const ext = getExt(testPath);
-    const record = `1:${testPath}`;
-    extMap.get(ext).push(record);
+    extMap.get(ext).push(testPath);
   }
-  const slpaths = utility.getSymbolicLinkPaths(targetDpath);
-  info['Target symbolic link count'] = slpaths.length;
-  for (let i = 0; i < slpaths.length; i++) {
-    const record = `0:${slpaths[i]}`;
-    extMap.get('syml.d').push(record);
-  }
+
+  info['Target symbolic link count'] = utility.getSymbolicLinkPaths(targetDpath).length;
 
   if (isForced) {
     fs.mkdirSync(execIdDpath);
   }
   for (const [ ext, records ] of extMap) {
+    if (0 === records.length) {
+      continue;
+    }
+
     const digitCount = (records.length - 1).toString().length;
-    let sli = 0, fi = 0;
     const pairs = records.
-      map(record => {
-        const [ type, testPath ] = record.split(':');
+      map(testPath => {
         const btime = utility.getTimestamp(fs.lstatSync(testPath).birthtimeMs);
-        return `${type}:${btime}:${testPath}`;
+        return `${btime}:${testPath}`;
       }).
       sort().
-      map((record) => {
-        const [ type, btime, testPath ] = record.split(':');
-        const i = (type === '0') ? sli++ : fi++;
+      map((record, i) => {
+        const [ btime, testPath ] = record.split(':');
         const no = i.toString().padStart(digitCount, '0');
-        const newName = (ext === 'binary.d' || ext === 'syml.d') ?
-          utility.getFormattedName(path.basename(testPath), `${type}${no}`, btime) :
-          utility.getFormattedNameWithExtension(path.basename(testPath), `${type}${no}`, btime, ext.toLowerCase());
+        const newName = (ext === 'binary.d') ?
+          utility.getFormattedName(path.basename(testPath), no, btime) :
+          utility.getFormattedNameWithExtension(path.basename(testPath), no, btime, ext.toLowerCase());
         return [ newName, testPath ];
       });
 
