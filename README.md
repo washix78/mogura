@@ -11,6 +11,7 @@ These are tools that search and move files and symbolic links.
 * comp: Moves duplicated file or symbolic link between base directory and target directory.
 * header: Outputs some byte from file beginning.
 * image: Moves files to directory named "BMP", "GIF", "JPG", "PNG", "binary.d". 
+* date: Groups file by btime.
 
 ## Log file
 
@@ -113,4 +114,26 @@ node image ${directory path} ${options}
 
 ```
 -F
+```
+
+## date
+
+```
+node date ${directory path} ${options}
+```
+
+### options
+
+```
+-s ${sign}
+```
+
+```
+-F
+```
+
+```
+-d y
+-d ym
+-d ymd
 ```
