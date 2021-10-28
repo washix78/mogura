@@ -12,6 +12,7 @@ These are tools that search and move files and symbolic links.
 * header: Outputs some byte from file beginning.
 * image: Moves files to directory named "BMP", "GIF", "JPG", "PNG", "binary.d". 
 * date: Groups file by btime.
+* size: Groups image file by size.
 
 ## Log file
 
@@ -136,4 +137,18 @@ node date ${directory path} ${options}
 -d y
 -d ym
 -d ymd
+```
+
+## size
+
+```
+node size ${directory path} ${options}
+```
+
+```
+-s ${sign}
+```
+
+```
+-F
 ```
