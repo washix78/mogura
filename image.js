@@ -46,42 +46,11 @@ const main = async () => {
 
   const extMap = new Map();
   [ 'BMP', 'GIF', 'JPG', 'PNG', 'binary.d' ].forEach(ext => extMap.set(ext, []));
-  const getExt = (testPath) => {
-    const fd = fs.openSync(testPath);
-    try {
-      const buf = Buffer.alloc(10);
-      fs.readSync(fd, buf, 0, buf.length, 0);
-
-      const bmpHeader = Buffer.from([ 0x42, 0x4d ]);
-      if (bmpHeader.equals(buf.subarray(0, bmpHeader.length))) {
-        return 'BMP';
-      }
-      const jpgHeader = Buffer.from([ 0xff, 0xd8 ]);
-      if (jpgHeader.equals(buf.subarray(0, jpgHeader.length))) {
-        return 'JPG';
-      }
-      const gifHeader1 = Buffer.from([ 0x47, 0x49, 0x46, 0x38, 0x37, 0x61 ]);
-      if (gifHeader1.equals(buf.subarray(0, gifHeader1.length))) {
-        return 'GIF';
-      }
-      const gitHeader2 = Buffer.from([ 0x47, 0x49, 0x46, 0x38, 0x39, 0x61 ]);
-      if (gitHeader2.equals(buf.subarray(0, gitHeader2.length))) {
-        return 'GIF';
-      }
-      const pngHeader = Buffer.from([ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A ]);
-      if (pngHeader.equals(buf.subarray(0, pngHeader.length))) {
-        return 'PNG';
-      }
-      return 'binary.d';
-    } finally {
-      fs.closeSync(fd);
-    }
-  };
   const fpaths = utility.getFilePaths(targetDpath);
   info['Target file count'] = fpaths.length;
   for (let i = 0; i < fpaths.length; i++) {
     const testPath = fpaths[i];
-    const ext = getExt(testPath);
+    const ext = utility.getImageType(testPath);
     extMap.get(ext).push(testPath);
   }
 
