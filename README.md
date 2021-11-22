@@ -13,6 +13,7 @@ These are tools that search and move files and symbolic links.
 * image: Moves files to directory named "BMP", "GIF", "JPG", "PNG", "binary.d". 
 * date: Groups file by btime.
 * size: Groups image file by size.
+* copy: Creates file's copy.
 
 ## Log file
 
@@ -145,6 +146,8 @@ node date ${directory path} ${options}
 node size ${directory path} ${options}
 ```
 
+### options
+
 ```
 -s ${sign}
 ```
@@ -152,3 +155,36 @@ node size ${directory path} ${options}
 ```
 -F
 ```
+
+## copy
+
+```
+node copy ${directory path} ${destination directory path} ${options}
+```
+
+### options
+
+```
+-s ${sign}
+```
+
+```
+-F
+```
+
+```
+-e ${extension}
+```
+
+* `ext_none.d`
+* `ext_zero.d`
+* extension
+
+```
+-i ${image type}
+```
+
+* `bmp`
+* `gif`
+* `jpg`
+* `png`
