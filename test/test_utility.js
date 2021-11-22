@@ -203,6 +203,33 @@ const testGetFormattedNameWithExtension = async () => {
   }
 };
 
+const testGetImageType = async () => {
+  const expectList = [
+    'binary.d',
+    'BMP',
+    'GIF',
+    'GIF',
+    'JPG',
+    'PNG'
+  ];
+  const actualList = [
+    utility.getImageType('./test/resources/utility_get_image_type/file'),
+    utility.getImageType('./test/resources/utility_get_image_type/file_bmp'),
+    utility.getImageType('./test/resources/utility_get_image_type/file_gif1'),
+    utility.getImageType('./test/resources/utility_get_image_type/file_gif2'),
+    utility.getImageType('./test/resources/utility_get_image_type/file_jpg'),
+    utility.getImageType('./test/resources/utility_get_image_type/file_png')
+  ];
+  if (expectList.length !== actualList.length) {
+    throw new Error(``);
+  }
+  for (let i = 0; i < expectList.length; i++) {
+    if (expectList[i] !== actualList[i]) {
+      throw new Error(``);
+    }
+  }
+};
+
 const testGetLatestDpath = async () => {
 
 };
@@ -213,12 +240,15 @@ const testGetLatestFpath = async () => {
 
 const testGetOptionValue = async () => {
   const expected = [
-    null, null, 'a'
+    null, null, 'a', '', 'a', null,
   ];
   const actual = [
     utility.getOptionValue('-t', []),
     utility.getOptionValue('-t', [ 'T', '-t' ]),
     utility.getOptionValue('-t', [ 'T', '-t', 'a', 'b' ]),
+    utility.getOptionValue('-t', [ '-t', '', 'a' ]),
+    utility.getOptionValue('-t', [ '-x', '-t', 'a' ]),
+    utility.getOptionValue('-x', [ '-x', '-t', 'a' ]),
   ];
   expected.forEach((exp, i) => {
     if (exp !== actual[i]) {
@@ -297,6 +327,7 @@ const test = async () => {
   await testGetFileWriter();
   await testGetFormattedName();
   await testGetFormattedNameWithExtension();
+  await testGetImageType();
   // await testGetLatestDpath();
   // await testGetLatestFpath();
   await testGetOptionValue();
