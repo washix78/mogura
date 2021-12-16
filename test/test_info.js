@@ -6,7 +6,7 @@ const utility = require('../utility');
 const startTime = Date.now();
 const timestamp = utility.getTimestamp(startTime);
 
-const resourcePaths = [
+const resourceFpaths = [
   'file1:file1.txt',
   'file2:dir1/file2',
   'file3:dir2/file3.',
@@ -14,13 +14,15 @@ const resourcePaths = [
   'file5:dir2/dir2/file5.txt',
   'file6:file6.HTML',
   'file7:dir1/file7.html',
-  'file8:dir2/file.8.TXT',
-  'syml1:dir2/dir1/syml1.txt',
-  'syml2:dir2/dir2/syml2.',
-  'syml3:syml3',
-  'syml4:dir1/syml4.TXT',
-  'syml5:dir2/syml5.TXT',
-  'syml6:dir2/dir1/syml6.'
+  'file8:dir2/file.8.TXT'
+];
+const resourceSlpaths = [
+  'file1:dir2/dir1/syml1.txt',
+  'file2:dir2/dir2/syml2.',
+  'file3:syml3',
+  'file4:dir1/syml4.TXT',
+  'file5:dir2/syml5.TXT',
+  'file6:dir2/dir1/syml6.'
 ];
 
 const expectLog = {
@@ -88,12 +90,18 @@ const test = async () => {
 
 const main = async () => {
   fs.emptyDirSync('./test/resources/info');
-  resourcePaths.forEach(line => {
+  resourceFpaths.forEach(line => {
     const [ src, dist ] = line.split(':');
     const srcPath = path.resolve(process.cwd(), 'test/resources', src);
     const distPath = path.resolve(process.cwd(), 'test/resources/info', dist);
     fs.mkdirSync(path.dirname(distPath), { recursive: true });
     fs.copySync(srcPath, distPath, { dereference: false });
+  });
+  resourceSlpaths.forEach(line => {
+    const [ src, dist ] = line.split(':');
+    const srcPath = path.resolve(process.cwd(), 'test/resources', src);
+    const distPath = path.resolve(process.cwd(), 'test/resources/info', dist);
+    fs.symlinkSync(srcPath, distPath);
   });
 
   await test();
