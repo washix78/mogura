@@ -1,9 +1,45 @@
 const childProcess = require('child_process');
 const fs = require('fs-extra');
+const path = require('path');
 const utility = require('../utility');
 
 const startTime = Date.now();
 const timestamp = utility.getTimestamp(startTime);
+
+const baseDpath = path.resolve(process.cwd(), 'testwork/image');
+
+const resourceFpaths = [
+  'file_0:file_0',
+  'file_0:dir1/file_0.EXT',
+  'file_10_00:dir2/file_10',
+  'file_10_00:dir2/dir1/file_10.EXT',
+  'file_bmp:file_bmp.EXT',
+  'file_bmp:dir2/dir2/file_bmp',
+  'file_jpg:file_jpg',
+  'file_jpg:dir1/file_jpg.EXT',
+  'file_gif1:dir1/file_gif1',
+  'file_gif1:dir2/file_gif1.EXT',
+  'file_gif2:dir2/dir1/file_gif2',
+  'file_gif2:dir2/dir2/file_gif2.EXT',
+  'file_png:dir2/file_png',
+  'file_png:dir2/dir1/file_png.EXT'
+];
+const resourceSlpaths = [
+  'file_0:syml_0.EXT',
+  'file_0:dir2/dir2/syml_0',
+  'file_10_00:dir1/syml_10',
+  'file_10_00:dir2/syml_10.EXT',
+  'file_gif1:syml_gif1',
+  'file_gif1:dir1/syml_gif1.EXT',
+  'file_gif2:dir2/syml_gif2',
+  'file_gif2:dir2/dir1/syml_gif2.EXT',
+  'file_jpg:syml_jpg.EXT',
+  'file_jpg:dir2/dir2/syml_jpg',
+  'file_png:dir1/syml_png',
+  'file_png:dir2/syml_png.EXT',
+  'file_bmp:dir2/dir1/syml_bmp',
+  'file_bmp:dir2/dir2/syml_bmp.EXT'
+];
 
 const expectRecordList = [
   'BMP/0_12345678901234567-file_bmp.bmp:file_bmp.EXT',
@@ -23,37 +59,37 @@ const expectRecordList = [
 ];
 const recordRegExp = /^(?<ext>.+)\/(?<no>\d+)_\d{17}\-(?<newName>.+)\:(?<oldPath>.+)$/;
 const expectBeforeTargetFpathList = [
-  `${process.cwd()}/testwork/image/file_0`,
-  `${process.cwd()}/testwork/image/file_bmp.EXT`,
-  `${process.cwd()}/testwork/image/file_jpg`,
-  `${process.cwd()}/testwork/image/dir1/file_0.EXT`,
-  `${process.cwd()}/testwork/image/dir1/file_gif1`,
-  `${process.cwd()}/testwork/image/dir1/file_jpg.EXT`,
-  `${process.cwd()}/testwork/image/dir2/file_10`,
-  `${process.cwd()}/testwork/image/dir2/file_gif1.EXT`,
-  `${process.cwd()}/testwork/image/dir2/file_png`,
-  `${process.cwd()}/testwork/image/dir2/dir1/file_10.EXT`,
-  `${process.cwd()}/testwork/image/dir2/dir1/file_gif2`,
-  `${process.cwd()}/testwork/image/dir2/dir1/file_png.EXT`,
-  `${process.cwd()}/testwork/image/dir2/dir2/file_bmp`,
-  `${process.cwd()}/testwork/image/dir2/dir2/file_gif2.EXT`
-].sort();
+  'file_0',
+  'file_bmp.EXT',
+  'file_jpg',
+  'dir1/file_0.EXT',
+  'dir1/file_gif1',
+  'dir1/file_jpg.EXT',
+  'dir2/file_10',
+  'dir2/file_gif1.EXT',
+  'dir2/file_png',
+  'dir2/dir1/file_10.EXT',
+  'dir2/dir1/file_gif2',
+  'dir2/dir1/file_png.EXT',
+  'dir2/dir2/file_bmp',
+  'dir2/dir2/file_gif2.EXT'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
 const expectBeforeTargetSLpathList = [
-  `${process.cwd()}/testwork/image/syml_0.EXT`,
-  `${process.cwd()}/testwork/image/syml_gif1`,
-  `${process.cwd()}/testwork/image/syml_jpg.EXT`,
-  `${process.cwd()}/testwork/image/dir1/syml_10`,
-  `${process.cwd()}/testwork/image/dir1/syml_gif1.EXT`,
-  `${process.cwd()}/testwork/image/dir1/syml_png`,
-  `${process.cwd()}/testwork/image/dir2/syml_10.EXT`,
-  `${process.cwd()}/testwork/image/dir2/syml_gif2`,
-  `${process.cwd()}/testwork/image/dir2/syml_png.EXT`,
-  `${process.cwd()}/testwork/image/dir2/dir1/syml_bmp`,
-  `${process.cwd()}/testwork/image/dir2/dir1/syml_gif2.EXT`,
-  `${process.cwd()}/testwork/image/dir2/dir2/syml_0`,
-  `${process.cwd()}/testwork/image/dir2/dir2/syml_bmp.EXT`,
-  `${process.cwd()}/testwork/image/dir2/dir2/syml_jpg`
-].sort();
+  'syml_0.EXT',
+  'syml_gif1',
+  'syml_jpg.EXT',
+  'dir1/syml_10',
+  'dir1/syml_gif1.EXT',
+  'dir1/syml_png',
+  'dir2/syml_10.EXT',
+  'dir2/syml_gif2',
+  'dir2/syml_png.EXT',
+  'dir2/dir1/syml_bmp',
+  'dir2/dir1/syml_gif2.EXT',
+  'dir2/dir2/syml_0',
+  'dir2/dir2/syml_bmp.EXT',
+  'dir2/dir2/syml_jpg'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
 const expectExtraPathList = [
   'extra.d',
   'extra.d/syml_0.EXT',
@@ -84,7 +120,7 @@ const test_not_forced = async () => {
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'image_TEST_NOT_FORCED.json'));
-  if (info['Target directory'] !== `${process.cwd()}/testwork/image`) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -175,7 +211,7 @@ const test_forced = async () => {
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'image_TEST_FORCED.json'));
-  if (info['Target directory'] !== `${process.cwd()}/testwork/image`) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -283,8 +319,9 @@ const test_forced = async () => {
 };
 
 const main = async () => {
-  fs.emptyDirSync('./testwork/image');
-  fs.copySync('./test/resources/image', './testwork/image');
+  fs.emptyDirSync(baseDpath);
+  utility.generateResourceFiles(baseDpath, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
 
   await test_not_forced();
   await test_forced();
