@@ -68,7 +68,8 @@ const main = async () => {
       headerMap.set(header, []);
     }
     const size = fs.lstatSync(testPath).size.toString(10);
-    const record = `${size}:${testPath}`;
+    const omittedPath = utility.omitPath(testPath, targetDpath);
+    const record = `${size}:${omittedPath}`;
     headerMap.get(header).push(record);
   }
 
