@@ -3,6 +3,26 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
+module.exports.generateResourceFiles = (baseDpath, lines) => {
+  lines.forEach(line => {
+    const [ src, dist ] = line.split(':');
+    const srcPath = path.resolve(process.cwd(), 'test/resources', src);
+    const distPath = path.resolve(baseDpath, dist);
+    fs.mkdirSync(path.dirname(distPath), { recursive: true });
+    fs.copyFileSync(srcPath, distPath);
+  });
+};
+
+module.exports.generateResourceSymbolicLinks = (baseDpath, lines) => {
+  lines.forEach(line => {
+    const [ src, dist ] = line.split(':');
+    const srcPath = path.resolve(process.cwd(), 'test/resources', src);
+    const distPath = path.resolve(baseDpath, dist);
+    fs.mkdirSync(path.dirname(distPath), { recursive: true });
+    fs.symlinkSync(srcPath, distPath);
+  });
+};
+
 module.exports.getAllPaths = (targetDpath) => {
   const allPaths = [];
   const walk = (parentDpath) => {

@@ -1,96 +1,128 @@
 const fs = require('fs-extra');
+const path = require('path');
 const utility = require('../utility');
 
-const testGetAllPaths = async () => {
+const testGenerateResourceFiles = async () => {
+  // TODO
+};
+
+const testGenerateResourceSymbolicLinks = async () => {
+  // TODO
+};
+
+const testGetAllPaths = async (baseDpath) => {
   const expectPaths = [
-    `${process.cwd()}/test/resources/utility_get_paths/dir1`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2`,
-    `${process.cwd()}/test/resources/utility_get_paths/file0`,
-    `${process.cwd()}/test/resources/utility_get_paths/file1`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir1/file2`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir1/file3`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/file4`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/file5`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1/file1.sl`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1/file6`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1/file7`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2/file0.sl`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2/file8`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2/file9`
-  ];
-  const allPaths = utility.getAllPaths('./test/resources/utility_get_paths');
+    'dir1',
+    'dir2',
+    'file0',
+    'file1',
+    'dir1/file2',
+    'dir1/file3',
+    'dir2/dir1',
+    'dir2/dir2',
+    'dir2/file4',
+    'dir2/file5',
+    'dir2/dir1/file6',
+    'dir2/dir1/file7',
+    'dir2/dir1/syml1',
+    'dir2/dir2/file8',
+    'dir2/dir2/file9',
+    'dir2/dir2/syml0'
+  ].map(testPath => path.resolve(baseDpath, testPath));
+  const allPaths = utility.getAllPaths(baseDpath);
   if (allPaths.length !== expectPaths.length) {
     throw new Error(`${allPaths.length}`);
   }
   for (let i = 0; i < allPaths.length; i++) {
-    const testPath = allPaths[i];
-    if (!expectPaths.includes(testPath)) {
-      throw new Error(`${testPath}`);
+    if (allPaths[i] !== expectPaths[i]) {
+      throw new Error();
     }
   }
 };
 
-const testGetDirectoryPaths = async () => {
+const testGetDirectoryPaths = async (baseDpath) => {
   const expectPaths = [
-    `${process.cwd()}/test/resources/utility_get_paths/dir1`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2`
-  ];
-  const allPaths = utility.getDirectoryPaths('./test/resources/utility_get_paths');
+    `dir1`,
+    `dir2`,
+    `dir2/dir1`,
+    `dir2/dir2`
+  ].map(testPath => path.resolve(baseDpath, testPath));
+  const allPaths = utility.getDirectoryPaths(baseDpath);
   if (allPaths.length !== expectPaths.length) {
     throw new Error(`${allPaths.length}`);
   }
   for (let i = 0; i < allPaths.length; i++) {
-    const testPath = allPaths[i];
-    if (!expectPaths.includes(testPath)) {
-      throw new Error(`${testPath}`);
+    if (allPaths[i] !== expectPaths[i]) {
+      throw new Error();
     }
   }
 };
 
-const testGetFilePaths = async () => {
+const testGetFilePaths = async (baseDpath) => {
   const expectPaths = [
-    `${process.cwd()}/test/resources/utility_get_paths/file0`,
-    `${process.cwd()}/test/resources/utility_get_paths/file1`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir1/file2`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir1/file3`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/file4`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/file5`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1/file6`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1/file7`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2/file9`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2/file8`
-  ];
-  const allPaths = utility.getFilePaths('./test/resources/utility_get_paths');
+    'file0',
+    'file1',
+    'dir1/file2',
+    'dir1/file3',
+    'dir2/file4',
+    'dir2/file5',
+    'dir2/dir1/file6',
+    'dir2/dir1/file7',
+    'dir2/dir2/file8',
+    'dir2/dir2/file9'
+  ].map(testPath => path.resolve(baseDpath, testPath));
+  const allPaths = utility.getFilePaths(baseDpath);
   if (allPaths.length !== expectPaths.length) {
     throw new Error(`${allPaths.length}`);
   }
   for (let i = 0; i < allPaths.length; i++) {
-    const testPath = allPaths[i];
-    if (!expectPaths.includes(testPath)) {
-      throw new Error(`${testPath}`);
+    if (allPaths[i] !== expectPaths[i]) {
+      throw new Error();
     }
   }
 };
 
-const testGetSymblicLinkPaths = async () => {
+const testGetSymblicLinkPaths = async (baseDpath) => {
   const expectPaths = [
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir1/file1.sl`,
-    `${process.cwd()}/test/resources/utility_get_paths/dir2/dir2/file0.sl`
-  ];
-  const allPaths = utility.getSymbolicLinkPaths('./test/resources/utility_get_paths');
+    'dir2/dir1/syml1',
+    'dir2/dir2/syml0'
+  ].map(testPath => path.resolve(baseDpath, testPath));
+  const allPaths = utility.getSymbolicLinkPaths(baseDpath);
   if (allPaths.length !== expectPaths.length) {
     throw new Error(`${allPaths.length}`);
   }
   for (let i = 0; i < allPaths.length; i++) {
-    const testPath = allPaths[i];
-    if (!expectPaths.includes(testPath)) {
-      throw new Error(`${testPath}`);
+    if (allPaths[i] !== expectPaths[i]) {
+      throw new Error();
     }
   }
+};
+
+const testGetPaths = async () => {
+  const baseDpath = path.resolve(process.cwd(), 'testwork/utility_get_paths');
+  fs.emptyDirSync(baseDpath);
+  const resourceFpaths = [
+    'file0:file0',
+    'file1:file1',
+    'file2:dir1/file2',
+    'file3:dir1/file3',
+    'file4:dir2/file4',
+    'file5:dir2/file5',
+    'file6:dir2/dir1/file6',
+    'file7:dir2/dir1/file7',
+    'file8:dir2/dir2/file8',
+    'file9:dir2/dir2/file9'
+  ];
+  utility.generateResourceFiles(baseDpath, resourceFpaths);
+  const resourceSlpaths = [
+    'file1:dir2/dir1/syml1',
+    'file0:dir2/dir2/syml0'
+  ];
+  utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
+
+  await testGetAllPaths(baseDpath);
+  await testGetFilePaths(baseDpath);
+  await testGetSymblicLinkPaths(baseDpath);
 };
 
 const testGetExtension = async () => {
@@ -116,7 +148,7 @@ const testGetExtension = async () => {
 };
 
 const testGetFileDigest = async () => {
-  const testFpath = './test/resources/file0-3749f52bb326ae96782b42dc0a97b4c1_3a30948f8cd5655fede389d73b5fecd91251df4a.txt';
+  const testFpath = './test/resources/file0';
   const expect = '3749f52bb326ae96782b42dc0a97b4c1';
   const digest = await utility.getFileDigest(testFpath, 'md5');
   if (expect !== digest) {
@@ -316,12 +348,9 @@ const testOmitPath = async () => {
 };
 
 const test = async () => {
-  fs.emptyDirSync('./testwork/utility');
-
-  await testGetAllPaths();
-  await testGetDirectoryPaths();
-  await testGetFilePaths();
-  await testGetSymblicLinkPaths();
+  // await testGenerateResourceFiles();
+  // await testGenerateResourceSymbolicLinks();
+  await testGetPaths();
   await testGetExtension();
   await testGetFileDigest();
   await testGetFileWriter();
