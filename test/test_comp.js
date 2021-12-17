@@ -1,9 +1,59 @@
 const childProcess = require('child_process');
 const fs = require('fs-extra');
+const path = require('path');
 const utility = require('../utility');
 
 const startTime = Date.now();
 const timestamp = utility.getTimestamp(startTime);
+
+const baseDpath = path.resolve(process.cwd(), 'testwork/comp_base');
+const targetDpath = path.resolve(process.cwd(), 'testwork/comp_target');
+
+const resourceBaseFpaths = [
+  'file0:file0',
+  'file2:dir1/file2_0',
+  'file3:dir2/file3_00',
+  'file4:dir2/dir1/file4',
+  'file5:dir2/dir2/file5',
+  'file5:file5'
+];
+const resourceBaseSlpaths = [
+  'file6:dir1/syml6',
+  'file8:dir2/syml8'
+];
+const resourceTargetFpaths = [
+  'file1:dir2/dir2/file1',
+  'file2:dir2/dir1/file2_1',
+  'file2:dir2/file2_2',
+  'file2:dir1/file2_3',
+  'file2:file2_4',
+  'file2:dir2/dir2/file2_5',
+  'file2:dir2/dir1/file2_6',
+  'file2:dir2/file2_7',
+  'file2:dir1/file2_8',
+  'file2:file2_9',
+  'file3:dir2/dir2/file3_01',
+  'file3:dir2/dir1/file3_02',
+  'file3:dir2/file3_03',
+  'file3:dir1/file3_04',
+  'file3:file3_05',
+  'file3:dir2/dir2/file3_06',
+  'file3:dir2/dir1/file3_07',
+  'file3:dir2/file3_08',
+  'file3:dir1/file3_09',
+  'file3:file3_10',
+  'file4:dir2/dir2/file4',
+  'file4:dir2/dir1/file4',
+  'file4:dir2/dir1/99_76543210987654321-file4',
+  'file5:dir2/file5',
+  'file9:dir2/file9'
+];
+const resourceTargetSlpaths = [
+  'file7:dir1/syml7',
+  'file8:syml8',
+  'file8:dir2/dir2/syml8',
+  'file8:dir2/dir1/99_76543210987654321-syml8'
+];
 
 const expectRecordList = [
   'c688a57c326c2484f8048268b1c50685_c8d45b1619605a32e9e366a4440e5e1cb577fe04/00_12345678901234567-file2_0:dir1/file2_0',
@@ -41,54 +91,54 @@ const expectRecordList = [
 ];
 const recordRegExp = /^(?<digest>syml\.d|[0-9a-z]{32}_[0-9a-z]{40})\/(?<type>\d)(?<no>\d+)_\d{17}\-(?<newName>.+)\:(?<oldPath>.+)$/;
 const expectBaseFpathList = [
-  `${process.cwd()}/testwork/comp_base/file0`,
-  `${process.cwd()}/testwork/comp_base/dir1/file2_0`,
-  `${process.cwd()}/testwork/comp_base/dir2/file3_00`,
-  `${process.cwd()}/testwork/comp_base/dir2/dir1/file4`,
-  `${process.cwd()}/testwork/comp_base/dir2/dir2/file5`,
-  `${process.cwd()}/testwork/comp_base/file5`
-].sort();
+  'file0',
+  'dir1/file2_0',
+  'dir2/file3_00',
+  'dir2/dir1/file4',
+  'dir2/dir2/file5',
+  'file5'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
 const expectBaseSlpathList = [
-  `${process.cwd()}/testwork/comp_base/dir1/syml6`,
-  `${process.cwd()}/testwork/comp_base/dir2/syml8`
-].sort();
+  'dir1/syml6',
+  'dir2/syml8'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
 const expectBeforeTargetFpathList = [
-  `${process.cwd()}/testwork/comp_target/dir2/dir2/file1`,
-  `${process.cwd()}/testwork/comp_target/dir2/dir1/file2_1`,
-  `${process.cwd()}/testwork/comp_target/dir2/file2_2`,
-  `${process.cwd()}/testwork/comp_target/dir1/file2_3`,
-  `${process.cwd()}/testwork/comp_target/file2_4`,
-  `${process.cwd()}/testwork/comp_target/dir2/dir2/file2_5`,
-  `${process.cwd()}/testwork/comp_target/dir2/dir1/file2_6`,
-  `${process.cwd()}/testwork/comp_target/dir2/file2_7`,
-  `${process.cwd()}/testwork/comp_target/dir1/file2_8`,
-  `${process.cwd()}/testwork/comp_target/file2_9`,
-  `${process.cwd()}/testwork/comp_target/dir2/dir2/file3_01`,
-  `${process.cwd()}/testwork/comp_target/dir2/dir1/file3_02`,
-  `${process.cwd()}/testwork/comp_target/dir2/file3_03`,
-  `${process.cwd()}/testwork/comp_target/dir1/file3_04`,
-  `${process.cwd()}/testwork/comp_target/file3_05`,
-  `${process.cwd()}/testwork/comp_target/dir2/dir2/file3_06`,
-  `${process.cwd()}/testwork/comp_target/dir2/dir1/file3_07`,
-  `${process.cwd()}/testwork/comp_target/dir2/file3_08`,
-  `${process.cwd()}/testwork/comp_target/dir1/file3_09`,
-  `${process.cwd()}/testwork/comp_target/file3_10`,
-  `${process.cwd()}/testwork/comp_target/dir2/dir2/file4`,
-  `${process.cwd()}/testwork/comp_target/dir2/dir1/file4`,
-  `${process.cwd()}/testwork/comp_target/dir2/dir1/99_76543210987654321-file4`,
-  `${process.cwd()}/testwork/comp_target/dir2/file5`,
-  `${process.cwd()}/testwork/comp_target/dir2/file9`
-].sort();
+  'dir2/dir2/file1',
+  'dir2/dir1/file2_1',
+  'dir2/file2_2',
+  'dir1/file2_3',
+  'file2_4',
+  'dir2/dir2/file2_5',
+  'dir2/dir1/file2_6',
+  'dir2/file2_7',
+  'dir1/file2_8',
+  'file2_9',
+  'dir2/dir2/file3_01',
+  'dir2/dir1/file3_02',
+  'dir2/file3_03',
+  'dir1/file3_04',
+  'file3_05',
+  'dir2/dir2/file3_06',
+  'dir2/dir1/file3_07',
+  'dir2/file3_08',
+  'dir1/file3_09',
+  'file3_10',
+  'dir2/dir2/file4',
+  'dir2/dir1/file4',
+  'dir2/dir1/99_76543210987654321-file4',
+  'dir2/file5',
+  'dir2/file9'
+].map(testPath => path.resolve(targetDpath, testPath)).sort();
 const expectBeforeTargetSlpathList = [
-  `${process.cwd()}/testwork/comp_target/dir1/syml7`,
-  `${process.cwd()}/testwork/comp_target/syml8`,
-  `${process.cwd()}/testwork/comp_target/dir2/dir2/syml8`,
-  `${process.cwd()}/testwork/comp_target/dir2/dir1/99_76543210987654321-syml8`
-].sort();
+  'dir1/syml7',
+  'syml8',
+  'dir2/dir2/syml8',
+  'dir2/dir1/99_76543210987654321-syml8'
+].map(testPath => path.resolve(targetDpath, testPath)).sort();
 const expectAfterTargetFpathList = [
-  `${process.cwd()}/testwork/comp_target/dir2/dir2/file1`,
-  `${process.cwd()}/testwork/comp_target/dir2/file9`
-].sort();
+  'dir2/dir2/file1',
+  'dir2/file9'
+].map(testPath => path.resolve(targetDpath, testPath)).sort();
 
 // test log
 // test base directory
@@ -99,7 +149,7 @@ const test_not_forced = async () => {
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'comp_TEST_NOT_FORCED.json'));
-  if (info['Base directory'] !== `${process.cwd()}/testwork/comp_base`) {
+  if (info['Base directory'] !== baseDpath) {
     throw new Error(``);
   }
   if (info['Base file count'] !== expectBaseFpathList.length) {
@@ -108,7 +158,7 @@ const test_not_forced = async () => {
   if (info['Base symbolic link count'] !== expectBaseSlpathList.length) {
     throw new Error(``);
   }
-  if (info['Target directory'] !== `${process.cwd()}/testwork/comp_target`) {
+  if (info['Target directory'] !== targetDpath) {
     throw new Error(``);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -218,7 +268,7 @@ const test_forced = async () => {
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'comp_TEST_FORCED.json'));
-  if (info['Base directory'] !== `${process.cwd()}/testwork/comp_base`) {
+  if (info['Base directory'] !== baseDpath) {
     throw new Error(``);
   }
   if (info['Base file count'] !== expectBaseFpathList.length) {
@@ -227,7 +277,7 @@ const test_forced = async () => {
   if (info['Base symbolic link count'] !== expectBaseSlpathList.length) {
     throw new Error(``);
   }
-  if (info['Target directory'] !== `${process.cwd()}/testwork/comp_target`) {
+  if (info['Target directory'] !== targetDpath) {
     throw new Error(``);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -380,10 +430,12 @@ const test_forced = async () => {
 };
 
 const main = async () => {
-  fs.emptyDirSync('./testwork/comp_base');
-  fs.emptyDirSync('./testwork/comp_target');
-  fs.copySync('./test/resources/comp_base', './testwork/comp_base');
-  fs.copySync('./test/resources/comp_target', './testwork/comp_target');
+  fs.emptyDirSync(baseDpath);
+  utility.generateResourceFiles(baseDpath, resourceBaseFpaths);
+  utility.generateResourceSymbolicLinks(baseDpath, resourceBaseSlpaths);
+  fs.emptyDirSync(targetDpath);
+  utility.generateResourceFiles(targetDpath, resourceTargetFpaths);
+  utility.generateResourceSymbolicLinks(targetDpath, resourceTargetSlpaths);
 
   await test_not_forced();
   await test_forced();
