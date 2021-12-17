@@ -6,6 +6,37 @@ const utility = require('../utility');
 const startTime = Date.now();
 const timestamp = utility.getTimestamp(startTime);
 
+const baseDpath = path.resolve(process.cwd(), 'testwork/copy_base');
+
+const resourceFpaths = [
+  'file_bmp:file_bmp',
+  'file_bmp:file_bmp.',
+  'file_bmp:file_bmp1.bmp',
+  'file_bmp:dir1/file_bmp2.BMP',
+  'file_gif1:dir1/file_gif1',
+  'file_gif1:dir1/file_gif1.',
+  'file_gif1:dir2/file_gif1.gif',
+  'file_gif2:dir2/file_gif2',
+  'file_gif2:dir2/file_gif2.',
+  'file_gif2:dir2/dir1/file_gif2.GIF',
+  'file_jpg:dir2/dir1/file_jpg',
+  'file_jpg:dir2/dir1/file_jpg.',
+  'file_jpg:dir2/dir2/file_jpg1.jpg',
+  'file_jpg:file2_jpg2.JPG',
+  'file_png:dir2/dir2/file_png',
+  'file_png:dir2/dir2/file_png.',
+  'file_png:dir1/file_png1.png',
+  'file_png:dir2/file_png2.PNG'
+];
+
+const resourceSlpaths = [
+  'file_bmp:dir2/dir1/syml_bmp',
+  'file_gif1:dir2/dir2/syml_gif1',
+  'file_gif2:syml_gif2',
+  'file_jpg:dir1/syml_jpg',
+  'file_png:dir2/syml_png'
+];
+
 const recordRegExp = /^(?<newPath>.+)\:(?<oldPath>.+)/;
 const expectRecordList = [
   'file_bmp:file_bmp',
@@ -72,39 +103,39 @@ const expectRecordListImgPng = [
   'dir2/file_png2.PNG:dir2/file_png2.PNG'
 ].sort();
 const expectBeforeTargetFpathList = [
-  `${process.cwd()}/test/resources/copy/file_bmp`,
-  `${process.cwd()}/test/resources/copy/dir1/file_gif1`,
-  `${process.cwd()}/test/resources/copy/dir2/file_gif2`,
-  `${process.cwd()}/test/resources/copy/dir2/dir1/file_jpg`,
-  `${process.cwd()}/test/resources/copy/dir2/dir2/file_png`,
-  `${process.cwd()}/test/resources/copy/file_bmp.`,
-  `${process.cwd()}/test/resources/copy/dir1/file_gif1.`,
-  `${process.cwd()}/test/resources/copy/dir2/file_gif2.`,
-  `${process.cwd()}/test/resources/copy/dir2/dir1/file_jpg.`,
-  `${process.cwd()}/test/resources/copy/dir2/dir2/file_png.`,
-  `${process.cwd()}/test/resources/copy/file_bmp1.bmp`,
-  `${process.cwd()}/test/resources/copy/dir1/file_bmp2.BMP`,
-  `${process.cwd()}/test/resources/copy/dir2/file_gif1.gif`,
-  `${process.cwd()}/test/resources/copy/dir2/dir1/file_gif2.GIF`,
-  `${process.cwd()}/test/resources/copy/dir2/dir2/file_jpg1.jpg`,
-  `${process.cwd()}/test/resources/copy/file2_jpg2.JPG`,
-  `${process.cwd()}/test/resources/copy/dir1/file_png1.png`,
-  `${process.cwd()}/test/resources/copy/dir2/file_png2.PNG`
-].sort();
+  'file_bmp',
+  'dir1/file_gif1',
+  'dir2/file_gif2',
+  'dir2/dir1/file_jpg',
+  'dir2/dir2/file_png',
+  'file_bmp.',
+  'dir1/file_gif1.',
+  'dir2/file_gif2.',
+  'dir2/dir1/file_jpg.',
+  'dir2/dir2/file_png.',
+  'file_bmp1.bmp',
+  'dir1/file_bmp2.BMP',
+  'dir2/file_gif1.gif',
+  'dir2/dir1/file_gif2.GIF',
+  'dir2/dir2/file_jpg1.jpg',
+  'file2_jpg2.JPG',
+  'dir1/file_png1.png',
+  'dir2/file_png2.PNG'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
 const expectBeforeTargetSlpathList = [
-  `${process.cwd()}/test/resources/copy/dir2/dir1/syml_bmp`,
-  `${process.cwd()}/test/resources/copy/dir2/dir2/syml_gif1`,
-  `${process.cwd()}/test/resources/copy/syml_gif2`,
-  `${process.cwd()}/test/resources/copy/dir1/syml_jpg`,
-  `${process.cwd()}/test/resources/copy/dir2/syml_png`
-].sort();
+  'dir2/dir1/syml_bmp',
+  'dir2/dir2/syml_gif1',
+  'syml_gif2',
+  'dir1/syml_jpg',
+  'dir2/syml_png'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
 
 // test log
 // test target directory
 // test destination directory
 const test_not_forced = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy -s TEST_NOT_FORCED`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy -s TEST_NOT_FORCED`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy');
 
   // test log
@@ -168,8 +199,8 @@ const test_not_forced = async () => {
 // test target directory
 // test destination directory
 const test_forced = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy -s TEST_FORCED -F`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy -s TEST_FORCED -F`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy');
 
   // test log
@@ -247,8 +278,8 @@ const test_forced = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_ext_none = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_ext_none -s TEST_NOT_FORCED_EXT_NONE -e ext_none.d -i`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_none -s TEST_NOT_FORCED_EXT_NONE -e ext_none.d -i`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_ext_none');
 
   // test log
@@ -312,8 +343,8 @@ const test_not_forced_ext_none = async () => {
 // test target directory
 // test destination directory
 const test_forced_ext_none = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_ext_none -s TEST_FORCED_EXT_NONE -F -e ext_none.d -i`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_none -s TEST_FORCED_EXT_NONE -F -e ext_none.d -i`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_ext_none');
 
   // test log
@@ -391,8 +422,8 @@ const test_forced_ext_none = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_ext_zero = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_ext_zero -s TEST_NOT_FORCED_EXT_ZERO -e ext_zero.d -i`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_zero -s TEST_NOT_FORCED_EXT_ZERO -e ext_zero.d -i`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_ext_zero');
 
   // test log
@@ -456,8 +487,8 @@ const test_not_forced_ext_zero = async () => {
 // test target directory
 // test destination directory
 const test_forced_ext_zero = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_ext_zero -s TEST_FORCED_EXT_ZERO -F -e ext_zero.d -i`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_zero -s TEST_FORCED_EXT_ZERO -F -e ext_zero.d -i`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_ext_zero');
 
   // test log
@@ -535,8 +566,8 @@ const test_forced_ext_zero = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_ext_zero2 = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_ext_zero2 -s TEST_NOT_FORCED_EXT_ZERO2 -e "" -i`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_zero2 -s TEST_NOT_FORCED_EXT_ZERO2 -e "" -i`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_ext_zero2');
 
   // test log
@@ -600,8 +631,8 @@ const test_not_forced_ext_zero2 = async () => {
 // test target directory
 // test destination directory
 const test_forced_ext_zero2 = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_ext_zero2 -s TEST_FORCED_EXT_ZERO2 -F -e "" -i`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_zero2 -s TEST_FORCED_EXT_ZERO2 -F -e "" -i`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_ext_zero2');
 
   // test log
@@ -679,8 +710,8 @@ const test_forced_ext_zero2 = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_ext_bmp = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_ext_bmp -s TEST_NOT_FORCED_EXT_BMP -e BMP -i`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_bmp -s TEST_NOT_FORCED_EXT_BMP -e BMP -i`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_ext_bmp');
 
   // test log
@@ -744,8 +775,8 @@ const test_not_forced_ext_bmp = async () => {
 // test target directory
 // test destination directory
 const test_forced_ext_bmp = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_ext_bmp -s TEST_FORCED_EXT_BMP -F -e BMP -i`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_bmp -s TEST_FORCED_EXT_BMP -F -e BMP -i`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_ext_bmp');
 
   // test log
@@ -823,8 +854,8 @@ const test_forced_ext_bmp = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_img_bmp = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_img_bmp -s TEST_NOT_FORCED_IMG_BMP -e -i bmp`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_bmp -s TEST_NOT_FORCED_IMG_BMP -e -i bmp`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_img_bmp');
 
   // test log
@@ -888,8 +919,8 @@ const test_not_forced_img_bmp = async () => {
 // test target directory
 // test destination directory
 const test_forced_img_bmp = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_img_bmp -s TEST_FORCED_IMG_BMP -F -e -i bmp`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_bmp -s TEST_FORCED_IMG_BMP -F -e -i bmp`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_img_bmp');
 
   // test log
@@ -967,8 +998,8 @@ const test_forced_img_bmp = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_img_gif = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_img_gif -s TEST_NOT_FORCED_IMG_GIF -e -i gif`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_gif -s TEST_NOT_FORCED_IMG_GIF -e -i gif`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_img_gif');
 
   // test log
@@ -1032,8 +1063,8 @@ const test_not_forced_img_gif = async () => {
 // test target directory
 // test destination directory
 const test_forced_img_gif = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_img_gif -s TEST_FORCED_IMG_GIF -F -e -i GIF`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_gif -s TEST_FORCED_IMG_GIF -F -e -i GIF`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_img_gif');
 
   // test log
@@ -1111,8 +1142,8 @@ const test_forced_img_gif = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_img_jpg = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_img_jpg -s TEST_NOT_FORCED_IMG_JPG -e -i JPG`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_jpg -s TEST_NOT_FORCED_IMG_JPG -e -i JPG`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_img_jpg');
 
   // test log
@@ -1176,8 +1207,8 @@ const test_not_forced_img_jpg = async () => {
 // test target directory
 // test destination directory
 const test_forced_img_jpg = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_img_jpg -s TEST_FORCED_IMG_JPG -F -e -i jpg`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_jpg -s TEST_FORCED_IMG_JPG -F -e -i jpg`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_img_jpg');
 
   // test log
@@ -1255,8 +1286,8 @@ const test_forced_img_jpg = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_img_png = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_img_png -s TEST_NOT_FORCED_IMG_PNG -e -i PNG`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_png -s TEST_NOT_FORCED_IMG_PNG -e -i PNG`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_img_png');
 
   // test log
@@ -1320,8 +1351,8 @@ const test_not_forced_img_png = async () => {
 // test target directory
 // test destination directory
 const test_forced_img_png = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_img_png -s TEST_FORCED_IMG_PNG -F -e -i png`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_png -s TEST_FORCED_IMG_PNG -F -e -i png`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_img_png');
 
   // test log
@@ -1399,8 +1430,8 @@ const test_forced_img_png = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_img_other = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_img_other -s TEST_NOT_FORCED_IMG_OTHER -e -i OTHER`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_other -s TEST_NOT_FORCED_IMG_OTHER -e -i OTHER`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_img_other');
 
   // test log
@@ -1464,8 +1495,8 @@ const test_not_forced_img_other = async () => {
 // test target directory
 // test destination directory
 const test_forced_img_other = async () => {
-  childProcess.execSync(`node copy ./test/resources/copy ./testwork/copy_img_other -s TEST_FORCED_IMG_OTHER -F -e -i other`);
-  const targetDpath = path.resolve('./test/resources/copy');
+  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_other -s TEST_FORCED_IMG_OTHER -F -e -i other`);
+  const targetDpath = path.resolve('./testwork/copy_base');
   const destinationDpath = path.resolve('./testwork/copy_img_other');
 
   // test log
@@ -1540,6 +1571,10 @@ const test_forced_img_other = async () => {
 };
 
 const main = async () => {
+  fs.emptyDirSync(baseDpath);
+  utility.generateResourceFiles(baseDpath, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
+
   fs.emptyDirSync('./testwork/copy');
   await test_not_forced();
   await test_forced();
