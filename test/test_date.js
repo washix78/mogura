@@ -6,6 +6,30 @@ const utility = require('../utility');
 const startTime = Date.now();
 const timestamp = utility.getTimestamp(startTime);
 
+const baseDpathY = path.resolve(process.cwd(), 'testwork/date_y');
+const baseDpathYm = path.resolve(process.cwd(), 'testwork/date_ym');
+const baseDpathYmd = path.resolve(process.cwd(), 'testwork/date_ymd');
+
+const resourceFpaths = [
+  'file0:file0',
+  'file0:dir2/dir2/99_76543210987654321-file0',
+  'file1:dir1/file1',
+  'file1:dir2/dir1/file1',
+  'file2:dir2/98_76543210987654321-file2',
+  'file2:dir2/file2',
+  'file3:dir1/file3',
+  'file3:dir2/dir1/file3',
+  'file4:97_76543210987654321-file4',
+  'file4:dir2/dir2/file4'
+];
+const resourceSlpaths = [
+  'file0:dir2/dir2/syml0',
+  'file1:dir2/dir1/syml1',
+  'file2:dir2/syml2',
+  'file3:dir1/syml3',
+  'file4:syml4'
+];
+
 const expectRecordListDy = [
   '1234/99_12345678901234567-file0:file0',
   '1234/99_12345678901234567-file1:dir1/file1',
@@ -636,18 +660,21 @@ const test_forced_dymd = async () => {
 };
 
 const main = async () => {
-  fs.emptyDirSync('./testwork/date_y');
-  fs.copySync('./test/resources/date', './testwork/date_y');
+  fs.emptyDirSync(baseDpathY);
+  utility.generateResourceFiles(baseDpathY, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpathY, resourceSlpaths);
   await test_not_forced_dy();
   await test_forced_dy();
 
-  fs.emptyDirSync('./testwork/date_ym');
-  fs.copySync('./test/resources/date', './testwork/date_ym');
+  fs.emptyDirSync(baseDpathYm);
+  utility.generateResourceFiles(baseDpathYm, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpathYm, resourceSlpaths);
   await test_not_forced_dym();
   await test_forced_dym();
 
-  fs.emptyDirSync('./testwork/date_ymd');
-  fs.copySync('./test/resources/date', './testwork/date_ymd');
+  fs.emptyDirSync(baseDpathYmd);
+  utility.generateResourceFiles(baseDpathYmd, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpathYmd, resourceSlpaths);
   await test_not_forced_dymd();
   await test_forced_dymd();
 };
