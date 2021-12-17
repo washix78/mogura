@@ -1,9 +1,36 @@
 const childProcess = require('child_process');
 const fs = require('fs-extra');
+const path = require('path');
 const utility = require('../utility');
 
 const startTime = Date.now();
 const timestamp = utility.getTimestamp(startTime);
+
+const baseDpath = path.resolve(process.cwd(), 'testwork/size');
+
+const resourceFpaths = [
+  '1_1.bmp:dir2/dir1/1_1.bmp',
+  '1_1.gif:dir2/1_1.gif',
+  '1_10.jpg:dir1/1_10.jpg',
+  '10_1.png:10_1.png',
+  '2_10.bmp:dir2/dir2/2_10.bmp',
+  '10_2.gif:dir2/dir1/10_2.gif',
+  '10_10.jpg:dir2/10_10.jpg',
+  '10_10.png:dir1/10_10.png',
+  'file0:99_76543210987654321-file0',
+  'file1:dir1/file1',
+  'file2:dir2/98_76543210987654321-file2',
+  'file3:dir2/dir1/file3',
+  'file4:dir2/dir2/97_76543210987654321-file4',
+  'file5:file5',
+  'file6:dir1/96_76543210987654321-file6',
+  'file7:dir2/file7',
+  'file8:dir2/dir1/95_76543210987654321-file8',
+  'file9:dir2/dir2/file9'
+];
+const resourceSlpaths = [
+  'file0:dir2/dir2/syml0'
+];
 
 const expectRecordList = [
   '1_1/0_12345678901234567-1_1.bmp:dir2/dir1/1_1.bmp',
@@ -27,28 +54,28 @@ const expectRecordList = [
 ];
 const recordRegExp = /^(?<size>other\.d|\d+_\d+)\/(?<no>\d+)_\d{17}\-(?<newName>.+)\:(?<oldPath>.+)$/;
 const expectBeforeTargetFpathList = [
-  `${process.cwd()}/testwork/size/dir2/dir1/1_1.bmp`,
-  `${process.cwd()}/testwork/size/dir2/1_1.gif`,
-  `${process.cwd()}/testwork/size/dir1/1_10.jpg`,
-  `${process.cwd()}/testwork/size/10_1.png`,
-  `${process.cwd()}/testwork/size/dir2/dir2/2_10.bmp`,
-  `${process.cwd()}/testwork/size/dir2/dir1/10_2.gif`,
-  `${process.cwd()}/testwork/size/dir2/10_10.jpg`,
-  `${process.cwd()}/testwork/size/dir1/10_10.png`,
-  `${process.cwd()}/testwork/size/99_76543210987654321-file0`,
-  `${process.cwd()}/testwork/size/dir1/file1`,
-  `${process.cwd()}/testwork/size/dir2/98_76543210987654321-file2`,
-  `${process.cwd()}/testwork/size/dir2/dir1/file3`,
-  `${process.cwd()}/testwork/size/dir2/dir2/97_76543210987654321-file4`,
-  `${process.cwd()}/testwork/size/file5`,
-  `${process.cwd()}/testwork/size/dir1/96_76543210987654321-file6`,
-  `${process.cwd()}/testwork/size/dir2/file7`,
-  `${process.cwd()}/testwork/size/dir2/dir1/95_76543210987654321-file8`,
-  `${process.cwd()}/testwork/size/dir2/dir2/file9`
-].sort();
+  'dir2/dir1/1_1.bmp',
+  'dir2/1_1.gif',
+  'dir1/1_10.jpg',
+  '10_1.png',
+  'dir2/dir2/2_10.bmp',
+  'dir2/dir1/10_2.gif',
+  'dir2/10_10.jpg',
+  'dir1/10_10.png',
+  '99_76543210987654321-file0',
+  'dir1/file1',
+  'dir2/98_76543210987654321-file2',
+  'dir2/dir1/file3',
+  'dir2/dir2/97_76543210987654321-file4',
+  'file5',
+  'dir1/96_76543210987654321-file6',
+  'dir2/file7',
+  'dir2/dir1/95_76543210987654321-file8',
+  'dir2/dir2/file9'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
 const expectBeforeTargetSLpathList = [
-  `${process.cwd()}/testwork/size/dir2/dir2/syml0`
-].sort();
+  'dir2/dir2/syml0'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
 const expectExtraPathList = [
   'extra.d',
   'extra.d/dir1',
@@ -66,7 +93,7 @@ const test_not_forced = async () => {
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'size_TEST_NOT_FORCED.json'));
-  if (info['Target directory'] !== `${process.cwd()}/testwork/size`) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -157,7 +184,7 @@ const test_forced = async () => {
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'size_TEST_FORCED.json'));
-  if (info['Target directory'] !== `${process.cwd()}/testwork/size`) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -267,8 +294,9 @@ const test_forced = async () => {
 };
 
 const main = async () => {
-  fs.emptyDirSync('./testwork/size');
-  fs.copySync('./test/resources/size', './testwork/size');
+  fs.emptyDirSync(baseDpath);
+  utility.generateResourceFiles(baseDpath, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
 
   await test_not_forced();
   await test_forced();
