@@ -121,6 +121,7 @@ const testGetPaths = async () => {
   utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
 
   await testGetAllPaths(baseDpath);
+  await testGetDirectoryPaths(baseDpath);
   await testGetFilePaths(baseDpath);
   await testGetSymblicLinkPaths(baseDpath);
 };
