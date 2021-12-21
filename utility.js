@@ -132,35 +132,6 @@ module.exports.getFileDigest = (fpath, algorithm) => {
   });
 };
 
-module.exports.getFileWriter = (fpath) => {
-  return new class {
-    constructor(fpath) {
-      this.ws = fs.createWriteStream(fpath).
-        on('error', (err) => { throw err });
-    }
-
-    write(lines) {
-      if (Array.isArray(lines)) {
-        lines.forEach(line => {
-          this.ws.write(line);
-          this.ws.write(os.EOL);
-        });
-      } else {
-        this.ws.write(lines);
-        this.ws.write(os.EOL);
-      }
-    }
-
-    end() {
-      return new Promise((resolve, _) => {
-        this.ws.on('close', () => resolve());
-        this.ws.end();
-        this.ws.close();
-      });
-    }
-  }(fpath);
-};
-
 module.exports.getFormattedName = (name, no, btime) => {
   const prefix = `${no}_${btime}-`;
   const newName = /^\d+_\d{17}\-/.test(name) ?

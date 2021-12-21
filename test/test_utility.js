@@ -163,21 +163,6 @@ const testGetFileDigest = async () => {
   }
 };
 
-const testGetFileWriter = async () => {
-  const outputPath = './testwork/utility/actual_test_get_file_writer.txt';
-  const writer = utility.getFileWriter(outputPath);
-  writer.write('1');
-  writer.write([ '2', '3' ]);
-  await writer.end();
-  const expectFpath = './test/resources/expect_test_get_file_writer.txt';
-  const a = fs.readFileSync(expectFpath, 'utf8');
-  const b = fs.readFileSync(outputPath, 'utf8');
-
-  if (a !== b) {
-    throw new Error('testGetFileWriter');
-  }
-};
-
 const testGetFormattedName = async () => {
   const src = [
     'file',
@@ -354,7 +339,6 @@ const test = async () => {
   await testGetPaths();
   await testGetExtension();
   await testGetFileDigest();
-  await testGetFileWriter();
   await testGetFormattedName();
   await testGetFormattedNameWithExtension();
   await testGetImageType();
