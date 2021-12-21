@@ -190,7 +190,7 @@ const test = async () => {
   }
   for (let hi = 0; hi < headers.length; hi++) {
     const header = headers[hi];
-    const records = log['Headers'][header];
+    const records = log['Headers'][header].map(record => record.replaceAll(path.sep, '/'));
     if (records.length !== expectLog['Headers'][header].length) {
       throw new Error(``);
     }
@@ -233,7 +233,7 @@ const test_n5 = async () => {
   }
   for (let hi = 0; hi < headers.length; hi++) {
     const header = headers[hi];
-    const records = log['Headers'][header];
+    const records = log['Headers'][header].map(record => record.replaceAll(path.sep, '/'));
     if (records.length !== expectLogN5['Headers'][header].length) {
       throw new Error(``);
     }
@@ -276,7 +276,7 @@ const test_n15 = async () => {
   }
   for (let hi = 0; hi < headers.length; hi++) {
     const header = headers[hi];
-    const records = log['Headers'][header];
+    const records = log['Headers'][header].map(record => record.replaceAll(path.sep, '/'));
     if (records.length !== expectLogN15['Headers'][header].length) {
       throw new Error(``);
     }
