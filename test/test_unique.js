@@ -227,7 +227,7 @@ const test_forced = async () => {
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'unique_TEST_FORCED.json'));
-  if (info['Target directory'] !== `${process.cwd()}/testwork/unique`) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
