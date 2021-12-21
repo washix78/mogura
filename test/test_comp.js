@@ -176,12 +176,13 @@ const test_not_forced = async () => {
   if (info['Records'].length !== expectRecordList.length) {
     throw new Error(``);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (!recordRegExp.test(info['Records'][i])) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (!recordRegExp.test(records[i])) {
       throw new Error(``);
     }
   }
-  const actualRecord_digest_type_no = info['Records'].map(record => {
+  const actualRecord_digest_type_no = records.map(record => {
     const groups = recordRegExp.exec(record);
     return `${groups.digest}:${groups.type}:${groups.no}`;
   }).sort();
@@ -196,11 +197,11 @@ const test_not_forced = async () => {
       throw new Error(``);
     }
   }
-  const actualRecord_digest_newName_oldPath = info['Records'].map(record => {
+  const actualRecord_digest_newName_oldPath = records.map(record => {
     const groups = recordRegExp.exec(record).groups;
     return `${groups.digest}:${groups.newName}:${groups.oldPath}`;
   }).sort()
-  const expectRecord_digest_newName_oldPath = info['Records'].map(record => {
+  const expectRecord_digest_newName_oldPath = records.map(record => {
     const groups = recordRegExp.exec(record).groups;
     return `${groups.digest}:${groups.newName}:${groups.oldPath}`;
   }).sort();
@@ -296,12 +297,13 @@ const test_forced = async () => {
   if (info['Records'].length !== expectRecordList.length) {
     throw new Error(``);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (!recordRegExp.test(info['Records'][i])) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (!recordRegExp.test(records[i])) {
       throw new Error(``);
     }
   }
-  const actualRecord_digest_type_no = info['Records'].map(record => {
+  const actualRecord_digest_type_no = records.map(record => {
     const groups = recordRegExp.exec(record);
     return `${groups.digest}:${groups.type}:${groups.no}`;
   }).sort();
@@ -316,11 +318,11 @@ const test_forced = async () => {
       throw new Error(``);
     }
   }
-  const actualRecord_digest_newName_oldPath = info['Records'].map(record => {
+  const actualRecord_digest_newName_oldPath = records.map(record => {
     const groups = recordRegExp.exec(record).groups;
     return `${groups.digest}:${groups.newName}:${groups.oldPath}`;
   }).sort()
-  const expectRecord_digest_newName_oldPath = info['Records'].map(record => {
+  const expectRecord_digest_newName_oldPath = records.map(record => {
     const groups = recordRegExp.exec(record).groups;
     return `${groups.digest}:${groups.newName}:${groups.oldPath}`;
   }).sort();
