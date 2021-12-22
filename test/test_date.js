@@ -425,11 +425,11 @@ const test_forced_dym = async () => {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath);
+  const targetFpaths = utility.getFilePaths(targetDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetFpaths.length !== expectRecordListDym.length) {
     throw new Error(``);
   }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath);
+  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).map(testPath => testPath.replaceAllpath.sep, '/');
   if (targetSlpaths.length !== 0) {
     throw new Error(``);
   }
