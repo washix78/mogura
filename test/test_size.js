@@ -246,9 +246,9 @@ const test_forced = async () => {
   }
 
   // test target directory
-  const targetPaths = utility.getFilePaths('./testwork/size').concat(
-    utility.getSymbolicLinkPaths('./testwork/size')
-  );
+  const targetPaths = utility.getFilePaths('./testwork/size').
+    concat(utility.getSymbolicLinkPaths('./testwork/size')).
+    map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetPaths.length !== expectRecordList.length) {
     throw new Error(``);
   }
@@ -277,7 +277,7 @@ const test_forced = async () => {
     }
   }
   // test extra directory
-  const extraPaths = utility.getAllPaths(execIdDpath);
+  const extraPaths = utility.getAllPaths(execIdDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (extraPaths.length !== expectExtraPathList.length) {
     throw new Error(``);
   }
