@@ -68,7 +68,8 @@ const main = async () => {
     if (!ymdMap.has(ymd)) {
       ymdMap.set(ymd, []);
     }
-    const record = `${btime}:${testPath}`;
+    const omittedOld = utility.omitPath(testPath, targetDpath);
+    const record = `${btime}:${omittedOld}`;
     ymdMap.get(ymd).push(record);
   }
 
@@ -81,10 +82,10 @@ const main = async () => {
     const records = ymdMap.get(ymd).sort();
     const digitCount = (records.length - 1).toString().length;
     const pairs = records.map((record, i) => {
-      const [ btime, testPath ] = record.split(':');
+      const [ btime, omittedOld ] = record.split(':');
       const no = i.toString().padStart(digitCount, '0');
-      const newName = utility.getFormattedName(path.basename(testPath), no, btime);
-      return [ newName, testPath ];
+      const newName = utility.getFormattedName(path.basename(omittedOld), no, btime);
+      return [ newName, omittedOld ];
     });
 
     const ymdDpath = path.resolve(execIdDpath, ymd);
@@ -92,13 +93,13 @@ const main = async () => {
       fs.mkdirSync(ymdDpath);
     }
     for (let i = 0; i < pairs.length; i++) {
-      const [ newName, testPath ] = pairs[i];
+      const [ newName, omittedOld ] = pairs[i];
+      const oldPath = path.resolve(targetDpath, omittedOld);
       const newPath = path.resolve(ymdDpath, newName);
       if (isForced) {
-        fs.renameSync(testPath, newPath);
+        fs.renameSync(oldPath, newPath);
       }
       const omittedNew = utility.omitPath(newPath, execIdDpath);
-      const omittedOld = utility.omitPath(testPath, targetDpath);
       info['Records'].push(`${omittedNew}:${omittedOld}`);
     }
   }
