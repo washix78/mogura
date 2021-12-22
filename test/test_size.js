@@ -111,13 +111,14 @@ const test_not_forced = async () => {
   if (info['Records'].length !== expectRecordList.length) {
     throw new Error(`${expectRecordList.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    const record = info['Records'][i];
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
     if (!recordRegExp.test(record)) {
       throw new Error(``);
     }
   }
-  const actualRecord_size_no = info['Records'].map(record => {
+  const actualRecord_size_no = records.map(record => {
     const groups = recordRegExp.exec(record).groups;
     return `${groups.size}:${groups.no}`;
   }).sort();
@@ -132,7 +133,7 @@ const test_not_forced = async () => {
       throw new Error(``);
     }
   }
-  const actualRecord_size_newName_oldPath = info['Records'].map(record => {
+  const actualRecord_size_newName_oldPath = records.map(record => {
     const groups = recordRegExp.exec(record).groups;
     return `${groups.size}:${groups.newName}:${groups.oldPath}`;
   }).sort();
@@ -203,13 +204,14 @@ const test_forced = async () => {
   if (info['Records'].length !== expectRecordList.length) {
     throw new Error(`${expectRecordList.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    const record = info['Records'][i];
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
     if (!recordRegExp.test(record)) {
       throw new Error(``);
     }
   }
-  const actualRecord_size_no = info['Records'].map(record => {
+  const actualRecord_size_no = records.map(record => {
     const groups = recordRegExp.exec(record).groups;
     return `${groups.size}:${groups.no}`;
   }).sort();
@@ -224,7 +226,7 @@ const test_forced = async () => {
       throw new Error(``);
     }
   }
-  const actualRecord_size_newName_oldPath = info['Records'].map(record => {
+  const actualRecord_size_newName_oldPath = records.map(record => {
     const groups = recordRegExp.exec(record).groups;
     return `${groups.size}:${groups.newName}:${groups.oldPath}`;
   }).sort();
