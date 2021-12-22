@@ -532,7 +532,7 @@ const test_not_forced_dymd = async () => {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath);
+  const targetFpaths = utility.getFilePaths(targetDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
     throw new Error(`${targetFpaths.length}`);
   }
@@ -542,7 +542,7 @@ const test_not_forced_dymd = async () => {
       throw new Error(`${targetFpaths[i]}`);
     }
   }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath);
+  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
     throw new Error(`${targetSlpaths.length}`);
   }
