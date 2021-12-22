@@ -307,9 +307,9 @@ const test_forced = async () => {
     throw new Error(``);
   }
   // test extra directory
-  const extraPaths = utility.getFilePaths(execIdDpath).concat(
-    utility.getSymbolicLinkPaths(execIdDpath)
-  );
+  const extraPaths = utility.getFilePaths(execIdDpath).
+    concat(utility.getSymbolicLinkPaths(execIdDpath)).
+    map(testPath => testPath.replaceAll(path.sep, '/'));
   if (extraPaths.length !== expectRecordList.length) {
     throw new Error(``);
   }
