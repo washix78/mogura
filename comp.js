@@ -71,7 +71,9 @@ const main = async () => {
     if (!digestMap.has(digest)) {
       digestMap.set(digest, []);
     }
-    const record = `0:${testPath}`;
+    const btime = utility.getTimestamp(fs.lstatSync(testPath).birthtimeMs);
+    const omittedOld = utility.omitPath(testPath, baseDpath);
+    const record = `0:${btime}:${omittedOld}`;
     digestMap.get(digest).push(record);
   }
 
@@ -83,24 +85,22 @@ const main = async () => {
     const digest2 = await utility.getFileDigest(testPath, 'sha1');
     const digest = `${digest1}_${digest2}`;
     if (digestMap.has(digest)) {
-      const record = `1:${testPath}`;
+      const btime = utility.getTimestamp(fs.lstatSync(testPath).birthtimeMs);
+      const omittedOld = utility.omitPath(testPath, targetDpath);
+      const record = `1:${btime}:${omittedOld}`;
       digestMap.get(digest).push(record);
     }
   }
 
   const move = (digest, records) => {
     const digitCount = (records.length - 1).toString().length;
-    const pairs = records.map(record => {
-      const [ type, testPath ] = record.split(':');
-      const btime = fs.lstatSync(testPath).birthtimeMs;
-      return `${type}:${utility.getTimestamp(btime)}:${testPath}`;
-    }).
+    const pairs = records.
     sort().
     map((record, i) => {
-      const [ type, btime, testPath ] = record.split(':');
+      const [ type, btime, omittedOld ] = record.split(':');
       const no = i.toString().padStart(digitCount, '0');
-      const newName = utility.getFormattedName(path.basename(testPath), `${type}${no}`, btime);
-      return [ newName, testPath ];
+      const newName = utility.getFormattedName(path.basename(omittedOld), `${type}${no}`, btime);
+      return [ newName, omittedOld ];
     });
 
     const digestDpath = path.resolve(execIdDpath, digest);
@@ -108,17 +108,18 @@ const main = async () => {
       fs.mkdirSync(digestDpath);
     }
     for (let i = 0; i < pairs.length; i++) {
-      const [ newName, testPath ] = pairs[i];
+      const [ newName, omittedOld ] = pairs[i];
       const newPath = path.resolve(digestDpath, newName);
       if (isForced) {
         if (newName.startsWith('0')) {
-          fs.symlinkSync(testPath, newPath);
+          const oldPath = path.resolve(baseDpath, omittedOld);
+          fs.symlinkSync(oldPath, newPath);
         } else {
-          fs.renameSync(testPath, newPath);
+          const oldPath = path.resolve(targetDpath, omittedOld);
+          fs.renameSync(oldPath, newPath);
         }
       }
       const omittedNew = utility.omitPath(newPath, execIdDpath);
-      const omittedOld = utility.omitPath(testPath, targetDpath);
       info['Records'].push(`${omittedNew}:${omittedOld}`);
     }
   };
@@ -134,7 +135,11 @@ const main = async () => {
 
   const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath);
   info['Target symbolic link count'] = targetSlpaths.length;
-  const targetSlrecords = targetSlpaths.map(testPath => `1:${testPath}`);
+  const targetSlrecords = targetSlpaths.map(testPath => {
+    const btime = utility.getTimestamp(fs.lstatSync(testPath).birthtimeMs);
+    const omittedOld = utility.omitPath(testPath, targetDpath);
+    return `1:${btime}:${omittedOld}`
+  });
   move('syml.d', targetSlrecords);
 };
 

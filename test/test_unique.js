@@ -1,9 +1,50 @@
 const childProcess = require('child_process');
 const fs = require('fs-extra');
+const path = require('path');
 const utility = require('../utility');
 
 const startTime = Date.now();
 const timestamp = utility.getTimestamp(startTime);
+
+const baseDpath = path.resolve(process.cwd(), 'testwork/unique');
+
+const resourceFpaths = [
+  'file0:file0',
+  'file1:dir1/file1',
+  'file1:dir2/file1',
+  'file2:99_76543210987654321-00_12345678901234567-file2',
+  'file2:dir2/dir1/file2_1',
+  'file2:dir2/dir1/file2_2',
+  'file2:dir2/dir2/99_76543210987654321-file2',
+  'file3:dir1/file3_0',
+  'file3:dir2/file3_1',
+  'file3:dir2/dir1/file3_2',
+  'file3:dir2/dir2/file3_3',
+  'file3:file3_4',
+  'file3:dir1/file3_5',
+  'file3:dir2/file3_6',
+  'file3:dir2/dir1/file3_7',
+  'file3:dir2/dir2/file3_8',
+  'file3:file3_9',
+  'file4:dir1/file4_00',
+  'file4:dir2/file4_01',
+  'file4:dir2/dir1/file4_02',
+  'file4:dir2/dir2/file4_03',
+  'file4:file4_04',
+  'file4:dir1/file4_05',
+  'file4:dir2/file4_06',
+  'file4:dir2/dir1/file4_07',
+  'file4:dir2/dir2/file4_08',
+  'file4:file4_09',
+  'file4:dir1/file4_10'
+];
+const resourceSlpaths = [
+  'file5:dir2/syml5',
+  'file6:dir2/dir1/syml6',
+  'file7:dir2/dir2/syml7',
+  'file8:syml8',
+  'file9:dir1/syml9'
+];
 
 const expectRecordList = [
   '7c12772809c1c0c3deda6103b10fdfa0_12039d6dd9a7e27622301e935b6eefc78846802e/0_12345678901234567-file1:dir1/file1',
@@ -41,42 +82,42 @@ const expectRecordList = [
 ];
 const recordRegExp = /^(?<digest>syml\.d|[0-9a-z]{32}_[0-9a-z]{40})\/(?<no>\d+)_\d{17}\-(?<newName>.+)\:(?<oldPath>.+)$/;
 const expectBeforeTargetFpathList = [
-  `${process.cwd()}/testwork/unique/file0`,
-  `${process.cwd()}/testwork/unique/dir1/file1`,
-  `${process.cwd()}/testwork/unique/dir2/file1`,
-  `${process.cwd()}/testwork/unique/dir2/dir1/file2_1`,
-  `${process.cwd()}/testwork/unique/dir2/dir1/file2_2`,
-  `${process.cwd()}/testwork/unique/dir2/dir2/99_76543210987654321-file2`,
-  `${process.cwd()}/testwork/unique/99_76543210987654321-00_12345678901234567-file2`,
-  `${process.cwd()}/testwork/unique/dir1/file3_0`,
-  `${process.cwd()}/testwork/unique/dir2/file3_1`,
-  `${process.cwd()}/testwork/unique/dir2/dir1/file3_2`,
-  `${process.cwd()}/testwork/unique/dir2/dir2/file3_3`,
-  `${process.cwd()}/testwork/unique/file3_4`,
-  `${process.cwd()}/testwork/unique/dir1/file3_5`,
-  `${process.cwd()}/testwork/unique/dir2/file3_6`,
-  `${process.cwd()}/testwork/unique/dir2/dir1/file3_7`,
-  `${process.cwd()}/testwork/unique/dir2/dir2/file3_8`,
-  `${process.cwd()}/testwork/unique/file3_9`,
-  `${process.cwd()}/testwork/unique/dir1/file4_00`,
-  `${process.cwd()}/testwork/unique/dir2/file4_01`,
-  `${process.cwd()}/testwork/unique/dir2/dir1/file4_02`,
-  `${process.cwd()}/testwork/unique/dir2/dir2/file4_03`,
-  `${process.cwd()}/testwork/unique/file4_04`,
-  `${process.cwd()}/testwork/unique/dir1/file4_05`,
-  `${process.cwd()}/testwork/unique/dir2/file4_06`,
-  `${process.cwd()}/testwork/unique/dir2/dir1/file4_07`,
-  `${process.cwd()}/testwork/unique/dir2/dir2/file4_08`,
-  `${process.cwd()}/testwork/unique/file4_09`,
-  `${process.cwd()}/testwork/unique/dir1/file4_10`
-].sort();
+  'file0',
+  'dir1/file1',
+  'dir2/file1',
+  'dir2/dir1/file2_1',
+  'dir2/dir1/file2_2',
+  'dir2/dir2/99_76543210987654321-file2',
+  '99_76543210987654321-00_12345678901234567-file2',
+  'dir1/file3_0',
+  'dir2/file3_1',
+  'dir2/dir1/file3_2',
+  'dir2/dir2/file3_3',
+  'file3_4',
+  'dir1/file3_5',
+  'dir2/file3_6',
+  'dir2/dir1/file3_7',
+  'dir2/dir2/file3_8',
+  'file3_9',
+  'dir1/file4_00',
+  'dir2/file4_01',
+  'dir2/dir1/file4_02',
+  'dir2/dir2/file4_03',
+  'file4_04',
+  'dir1/file4_05',
+  'dir2/file4_06',
+  'dir2/dir1/file4_07',
+  'dir2/dir2/file4_08',
+  'file4_09',
+  'dir1/file4_10'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
 const expectBeforeTargetSLpathList = [
-  `${process.cwd()}/testwork/unique/dir2/syml5`,
-  `${process.cwd()}/testwork/unique/dir2/dir1/syml6`,
-  `${process.cwd()}/testwork/unique/dir2/dir2/syml7`,
-  `${process.cwd()}/testwork/unique/syml8`,
-  `${process.cwd()}/testwork/unique/dir1/syml9`
-].sort();
+  'dir2/syml5',
+  'dir2/dir1/syml6',
+  'dir2/dir2/syml7',
+  'syml8',
+  'dir1/syml9'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
 
 /*
  * test log
@@ -88,7 +129,7 @@ const test_not_forced = async () => {
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'unique_TEST_NOT_FORCED.json'));
-  if (info['Target directory'] !== `${process.cwd()}/testwork/unique`) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -106,13 +147,14 @@ const test_not_forced = async () => {
   if (info['Records'].length !== expectRecordList.length) {
     throw new Error(`${expectRecordList.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    const record = info['Records'][i];
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
     if (!recordRegExp.test(record)) {
       throw new Error(``);
     }
   }
-  const actualRecord_digest_no = info['Records'].map(record => {
+  const actualRecord_digest_no = records.map(record => {
     const groups = recordRegExp.exec(record).groups;
     return `${groups.digest}:${groups.no}`;
   }).sort();
@@ -127,7 +169,7 @@ const test_not_forced = async () => {
       throw new Error(``);
     }
   }
-  const actualRecord_digest_newName_oldPath = info['Records'].map(record => {
+  const actualRecord_digest_newName_oldPath = records.map(record => {
     const groups = recordRegExp.exec(record).groups;
     return `${groups.digest}:${groups.newName}:${groups.oldPath}`;
   }).sort();
@@ -185,7 +227,7 @@ const test_forced = async () => {
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'unique_TEST_FORCED.json'));
-  if (info['Target directory'] !== `${process.cwd()}/testwork/unique`) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -204,13 +246,14 @@ const test_forced = async () => {
   if (info['Records'].length !== expectRecordList.length) {
     throw new Error(`${expectRecordList.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    const record = info['Records'][i];
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
     if (!recordRegExp.test(record)) {
       throw new Error(``);
     }
   }
-  const actualRecord_digest_no = info['Records'].map(record => {
+  const actualRecord_digest_no = records.map(record => {
     const groups = recordRegExp.exec(record).groups;
     return `${groups.digest}:${groups.no}`;
   }).sort();
@@ -225,7 +268,7 @@ const test_forced = async () => {
       throw new Error(``);
     }
   }
-  const actualRecord_digest_newName_oldPath = info['Records'].map(record => {
+  const actualRecord_digest_newName_oldPath = records.map(record => {
     const groups = recordRegExp.exec(record).groups;
     return `${groups.digest}:${groups.newName}:${groups.oldPath}`;
   }).sort();
@@ -264,9 +307,9 @@ const test_forced = async () => {
     throw new Error(``);
   }
   // test extra directory
-  const extraPaths = utility.getFilePaths(execIdDpath).concat(
-    utility.getSymbolicLinkPaths(execIdDpath)
-  );
+  const extraPaths = utility.getFilePaths(execIdDpath).
+    concat(utility.getSymbolicLinkPaths(execIdDpath)).
+    map(testPath => testPath.replaceAll(path.sep, '/'));
   if (extraPaths.length !== expectRecordList.length) {
     throw new Error(``);
   }
@@ -326,8 +369,9 @@ const test_forced = async () => {
 };
 
 const main = async () => {
-  fs.emptyDirSync('./testwork/unique');
-  fs.copySync('./test/resources/unique', './testwork/unique');
+  fs.emptyDirSync(baseDpath);
+  utility.generateResourceFiles(baseDpath, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
 
   await test_not_forced();
   await test_forced();

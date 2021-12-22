@@ -66,15 +66,16 @@ const main = async () => {
     const digitCount = (records.length - 1).toString().length;
     const pairs = records.
       map(testPath => {
-        const btime = fs.lstatSync(testPath).birthtimeMs;
-        return `${utility.getTimestamp(btime)}:${testPath}`;
+        const btime = utility.getTimestamp(fs.lstatSync(testPath).birthtimeMs);
+        const omittedOld = utility.omitPath(testPath, targetDpath);
+        return `${btime}:${omittedOld}`;
       }).
       sort().
       map((record, i) => {
-        const [ btime, testPath ] = record.split(':');
+        const [ btime, omittedOld ] = record.split(':');
         const no = i.toString().padStart(digitCount, '0');
-        const newName = utility.getFormattedName(path.basename(testPath), no, btime);
-        return [ newName, testPath ];
+        const newName = utility.getFormattedName(path.basename(omittedOld), no, btime);
+        return [ newName, omittedOld ];
       });
 
     const digestDpath = path.resolve(execIdDpath, digest);
@@ -82,17 +83,17 @@ const main = async () => {
       fs.mkdirSync(digestDpath);
     }
     for (let i = 0; i < pairs.length; i++) {
-      const [ newName, testPath ] = pairs[i];
+      const [ newName, omittedOld ] = pairs[i];
+      const oldPath = path.resolve(targetDpath, omittedOld);
       const newPath = path.resolve(digestDpath, newName);
       if (isForced) {
-        if (i === 0 && fs.lstatSync(testPath).isFile()) {
-          fs.symlinkSync(testPath, newPath);
+        if (i === 0 && fs.lstatSync(oldPath).isFile()) {
+          fs.symlinkSync(oldPath, newPath);
         } else {
-          fs.renameSync(testPath, newPath);
+          fs.renameSync(oldPath, newPath);
         }
       }
       const omittedNew = utility.omitPath(newPath, execIdDpath);
-      const omittedOld = utility.omitPath(testPath, targetDpath);
       info['Records'].push(`${omittedNew}:${omittedOld}`);
     }
   };

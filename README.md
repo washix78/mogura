@@ -1,9 +1,8 @@
 # mogura
 
 These are tools that search and move files and symbolic links.  
-(Only Mac.)  
-
 `mogura` means "Mole" in japanese.  
+Use as administrator on Windows.  
 
 * info: Outputs file count, symbolic link count, extensions.
 * unique: Moves duplicate digest file and symbolic link.

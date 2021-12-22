@@ -1,12 +1,32 @@
 const childProcess = require('child_process');
+const fs = require('fs-extra');
 const path = require('path');
 const utility = require('../utility');
 
 const startTime = Date.now();
 const timestamp = utility.getTimestamp(startTime);
 
+const resourceFpaths = [
+  'file1:file1.txt',
+  'file2:dir1/file2',
+  'file3:dir2/file3.',
+  'file4:dir2/dir1/file4',
+  'file5:dir2/dir2/file5.txt',
+  'file6:file6.HTML',
+  'file7:dir1/file7.html',
+  'file8:dir2/file.8.TXT'
+];
+const resourceSlpaths = [
+  'file1:dir2/dir1/syml1.txt',
+  'file2:dir2/dir2/syml2.',
+  'file3:syml3',
+  'file4:dir1/syml4.TXT',
+  'file5:dir2/syml5.TXT',
+  'file6:dir2/dir1/syml6.'
+];
+
 const expectLog = {
-  'Target directory': `${process.cwd()}/test/resources/info`,
+  'Target directory': path.resolve(process.cwd(), 'testwork/info'),
   'Target file count': 8,
   'Target symbolic link count': 6,
   'File extensions': {
@@ -24,7 +44,7 @@ const expectLog = {
 };
 
 const test = async () => {
-  childProcess.execSync(`node info ./test/resources/info -s TEST`);
+  childProcess.execSync(`node info ./testwork/info -s TEST`);
 
   const logFpath = utility.getLatestFpath('./logs', timestamp, 'info_TEST.json');
   const log = require(logFpath);
@@ -69,6 +89,11 @@ const test = async () => {
 };
 
 const main = async () => {
+  const baseDpath = path.resolve(process.cwd(), 'testwork/info');
+  fs.emptyDirSync(baseDpath);
+  utility.generateResourceFiles(baseDpath, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
+
   await test();
 };
 

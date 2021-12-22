@@ -67,7 +67,9 @@ const main = async () => {
     if (!sizeMap.has(size)) {
       sizeMap.set(size, []);
     }
-    const record = `${size}:${testPath}`;
+    const btime = utility.getTimestamp(fs.lstatSync(testPath).birthtimeMs);
+    const omittedOld = utility.omitPath(testPath, targetDpath);
+    const record = `${size}:${btime}:${omittedOld}`;
     sizeMap.get(size).push(record);
   }
 
@@ -91,26 +93,27 @@ const main = async () => {
   for (const size of sizeList) {
     const records = sizeMap.get(size);
     const digitCount = (records.length - 1).toString().length;
-    const pairs = records.map((record, i) => {
-      const [ _wh, testPath ] = record.split(':');
-      const no = i.toString().padStart(digitCount, '0');
-      const btime = utility.getTimestamp(fs.lstatSync(testPath).birthtimeMs);
-      const newName = utility.getFormattedName(path.basename(testPath), no, btime);
-      return [ newName, testPath ];
-    });
+    const pairs = records.
+      sort().
+      map((record, i) => {
+        const [ _wh, btime, omittedOld ] = record.split(':');
+        const no = i.toString().padStart(digitCount, '0');
+        const newName = utility.getFormattedName(path.basename(omittedOld), no, btime);
+        return [ newName, omittedOld ];
+      });
 
     const sizeDpath = path.resolve(execIdDpath, size);
     if (isForced) {
       fs.mkdirSync(sizeDpath);
     }
     for (let i = 0; i < pairs.length; i++) {
-      const [ newName, testPath ] = pairs[i];
+      const [ newName, omittedOld ] = pairs[i];
+      const oldPath = path.resolve(targetDpath, omittedOld);
       const newPath = path.resolve(sizeDpath, newName);
       if (isForced) {
-        fs.renameSync(testPath, newPath);
+        fs.renameSync(oldPath, newPath);
       }
       const omittedNew = utility.omitPath(newPath, execIdDpath);
-      const omittedOld = utility.omitPath(testPath, targetDpath);
       info['Records'].push(`${omittedNew}:${omittedOld}`);
     }
   }

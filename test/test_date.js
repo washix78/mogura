@@ -6,6 +6,30 @@ const utility = require('../utility');
 const startTime = Date.now();
 const timestamp = utility.getTimestamp(startTime);
 
+const baseDpathY = path.resolve(process.cwd(), 'testwork/date_y');
+const baseDpathYm = path.resolve(process.cwd(), 'testwork/date_ym');
+const baseDpathYmd = path.resolve(process.cwd(), 'testwork/date_ymd');
+
+const resourceFpaths = [
+  'file0:file0',
+  'file0:dir2/dir2/99_76543210987654321-file0',
+  'file1:dir1/file1',
+  'file1:dir2/dir1/file1',
+  'file2:dir2/98_76543210987654321-file2',
+  'file2:dir2/file2',
+  'file3:dir1/file3',
+  'file3:dir2/dir1/file3',
+  'file4:97_76543210987654321-file4',
+  'file4:dir2/dir2/file4'
+];
+const resourceSlpaths = [
+  'file0:dir2/dir2/syml0',
+  'file1:dir2/dir1/syml1',
+  'file2:dir2/syml2',
+  'file3:dir1/syml3',
+  'file4:syml4'
+];
+
 const expectRecordListDy = [
   '1234/99_12345678901234567-file0:file0',
   '1234/99_12345678901234567-file1:dir1/file1',
@@ -104,13 +128,14 @@ const test_not_forced_dy = async () => {
   if (info['Records'].length !== expectRecordListDy.length) {
     throw new Error(`${expectRecordListDy.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    const record = info['Records'][i];
+  const records = info['Records'].map(testPath => testPath.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
     if (!recordRegExpDy.test(record)) {
       throw new Error(`${record}`);
     }
   }
-  const actualRecord_newName_oldPath = info['Records'].map(record => {
+  const actualRecord_newName_oldPath = records.map(record => {
     const groups = recordRegExpDy.exec(record).groups;
     return `${groups.newName}:${groups.oldPath}`;
   }).sort();
@@ -131,7 +156,7 @@ const test_not_forced_dy = async () => {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath);
+  const targetFpaths = utility.getFilePaths(targetDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
     throw new Error(`${targetFpaths.length}`);
   }
@@ -141,7 +166,7 @@ const test_not_forced_dy = async () => {
       throw new Error(`${targetFpaths[i]}`);
     }
   }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath);
+  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
     throw new Error(`${targetSlpaths.length}`);
   }
@@ -186,17 +211,18 @@ const test_forced_dy = async () => {
   if (info['Records'].length !== expectRecordListDy.length) {
     throw new Error(`${expectRecordListDy.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    const record = info['Records'][i];
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
     if (!recordRegExpDy.test(record)) {
       throw new Error(`${record}`);
     }
   }
-  const actualRecord_newName_oldPath = info['Records'].map(record => {
+  const actualRecord_newName_oldPath = records.map(record => {
     const groups = recordRegExpDy.exec(record).groups;
     return `${groups.newName}:${groups.oldPath}`;
   }).sort();
-  const expectRecord_newName_oldPath = info['Records'].map(record => {
+  const expectRecord_newName_oldPath = records.map(record => {
     const groups = recordRegExpDy.exec(record).groups;
     return `${groups.newName}:${groups.oldPath}`;
   }).sort();
@@ -211,11 +237,11 @@ const test_forced_dy = async () => {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath);
+  const targetFpaths = utility.getFilePaths(targetDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetFpaths.length !== expectRecordListDy.length) {
     throw new Error(``);
   }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath);
+  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetSlpaths.length !== 0) {
     throw new Error(``);
   }
@@ -246,7 +272,7 @@ const test_forced_dy = async () => {
     }
   }
   // test extra directory
-  const extraPaths = utility.getAllPaths(execIdDpath);
+  const extraPaths = utility.getAllPaths(execIdDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (extraPaths.length !== expectExtraPathList.length) {
     throw new Error(``);
   }
@@ -290,13 +316,14 @@ const test_not_forced_dym = async () => {
   if (info['Records'].length !== expectRecordListDym.length) {
     throw new Error(`${expectRecordListDym.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    const record = info['Records'][i];
+  const records = info['Records'].map(testPath => testPath.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
     if (!recordRegExpDym.test(record)) {
       throw new Error(`${record}`);
     }
   }
-  const actualRecord_newName_oldPath = info['Records'].map(record => {
+  const actualRecord_newName_oldPath = records.map(record => {
     const groups = recordRegExpDym.exec(record).groups;
     return `${groups.newName}:${groups.oldPath}`;
   }).sort();
@@ -317,7 +344,7 @@ const test_not_forced_dym = async () => {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath);
+  const targetFpaths = utility.getFilePaths(targetDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
     throw new Error(`${targetFpaths.length}`);
   }
@@ -327,7 +354,7 @@ const test_not_forced_dym = async () => {
       throw new Error(`${targetFpaths[i]}`);
     }
   }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath);
+  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
     throw new Error(`${targetSlpaths.length}`);
   }
@@ -372,17 +399,18 @@ const test_forced_dym = async () => {
   if (info['Records'].length !== expectRecordListDym.length) {
     throw new Error(`${expectRecordListDym.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    const record = info['Records'][i];
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
     if (!recordRegExpDym.test(record)) {
       throw new Error(`${record}`);
     }
   }
-  const actualRecord_newName_oldPath = info['Records'].map(record => {
+  const actualRecord_newName_oldPath = records.map(record => {
     const groups = recordRegExpDym.exec(record).groups;
     return `${groups.newName}:${groups.oldPath}`;
   }).sort();
-  const expectRecord_newName_oldPath = info['Records'].map(record => {
+  const expectRecord_newName_oldPath = records.map(record => {
     const groups = recordRegExpDym.exec(record).groups;
     return `${groups.newName}:${groups.oldPath}`;
   }).sort();
@@ -397,11 +425,11 @@ const test_forced_dym = async () => {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath);
+  const targetFpaths = utility.getFilePaths(targetDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetFpaths.length !== expectRecordListDym.length) {
     throw new Error(``);
   }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath);
+  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).map(testPath => testPath.replaceAllpath.sep, '/');
   if (targetSlpaths.length !== 0) {
     throw new Error(``);
   }
@@ -432,7 +460,7 @@ const test_forced_dym = async () => {
     }
   }
   // test extra directory
-  const extraPaths = utility.getAllPaths(execIdDpath);
+  const extraPaths = utility.getAllPaths(execIdDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (extraPaths.length !== expectExtraPathList.length) {
     throw new Error(``);
   }
@@ -476,13 +504,14 @@ const test_not_forced_dymd = async () => {
   if (info['Records'].length !== expectRecordListDymd.length) {
     throw new Error(`${expectRecordListDymd.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    const record = info['Records'][i];
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
     if (!recordRegExpDymd.test(record)) {
       throw new Error(`${record}`);
     }
   }
-  const actualRecord_newName_oldPath = info['Records'].map(record => {
+  const actualRecord_newName_oldPath = records.map(record => {
     const groups = recordRegExpDymd.exec(record).groups;
     return `${groups.newName}:${groups.oldPath}`;
   }).sort();
@@ -503,7 +532,7 @@ const test_not_forced_dymd = async () => {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath);
+  const targetFpaths = utility.getFilePaths(targetDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
     throw new Error(`${targetFpaths.length}`);
   }
@@ -513,7 +542,7 @@ const test_not_forced_dymd = async () => {
       throw new Error(`${targetFpaths[i]}`);
     }
   }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath);
+  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
     throw new Error(`${targetSlpaths.length}`);
   }
@@ -558,17 +587,18 @@ const test_forced_dymd = async () => {
   if (info['Records'].length !== expectRecordListDymd.length) {
     throw new Error(`${expectRecordListDymd.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    const record = info['Records'][i];
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
     if (!recordRegExpDymd.test(record)) {
       throw new Error(`${record}`);
     }
   }
-  const actualRecord_newName_oldPath = info['Records'].map(record => {
+  const actualRecord_newName_oldPath = records.map(record => {
     const groups = recordRegExpDymd.exec(record).groups;
     return `${groups.newName}:${groups.oldPath}`;
   }).sort();
-  const expectRecord_newName_oldPath = info['Records'].map(record => {
+  const expectRecord_newName_oldPath = records.map(record => {
     const groups = recordRegExpDymd.exec(record).groups;
     return `${groups.newName}:${groups.oldPath}`;
   }).sort();
@@ -583,11 +613,11 @@ const test_forced_dymd = async () => {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath);
+  const targetFpaths = utility.getFilePaths(targetDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetFpaths.length !== expectRecordListDymd.length) {
     throw new Error(``);
   }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath);
+  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetSlpaths.length !== 0) {
     throw new Error(``);
   }
@@ -618,7 +648,7 @@ const test_forced_dymd = async () => {
     }
   }
   // test extra directory
-  const extraPaths = utility.getAllPaths(execIdDpath);
+  const extraPaths = utility.getAllPaths(execIdDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (extraPaths.length !== expectExtraPathList.length) {
     throw new Error(``);
   }
@@ -636,18 +666,21 @@ const test_forced_dymd = async () => {
 };
 
 const main = async () => {
-  fs.emptyDirSync('./testwork/date_y');
-  fs.copySync('./test/resources/date', './testwork/date_y');
+  fs.emptyDirSync(baseDpathY);
+  utility.generateResourceFiles(baseDpathY, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpathY, resourceSlpaths);
   await test_not_forced_dy();
   await test_forced_dy();
 
-  fs.emptyDirSync('./testwork/date_ym');
-  fs.copySync('./test/resources/date', './testwork/date_ym');
+  fs.emptyDirSync(baseDpathYm);
+  utility.generateResourceFiles(baseDpathYm, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpathYm, resourceSlpaths);
   await test_not_forced_dym();
   await test_forced_dym();
 
-  fs.emptyDirSync('./testwork/date_ymd');
-  fs.copySync('./test/resources/date', './testwork/date_ymd');
+  fs.emptyDirSync(baseDpathYmd);
+  utility.generateResourceFiles(baseDpathYmd, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpathYmd, resourceSlpaths);
   await test_not_forced_dymd();
   await test_forced_dymd();
 };
