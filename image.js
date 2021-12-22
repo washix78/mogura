@@ -68,16 +68,17 @@ const main = async () => {
     const pairs = records.
       map(testPath => {
         const btime = utility.getTimestamp(fs.lstatSync(testPath).birthtimeMs);
-        return `${btime}:${testPath}`;
+        const omittedOld = utility.omitPath(testPath, targetDpath);
+        return `${btime}:${omittedOld}`;
       }).
       sort().
       map((record, i) => {
-        const [ btime, testPath ] = record.split(':');
+        const [ btime, omittedOld ] = record.split(':');
         const no = i.toString().padStart(digitCount, '0');
         const newName = (ext === 'binary.d') ?
-          utility.getFormattedName(path.basename(testPath), no, btime) :
-          utility.getFormattedNameWithExtension(path.basename(testPath), no, btime, ext.toLowerCase());
-        return [ newName, testPath ];
+          utility.getFormattedName(path.basename(omittedOld), no, btime) :
+          utility.getFormattedNameWithExtension(path.basename(omittedOld), no, btime, ext.toLowerCase());
+        return [ newName, omittedOld ];
       });
 
     const extDpath = path.resolve(execIdDpath, ext);
@@ -85,13 +86,13 @@ const main = async () => {
       fs.mkdirSync(extDpath);
     }
     for (let i = 0; i < pairs.length; i++) {
-      const [ newName, testPath ] = pairs[i];
+      const [ newName, omittedOld ] = pairs[i];
+      const oldPath = path.resolve(targetDpath, omittedOld);
       const newPath = path.resolve(extDpath, newName);
       if (isForced) {
-        fs.renameSync(testPath, newPath);
+        fs.renameSync(oldPath, newPath);
       }
       const omittedNew = utility.omitPath(newPath, execIdDpath);
-      const omittedOld = utility.omitPath(testPath, targetDpath);
       info['Records'].push(`${omittedNew}:${omittedOld}`);
     }
   }
