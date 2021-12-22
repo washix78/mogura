@@ -272,7 +272,7 @@ const test_forced_dy = async () => {
     }
   }
   // test extra directory
-  const extraPaths = utility.getAllPaths(execIdDpath);
+  const extraPaths = utility.getAllPaths(execIdDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (extraPaths.length !== expectExtraPathList.length) {
     throw new Error(``);
   }
