@@ -273,9 +273,9 @@ const test_forced = async () => {
   }
 
   // test target directory
-  const targetPaths = utility.getFilePaths('./testwork/image').concat(
-    utility.getSymbolicLinkPaths('./testwork/image')
-  );
+  const targetPaths = utility.getFilePaths('./testwork/image').
+    concat(utility.getSymbolicLinkPaths('./testwork/image')).
+    map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetPaths.length !== expectRecordList.length) {
     throw new Error(``);
   }
