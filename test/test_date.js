@@ -587,17 +587,18 @@ const test_forced_dymd = async () => {
   if (info['Records'].length !== expectRecordListDymd.length) {
     throw new Error(`${expectRecordListDymd.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    const record = info['Records'][i];
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
     if (!recordRegExpDymd.test(record)) {
       throw new Error(`${record}`);
     }
   }
-  const actualRecord_newName_oldPath = info['Records'].map(record => {
+  const actualRecord_newName_oldPath = records.map(record => {
     const groups = recordRegExpDymd.exec(record).groups;
     return `${groups.newName}:${groups.oldPath}`;
   }).sort();
-  const expectRecord_newName_oldPath = info['Records'].map(record => {
+  const expectRecord_newName_oldPath = records.map(record => {
     const groups = recordRegExpDymd.exec(record).groups;
     return `${groups.newName}:${groups.oldPath}`;
   }).sort();
