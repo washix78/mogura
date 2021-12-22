@@ -137,7 +137,8 @@ const main = async () => {
   info['Target symbolic link count'] = targetSlpaths.length;
   const targetSlrecords = targetSlpaths.map(testPath => {
     const btime = utility.getTimestamp(fs.lstatSync(testPath).birthtimeMs);
-     return `1:${btime}:${testPath}`
+    const omittedOld = utility.omitPath(testPath, targetDpath);
+    return `1:${btime}:${omittedOld}`
   });
   move('syml.d', targetSlrecords);
 };
