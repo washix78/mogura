@@ -257,7 +257,7 @@ const test_forced = async () => {
     }
   }
   // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath);
+  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (destinationFpaths.length !== expectRecordList.length) {
     throw new Error(``);
   }
@@ -403,7 +403,7 @@ const test_forced_ext_none = async () => {
     }
   }
   // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath);
+  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (destinationFpaths.length !== expectRecordListExtNone.length) {
     throw new Error(``);
   }
@@ -549,7 +549,7 @@ const test_forced_ext_zero = async () => {
     }
   }
   // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath);
+  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (destinationFpaths.length !== expectRecordListExtZero.length) {
     throw new Error(``);
   }
@@ -695,7 +695,7 @@ const test_forced_ext_zero2 = async () => {
     }
   }
   // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath);
+  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (destinationFpaths.length !== expectRecordListExtZero.length) {
     throw new Error(``);
   }
@@ -841,7 +841,7 @@ const test_forced_ext_bmp = async () => {
     }
   }
   // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath);
+  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (destinationFpaths.length !== expectRecordListExtBmp.length) {
     throw new Error(``);
   }
@@ -987,7 +987,7 @@ const test_forced_img_bmp = async () => {
     }
   }
   // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath);
+  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (destinationFpaths.length !== expectRecordListImgBmp.length) {
     throw new Error(``);
   }
@@ -1133,7 +1133,7 @@ const test_forced_img_gif = async () => {
     }
   }
   // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath);
+  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (destinationFpaths.length !== expectRecordListImgGif.length) {
     throw new Error(``);
   }
@@ -1279,7 +1279,7 @@ const test_forced_img_jpg = async () => {
     }
   }
   // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath);
+  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (destinationFpaths.length !== expectRecordListImgJpg.length) {
     throw new Error(``);
   }
@@ -1425,7 +1425,7 @@ const test_forced_img_png = async () => {
     }
   }
   // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath);
+  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (destinationFpaths.length !== expectRecordListImgPng.length) {
     throw new Error(``);
   }
@@ -1571,7 +1571,7 @@ const test_forced_img_other = async () => {
     }
   }
   // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath);
+  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (destinationFpaths.length !== expectRecordList.length) {
     throw new Error(``);
   }
