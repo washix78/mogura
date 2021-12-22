@@ -162,8 +162,9 @@ const test_not_forced = async () => {
   if (info['Records'].length !== expectRecordList.length) {
     throw new Error(`${expectRecordList.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordList[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordList[i]) {
       throw new Error(``);
     }
   }
@@ -227,8 +228,9 @@ const test_forced = async () => {
   if (info['Records'].length !== expectRecordList.length) {
     throw new Error(`${expectRecordList.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordList[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordList[i]) {
       throw new Error(``);
     }
   }
@@ -306,8 +308,9 @@ const test_not_forced_ext_none = async () => {
   if (info['Records'].length !== expectRecordListExtNone.length) {
     throw new Error(`${expectRecordListExtNone.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListExtNone[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListExtNone[i]) {
       throw new Error(``);
     }
   }
@@ -371,8 +374,9 @@ const test_forced_ext_none = async () => {
   if (info['Records'].length !== expectRecordListExtNone.length) {
     throw new Error(`${expectRecordListExtNone.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListExtNone[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListExtNone[i]) {
       throw new Error(``);
     }
   }
@@ -450,8 +454,9 @@ const test_not_forced_ext_zero = async () => {
   if (info['Records'].length !== expectRecordListExtZero.length) {
     throw new Error(`${expectRecordListExtZero.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListExtZero[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListExtZero[i]) {
       throw new Error(``);
     }
   }
@@ -515,8 +520,9 @@ const test_forced_ext_zero = async () => {
   if (info['Records'].length !== expectRecordListExtZero.length) {
     throw new Error(`${expectRecordListExtZero.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListExtZero[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListExtZero[i]) {
       throw new Error(``);
     }
   }
@@ -594,8 +600,9 @@ const test_not_forced_ext_zero2 = async () => {
   if (info['Records'].length !== expectRecordListExtZero.length) {
     throw new Error(`${expectRecordListExtZero.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListExtZero[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListExtZero[i]) {
       throw new Error(``);
     }
   }
@@ -659,8 +666,9 @@ const test_forced_ext_zero2 = async () => {
   if (info['Records'].length !== expectRecordListExtZero.length) {
     throw new Error(`${expectRecordListExtZero.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListExtZero[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListExtZero[i]) {
       throw new Error(``);
     }
   }
@@ -738,8 +746,9 @@ const test_not_forced_ext_bmp = async () => {
   if (info['Records'].length !== expectRecordListExtBmp.length) {
     throw new Error(`${expectRecordListExtBmp.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListExtBmp[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListExtBmp[i]) {
       throw new Error(``);
     }
   }
@@ -803,8 +812,9 @@ const test_forced_ext_bmp = async () => {
   if (info['Records'].length !== expectRecordListExtBmp.length) {
     throw new Error(`${expectRecordListExtBmp.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListExtBmp[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListExtBmp[i]) {
       throw new Error(``);
     }
   }
@@ -882,8 +892,9 @@ const test_not_forced_img_bmp = async () => {
   if (info['Records'].length !== expectRecordListImgBmp.length) {
     throw new Error(`${expectRecordListImgBmp.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListImgBmp[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListImgBmp[i]) {
       throw new Error(``);
     }
   }
@@ -947,8 +958,9 @@ const test_forced_img_bmp = async () => {
   if (info['Records'].length !== expectRecordListImgBmp.length) {
     throw new Error(`${expectRecordListImgBmp.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListImgBmp[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListImgBmp[i]) {
       throw new Error(``);
     }
   }
@@ -1026,8 +1038,9 @@ const test_not_forced_img_gif = async () => {
   if (info['Records'].length !== expectRecordListImgGif.length) {
     throw new Error(`${expectRecordListImgGif.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListImgGif[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListImgGif[i]) {
       throw new Error(``);
     }
   }
@@ -1091,8 +1104,9 @@ const test_forced_img_gif = async () => {
   if (info['Records'].length !== expectRecordListImgGif.length) {
     throw new Error(`${expectRecordListImgGif.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListImgGif[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListImgGif[i]) {
       throw new Error(``);
     }
   }
@@ -1170,8 +1184,9 @@ const test_not_forced_img_jpg = async () => {
   if (info['Records'].length !== expectRecordListImgJpg.length) {
     throw new Error(`${expectRecordListImgJpg.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListImgJpg[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListImgJpg[i]) {
       throw new Error(``);
     }
   }
@@ -1235,8 +1250,9 @@ const test_forced_img_jpg = async () => {
   if (info['Records'].length !== expectRecordListImgJpg.length) {
     throw new Error(`${expectRecordListImgJpg.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListImgJpg[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListImgJpg[i]) {
       throw new Error(``);
     }
   }
@@ -1314,8 +1330,9 @@ const test_not_forced_img_png = async () => {
   if (info['Records'].length !== expectRecordListImgPng.length) {
     throw new Error(`${expectRecordListImgPng.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListImgPng[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListImgPng[i]) {
       throw new Error(``);
     }
   }
@@ -1379,8 +1396,9 @@ const test_forced_img_png = async () => {
   if (info['Records'].length !== expectRecordListImgPng.length) {
     throw new Error(`${expectRecordListImgPng.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordListImgPng[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordListImgPng[i]) {
       throw new Error(``);
     }
   }
@@ -1458,8 +1476,9 @@ const test_not_forced_img_other = async () => {
   if (info['Records'].length !== expectRecordList.length) {
     throw new Error(`${expectRecordList.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordList[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordList[i]) {
       throw new Error(``);
     }
   }
@@ -1523,8 +1542,9 @@ const test_forced_img_other = async () => {
   if (info['Records'].length !== expectRecordList.length) {
     throw new Error(`${expectRecordList.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    if (info['Records'][i] !== expectRecordList[i]) {
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    if (records[i] !== expectRecordList[i]) {
       throw new Error(``);
     }
   }
