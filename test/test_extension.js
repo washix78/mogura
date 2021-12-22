@@ -299,7 +299,7 @@ const test_forced = async () => {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths('./testwork/extension');
+  const targetFpaths = utility.getFilePaths('./testwork/extension').map(testPath => testPath.replaceAll(path.sep, '/'));
   if (targetFpaths.length !== expectRecordList.length) {
     throw new Error(``);
   }
@@ -345,7 +345,7 @@ const test_forced = async () => {
     }
   }
   // test extra directory
-  const extraPaths = utility.getAllPaths(execIdDpath);
+  const extraPaths = utility.getAllPaths(execIdDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
   if (extraPaths.length !== expectExtraPathList.length) {
     throw new Error(``);
   }
