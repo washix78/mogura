@@ -211,17 +211,18 @@ const test_forced_dy = async () => {
   if (info['Records'].length !== expectRecordListDy.length) {
     throw new Error(`${expectRecordListDy.length} !== ${info['Records'].length}`);
   }
-  for (let i = 0; i < info['Records'].length; i++) {
-    const record = info['Records'][i];
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
     if (!recordRegExpDy.test(record)) {
       throw new Error(`${record}`);
     }
   }
-  const actualRecord_newName_oldPath = info['Records'].map(record => {
+  const actualRecord_newName_oldPath = records.map(record => {
     const groups = recordRegExpDy.exec(record).groups;
     return `${groups.newName}:${groups.oldPath}`;
   }).sort();
-  const expectRecord_newName_oldPath = info['Records'].map(record => {
+  const expectRecord_newName_oldPath = records.map(record => {
     const groups = recordRegExpDy.exec(record).groups;
     return `${groups.newName}:${groups.oldPath}`;
   }).sort();
