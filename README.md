@@ -13,6 +13,7 @@ Use as administrator on Windows.
 * date: Groups file by btime.
 * size: Groups image file by size.
 * copy: Creates file's copy.
+* move: Moves files.
 
 ## Log file
 
@@ -159,6 +160,39 @@ node size ${directory path} ${options}
 
 ```
 node copy ${directory path} ${destination directory path} ${options}
+```
+
+### options
+
+```
+-s ${sign}
+```
+
+```
+-F
+```
+
+```
+-e ${extension}
+```
+
+* `ext_none.d`
+* `ext_zero.d`
+* extension
+
+```
+-i ${image type}
+```
+
+* `bmp`
+* `gif`
+* `jpg`
+* `png`
+
+## move
+
+```
+node move ${directory path} ${destination directory path} ${options}
 ```
 
 ### options

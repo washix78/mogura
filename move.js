@@ -4,7 +4,7 @@ const utility = require('./utility');
 
 const startTime = Date.now();
 const timestamp = utility.getTimestamp(startTime);
-let execId = `${timestamp}_copy_`;
+let execId = `${timestamp}_move_`;
 const info = {
   'Target directory': null,
   'Target file count': null,
@@ -24,7 +24,7 @@ const main = async () => {
     fs.mkdirSync('./extra');
   }
 
-  // node copy ${dir_path} -s ${sign} ${-F} -e ${extension} -i ${image extension}
+  // node move ${dir_path} -s ${sign} ${-F} -e ${extension} -i ${image extension}
   const [ , , testTargetDpath, testDestinationDpath, ...options ] = process.argv;
 
   const targetDpath = path.resolve(testTargetDpath);
@@ -125,7 +125,7 @@ const main = async () => {
       if (!fs.existsSync(parentDpath)) {
         fs.mkdirSync(parentDpath, { recursive: true });
       }
-      fs.copyFileSync(testPath, newPath);
+      fs.renameSync(testPath, newPath);
     }
     const omittedNew = utility.omitPath(newPath, destinationDpath);
     const omittedOld = utility.omitPath(testPath, targetDpath);

@@ -6,7 +6,7 @@ const utility = require('../utility');
 const startTime = Date.now();
 const timestamp = utility.getTimestamp(startTime);
 
-const baseDpath = path.resolve(process.cwd(), 'testwork/copy');
+const baseDpath = path.resolve(process.cwd(), 'testwork/move');
 
 const resourceFpaths = [
   'file_bmp:file_bmp',
@@ -130,6 +130,119 @@ const expectBeforeTargetSlpathList = [
   'dir2/syml_png'
 ].map(testPath => path.resolve(baseDpath, testPath)).sort();
 
+const expectAfterTargetFpathList = [
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
+const expectAfterTargetFpathListExtNone = [
+  'file_bmp.',
+  'dir1/file_gif1.',
+  'dir2/file_gif2.',
+  'dir2/dir1/file_jpg.',
+  'dir2/dir2/file_png.',
+  'file_bmp1.bmp',
+  'dir1/file_bmp2.BMP',
+  'dir2/file_gif1.gif',
+  'dir2/dir1/file_gif2.GIF',
+  'dir2/dir2/file_jpg1.jpg',
+  'file2_jpg2.JPG',
+  'dir1/file_png1.png',
+  'dir2/file_png2.PNG'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
+const expectAfterTargetFpathListExtZero = [
+  'file_bmp',
+  'dir1/file_gif1',
+  'dir2/file_gif2',
+  'dir2/dir1/file_jpg',
+  'dir2/dir2/file_png',
+  'file_bmp1.bmp',
+  'dir1/file_bmp2.BMP',
+  'dir2/file_gif1.gif',
+  'dir2/dir1/file_gif2.GIF',
+  'dir2/dir2/file_jpg1.jpg',
+  'file2_jpg2.JPG',
+  'dir1/file_png1.png',
+  'dir2/file_png2.PNG'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
+const expectAfterTargetFpathListExtBmp = [
+  'file_bmp',
+  'dir1/file_gif1',
+  'dir2/file_gif2',
+  'dir2/dir1/file_jpg',
+  'dir2/dir2/file_png',
+  'file_bmp.',
+  'dir1/file_gif1.',
+  'dir2/file_gif2.',
+  'dir2/dir1/file_jpg.',
+  'dir2/dir2/file_png.',
+  'dir2/file_gif1.gif',
+  'dir2/dir1/file_gif2.GIF',
+  'dir2/dir2/file_jpg1.jpg',
+  'file2_jpg2.JPG',
+  'dir1/file_png1.png',
+  'dir2/file_png2.PNG'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
+const expectAfterTargetFpathListImgBmp = [
+  'dir1/file_gif1',
+  'dir2/file_gif2',
+  'dir2/dir1/file_jpg',
+  'dir2/dir2/file_png',
+  'dir1/file_gif1.',
+  'dir2/file_gif2.',
+  'dir2/dir1/file_jpg.',
+  'dir2/dir2/file_png.',
+  'dir2/file_gif1.gif',
+  'dir2/dir1/file_gif2.GIF',
+  'dir2/dir2/file_jpg1.jpg',
+  'file2_jpg2.JPG',
+  'dir1/file_png1.png',
+  'dir2/file_png2.PNG'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
+const expectAfterTargetFpathListImgGif = [
+  'file_bmp',
+  'dir2/dir1/file_jpg',
+  'dir2/dir2/file_png',
+  'file_bmp.',
+  'dir2/dir1/file_jpg.',
+  'dir2/dir2/file_png.',
+  'file_bmp1.bmp',
+  'dir1/file_bmp2.BMP',
+  'dir2/dir2/file_jpg1.jpg',
+  'file2_jpg2.JPG',
+  'dir1/file_png1.png',
+  'dir2/file_png2.PNG'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
+const expectAfterTargetFpathListImgJpg = [
+  'file_bmp',
+  'dir1/file_gif1',
+  'dir2/file_gif2',
+  'dir2/dir2/file_png',
+  'file_bmp.',
+  'dir1/file_gif1.',
+  'dir2/file_gif2.',
+  'dir2/dir2/file_png.',
+  'file_bmp1.bmp',
+  'dir1/file_bmp2.BMP',
+  'dir2/file_gif1.gif',
+  'dir2/dir1/file_gif2.GIF',
+  'dir1/file_png1.png',
+  'dir2/file_png2.PNG'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
+const expectAfterTargetFpathListImgPng = [
+  'file_bmp',
+  'dir1/file_gif1',
+  'dir2/file_gif2',
+  'dir2/dir1/file_jpg',
+  'file_bmp.',
+  'dir1/file_gif1.',
+  'dir2/file_gif2.',
+  'dir2/dir1/file_jpg.',
+  'file_bmp1.bmp',
+  'dir1/file_bmp2.BMP',
+  'dir2/file_gif1.gif',
+  'dir2/dir1/file_gif2.GIF',
+  'dir2/dir2/file_jpg1.jpg',
+  'file2_jpg2.JPG'
+].map(testPath => path.resolve(baseDpath, testPath)).sort();
+
 const test_error = async () => {
   const errorProcess = (cmd) => {
     return new Promise((resolve, reject) => {
@@ -143,48 +256,48 @@ const test_error = async () => {
     });
   };
 
-  await errorProcess(`node copy ./testwork/copy ./testwork/copy_error -s TEST_ERROR_EXT -F -e`);
+  await errorProcess(`node move ./testwork/move ./testwork/move_error -s TEST_ERROR_EXT -F -e`);
   // target directory
-  const errorExtFpaths = utility.getFilePaths('./testwork/copy').sort();
+  const errorExtFpaths = utility.getFilePaths(baseDpath).sort();
   if (!utility.equalsArray(expectBeforeTargetFpathList, errorExtFpaths)) {
     throw new Error(``);
   }
-  const errorExtSlpaths = utility.getSymbolicLinkPaths('./testwork/copy').sort();
+  const errorExtSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
   if (!utility.equalsArray(expectBeforeTargetSlpathList, errorExtSlpaths)) {
     throw new Error(``);
   }
   // destination directory
-  if (fs.readdirSync('./testwork/copy_error').length !== 0) {
+  if (fs.readdirSync('./testwork/move_error').length !== 0) {
     throw new Error(``);
   }
 
-  await errorProcess(`node copy ./testwork/copy ./testwork/copy_error -s TEST_ERROR_IMG -F -i`);
+  await errorProcess(`node move ./testwork/move ./testwork/move_error -s TEST_ERROR_IMG -F -i`);
   // target directory
-  const errorImgFpaths = utility.getFilePaths('./testwork/copy').sort();
+  const errorImgFpaths = utility.getFilePaths(baseDpath).sort();
   if (!utility.equalsArray(expectBeforeTargetFpathList, errorImgFpaths)) {
     throw new Error(``);
   }
-  const errorImgSlpaths = utility.getSymbolicLinkPaths('./testwork/copy').sort();
+  const errorImgSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
   if (!utility.equalsArray(expectBeforeTargetSlpathList, errorImgSlpaths)) {
     throw new Error(``);
   }
   // destination directory
-  if (fs.readdirSync('./testwork/copy_error').length !== 0) {
+  if (fs.readdirSync('./testwork/move_error').length !== 0) {
     throw new Error(``);
   }
 
-  await errorProcess(`node copy ./testwork/copy ./testwork/copy_error -s TEST_ERROR_IMG_XML -F -i xml`);
+  await errorProcess(`node move ./testwork/move ./testwork/move_error -s TEST_ERROR_IMG_XML -F -i xml`);
   // target directory
-  const errorImgXmlFpaths = utility.getFilePaths('./testwork/copy').sort();
+  const errorImgXmlFpaths = utility.getFilePaths(baseDpath).sort();
   if (!utility.equalsArray(expectBeforeTargetFpathList, errorImgXmlFpaths)) {
     throw new Error(``);
   }
-  const errorImgXmlSlpaths = utility.getSymbolicLinkPaths('./testwork/copy').sort();
+  const errorImgXmlSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
   if (!utility.equalsArray(expectBeforeTargetSlpathList, errorImgXmlSlpaths)) {
     throw new Error(``);
   }
   // destination directory
-  if (fs.readdirSync('./testwork/copy_error').length !== 0) {
+  if (fs.readdirSync('./testwork/move_error').length !== 0) {
     throw new Error(``);
   }
 };
@@ -193,11 +306,11 @@ const test_error = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_all = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_all -s TEST_NOT_FORCED_ALL`);
-  const destinationDpath = path.resolve('./testwork/copy_all');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_all -s TEST_NOT_FORCED_ALL`);
+  const destinationDpath = path.resolve('./testwork/move_all');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_ALL.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_NOT_FORCED_ALL.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -242,11 +355,11 @@ const test_not_forced_all = async () => {
 // test target directory
 // test destination directory
 const test_forced_all = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_all -s TEST_FORCED_ALL -F`);
-  const destinationDpath = path.resolve('./testwork/copy_all');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_all -s TEST_FORCED_ALL -F`);
+  const destinationDpath = path.resolve('./testwork/move_all');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_ALL.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_FORCED_ALL.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -274,7 +387,7 @@ const test_forced_all = async () => {
   }
   // test target directory
   const targetFpaths = utility.getFilePaths(baseDpath).sort();
-  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+  if (!utility.equalsArray(expectAfterTargetFpathList, targetFpaths)) {
     throw new Error(``);
   }
   const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
@@ -300,11 +413,11 @@ const test_forced_all = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_ext_none = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_none -s TEST_NOT_FORCED_EXT_NONE -e ext_none.d`);
-  const destinationDpath = path.resolve('./testwork/copy_ext_none');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_ext_none -s TEST_NOT_FORCED_EXT_NONE -e ext_none.d`);
+  const destinationDpath = path.resolve('./testwork/move_ext_none');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_EXT_NONE.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_NOT_FORCED_EXT_NONE.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -349,11 +462,11 @@ const test_not_forced_ext_none = async () => {
 // test target directory
 // test destination directory
 const test_forced_ext_none = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_none -s TEST_FORCED_EXT_NONE -F -e ext_none.d`);
-  const destinationDpath = path.resolve('./testwork/copy_ext_none');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_ext_none -s TEST_FORCED_EXT_NONE -F -e ext_none.d`);
+  const destinationDpath = path.resolve('./testwork/move_ext_none');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_EXT_NONE.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_FORCED_EXT_NONE.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -381,7 +494,9 @@ const test_forced_ext_none = async () => {
   }
   // test target directory
   const targetFpaths = utility.getFilePaths(baseDpath).sort();
-  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+  if (!utility.equalsArray(expectAfterTargetFpathListExtNone, targetFpaths)) {
+    console.log(expectAfterTargetFpathListExtNone);
+    console.log(targetFpaths);
     throw new Error(``);
   }
   const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
@@ -407,11 +522,11 @@ const test_forced_ext_none = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_ext_zero = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_zero -s TEST_NOT_FORCED_EXT_ZERO -e ext_zero.d`);
-  const destinationDpath = path.resolve('./testwork/copy_ext_zero');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_ext_zero -s TEST_NOT_FORCED_EXT_ZERO -e ext_zero.d`);
+  const destinationDpath = path.resolve('./testwork/move_ext_zero');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_EXT_ZERO.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_NOT_FORCED_EXT_ZERO.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -456,11 +571,11 @@ const test_not_forced_ext_zero = async () => {
 // test target directory
 // test destination directory
 const test_forced_ext_zero = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_zero -s TEST_FORCED_EXT_ZERO -F -e ext_zero.d`);
-  const destinationDpath = path.resolve('./testwork/copy_ext_zero');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_ext_zero -s TEST_FORCED_EXT_ZERO -F -e ext_zero.d`);
+  const destinationDpath = path.resolve('./testwork/move_ext_zero');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_EXT_ZERO.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_FORCED_EXT_ZERO.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -488,7 +603,7 @@ const test_forced_ext_zero = async () => {
   }
   // test target directory
   const targetFpaths = utility.getFilePaths(baseDpath).sort();
-  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+  if (!utility.equalsArray(expectAfterTargetFpathListExtZero, targetFpaths)) {
     throw new Error(``);
   }
   const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
@@ -511,16 +626,16 @@ const test_forced_ext_zero = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_ext_zero_length = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_zero_length -s TEST_NOT_FORCED_EXT_ZERO_LENGTH -e ""`);
-  const destinationDpath = path.resolve('./testwork/copy_ext_zero_length');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_ext_zero_length -s TEST_NOT_FORCED_EXT_ZERO_LENGTH -e ""`);
+  const destinationDpath = path.resolve('./testwork/move_ext_zero_length');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_EXT_ZERO_LENGTH.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_NOT_FORCED_EXT_ZERO_LENGTH.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
-    throw new Error(`File count: ${info['File count']}`);
+    throw new Error(`Target file count: ${info['Target file count']}`);
   }
   if (info['Target symbolic link count'] !== expectBeforeTargetSlpathList.length) {
     throw new error(`${info['Symbolic link count']}`);
@@ -560,11 +675,11 @@ const test_not_forced_ext_zero_length = async () => {
 // test target directory
 // test destination directory
 const test_forced_ext_zero_length = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_zero_length -s TEST_FORCED_EXT_ZERO_LENGTH -F -e ""`);
-  const destinationDpath = path.resolve('./testwork/copy_ext_zero_length');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_ext_zero_length -s TEST_FORCED_EXT_ZERO_LENGTH -F -e ""`);
+  const destinationDpath = path.resolve('./testwork/move_ext_zero_length');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_EXT_ZERO_LENGTH.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_FORCED_EXT_ZERO_LENGTH.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -592,7 +707,7 @@ const test_forced_ext_zero_length = async () => {
   }
   // test target directory
   const targetFpaths = utility.getFilePaths(baseDpath).sort();
-  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+  if (!utility.equalsArray(expectAfterTargetFpathListExtZero, targetFpaths)) {
     throw new Error(``);
   }
   const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
@@ -615,11 +730,11 @@ const test_forced_ext_zero_length = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_ext_bmp = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_bmp -s TEST_NOT_FORCED_EXT_BMP -e BMP`);
-  const destinationDpath = path.resolve('./testwork/copy_ext_bmp');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_ext_bmp -s TEST_NOT_FORCED_EXT_BMP -e BMP`);
+  const destinationDpath = path.resolve('./testwork/move_ext_bmp');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_EXT_BMP.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_NOT_FORCED_EXT_BMP.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -664,11 +779,11 @@ const test_not_forced_ext_bmp = async () => {
 // test target directory
 // test destination directory
 const test_forced_ext_bmp = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_bmp -s TEST_FORCED_EXT_BMP -F -e BMP`);
-  const destinationDpath = path.resolve('./testwork/copy_ext_bmp');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_ext_bmp -s TEST_FORCED_EXT_BMP -F -e BMP`);
+  const destinationDpath = path.resolve('./testwork/move_ext_bmp');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_EXT_BMP.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_FORCED_EXT_BMP.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -696,7 +811,7 @@ const test_forced_ext_bmp = async () => {
   }
   // test target directory
   const targetFpaths = utility.getFilePaths(baseDpath).sort();
-  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+  if (!utility.equalsArray(expectAfterTargetFpathListExtBmp, targetFpaths)) {
     throw new Error(``);
   }
   const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
@@ -719,11 +834,11 @@ const test_forced_ext_bmp = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_img_bmp = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_bmp -s TEST_NOT_FORCED_IMG_BMP -i bmp`);
-  const destinationDpath = path.resolve('./testwork/copy_img_bmp');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_img_bmp -s TEST_NOT_FORCED_IMG_BMP -i bmp`);
+  const destinationDpath = path.resolve('./testwork/move_img_bmp');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_IMG_BMP.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_NOT_FORCED_IMG_BMP.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -768,11 +883,11 @@ const test_not_forced_img_bmp = async () => {
 // test target directory
 // test destination directory
 const test_forced_img_bmp = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_bmp -s TEST_FORCED_IMG_BMP -F -i bmp`);
-  const destinationDpath = path.resolve('./testwork/copy_img_bmp');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_img_bmp -s TEST_FORCED_IMG_BMP -F -i bmp`);
+  const destinationDpath = path.resolve('./testwork/move_img_bmp');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_IMG_BMP.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_FORCED_IMG_BMP.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -800,7 +915,7 @@ const test_forced_img_bmp = async () => {
   }
   // test target directory
   const targetFpaths = utility.getFilePaths(baseDpath).sort();
-  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+  if (!utility.equalsArray(expectAfterTargetFpathListImgBmp, targetFpaths)) {
     throw new Error(``);
   }
   const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
@@ -823,11 +938,11 @@ const test_forced_img_bmp = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_img_gif = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_gif -s TEST_NOT_FORCED_IMG_GIF -i gif`);
-  const destinationDpath = path.resolve('./testwork/copy_img_gif');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_img_gif -s TEST_NOT_FORCED_IMG_GIF -i gif`);
+  const destinationDpath = path.resolve('./testwork/move_img_gif');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_IMG_GIF.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_NOT_FORCED_IMG_GIF.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -872,11 +987,11 @@ const test_not_forced_img_gif = async () => {
 // test target directory
 // test destination directory
 const test_forced_img_gif = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_gif -s TEST_FORCED_IMG_GIF -F -i GIF`);
-  const destinationDpath = path.resolve('./testwork/copy_img_gif');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_img_gif -s TEST_FORCED_IMG_GIF -F -i GIF`);
+  const destinationDpath = path.resolve('./testwork/move_img_gif');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_IMG_GIF.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_FORCED_IMG_GIF.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -904,7 +1019,7 @@ const test_forced_img_gif = async () => {
   }
   // test target directory
   const targetFpaths = utility.getFilePaths(baseDpath).sort();
-  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+  if (!utility.equalsArray(expectAfterTargetFpathListImgGif, targetFpaths)) {
     throw new Error(``);
   }
   const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
@@ -927,11 +1042,11 @@ const test_forced_img_gif = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_img_jpg = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_jpg -s TEST_NOT_FORCED_IMG_JPG -i JPG`);
-  const destinationDpath = path.resolve('./testwork/copy_img_jpg');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_img_jpg -s TEST_NOT_FORCED_IMG_JPG -i JPG`);
+  const destinationDpath = path.resolve('./testwork/move_img_jpg');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_IMG_JPG.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_NOT_FORCED_IMG_JPG.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -976,11 +1091,11 @@ const test_not_forced_img_jpg = async () => {
 // test target directory
 // test destination directory
 const test_forced_img_jpg = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_jpg -s TEST_FORCED_IMG_JPG -F -i jpg`);
-  const destinationDpath = path.resolve('./testwork/copy_img_jpg');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_img_jpg -s TEST_FORCED_IMG_JPG -F -i jpg`);
+  const destinationDpath = path.resolve('./testwork/move_img_jpg');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_IMG_JPG.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_FORCED_IMG_JPG.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -1008,7 +1123,7 @@ const test_forced_img_jpg = async () => {
   }
   // test target directory
   const targetFpaths = utility.getFilePaths(baseDpath).sort();
-  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+  if (!utility.equalsArray(expectAfterTargetFpathListImgJpg, targetFpaths)) {
     throw new Error(``);
   }
   const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
@@ -1031,11 +1146,11 @@ const test_forced_img_jpg = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_img_png = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_png -s TEST_NOT_FORCED_IMG_PNG -i PNG`);
-  const destinationDpath = path.resolve('./testwork/copy_img_png');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_img_png -s TEST_NOT_FORCED_IMG_PNG -i PNG`);
+  const destinationDpath = path.resolve('./testwork/move_img_png');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_IMG_PNG.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_NOT_FORCED_IMG_PNG.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -1080,11 +1195,11 @@ const test_not_forced_img_png = async () => {
 // test target directory
 // test destination directory
 const test_forced_img_png = async () => {
-  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_png -s TEST_FORCED_IMG_PNG -F -i png`);
-  const destinationDpath = path.resolve('./testwork/copy_img_png');
+  childProcess.execSync(`node move ./testwork/move ./testwork/move_img_png -s TEST_FORCED_IMG_PNG -F -i png`);
+  const destinationDpath = path.resolve('./testwork/move_img_png');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_IMG_PNG.json'));
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'move_TEST_FORCED_IMG_PNG.json'));
   if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
@@ -1112,7 +1227,7 @@ const test_forced_img_png = async () => {
   }
   // test target directory
   const targetFpaths = utility.getFilePaths(baseDpath).sort();
-  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+  if (!utility.equalsArray(expectAfterTargetFpathListImgPng, targetFpaths)) {
     throw new Error(``);
   }
   const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
@@ -1136,43 +1251,69 @@ const main = async () => {
   fs.emptyDirSync(baseDpath);
   utility.generateResourceFiles(baseDpath, resourceFpaths);
   utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
-
-  fs.emptyDirSync('./testwork/copy_error');
+  fs.emptyDirSync('./testwork/move_error');
   await test_error();
 
-  fs.emptyDirSync('./testwork/copy_all');
+  fs.emptyDirSync(baseDpath);
+  utility.generateResourceFiles(baseDpath, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
+  fs.emptyDirSync('./testwork/move_all');
   await test_not_forced_all();
   await test_forced_all();
 
-  fs.emptyDirSync('./testwork/copy_ext_none');
+  fs.emptyDirSync(baseDpath);
+  utility.generateResourceFiles(baseDpath, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
+  fs.emptyDirSync('./testwork/move_ext_none');
   await test_not_forced_ext_none();
   await test_forced_ext_none();
 
-  fs.emptyDirSync('./testwork/copy_ext_zero');
+  fs.emptyDirSync(baseDpath);
+  utility.generateResourceFiles(baseDpath, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
+  fs.emptyDirSync('./testwork/move_ext_zero');
   await test_not_forced_ext_zero();
   await test_forced_ext_zero();
 
-  fs.emptyDirSync('./testwork/copy_ext_zero_length');
+  fs.emptyDirSync(baseDpath);
+  utility.generateResourceFiles(baseDpath, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
+  fs.emptyDirSync('./testwork/move_ext_zero_length');
   await test_not_forced_ext_zero_length();
   await test_forced_ext_zero_length();
 
-  fs.emptyDirSync('./testwork/copy_ext_bmp');
+  fs.emptyDirSync(baseDpath);
+  utility.generateResourceFiles(baseDpath, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
+  fs.emptyDirSync('./testwork/move_ext_bmp');
   await test_not_forced_ext_bmp();
   await test_forced_ext_bmp();
 
-  fs.emptyDirSync('./testwork/copy_img_bmp');
+  fs.emptyDirSync(baseDpath);
+  utility.generateResourceFiles(baseDpath, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
+  fs.emptyDirSync('./testwork/move_img_bmp');
   await test_not_forced_img_bmp();
   await test_forced_img_bmp();
 
-  fs.emptyDirSync('./testwork/copy_img_gif');
+  fs.emptyDirSync(baseDpath);
+  utility.generateResourceFiles(baseDpath, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
+  fs.emptyDirSync('./testwork/move_img_gif');
   await test_not_forced_img_gif();
   await test_forced_img_gif();
 
-  fs.emptyDirSync('./testwork/copy_img_jpg');
+  fs.emptyDirSync(baseDpath);
+  utility.generateResourceFiles(baseDpath, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
+  fs.emptyDirSync('./testwork/move_img_jpg');
   await test_not_forced_img_jpg();
   await test_forced_img_jpg();
 
-  fs.emptyDirSync('./testwork/copy_img_png');
+  fs.emptyDirSync(baseDpath);
+  utility.generateResourceFiles(baseDpath, resourceFpaths);
+  utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
+  fs.emptyDirSync('./testwork/move_img_png');
   await test_not_forced_img_png();
   await test_forced_img_png();
 };
