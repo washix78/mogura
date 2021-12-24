@@ -6,7 +6,7 @@ const utility = require('../utility');
 const startTime = Date.now();
 const timestamp = utility.getTimestamp(startTime);
 
-const baseDpath = path.resolve(process.cwd(), 'testwork/copy_base');
+const baseDpath = path.resolve(process.cwd(), 'testwork/copy');
 
 const resourceFpaths = [
   'file_bmp:file_bmp',
@@ -28,7 +28,6 @@ const resourceFpaths = [
   'file_png:dir1/file_png1.png',
   'file_png:dir2/file_png2.PNG'
 ];
-
 const resourceSlpaths = [
   'file_bmp:dir2/dir1/syml_bmp',
   'file_gif1:dir2/dir2/syml_gif1',
@@ -102,6 +101,7 @@ const expectRecordListImgPng = [
   'dir1/file_png1.png:dir1/file_png1.png',
   'dir2/file_png2.PNG:dir2/file_png2.PNG'
 ].sort();
+
 const expectBeforeTargetFpathList = [
   'file_bmp',
   'dir1/file_gif1',
@@ -130,21 +130,79 @@ const expectBeforeTargetSlpathList = [
   'dir2/syml_png'
 ].map(testPath => path.resolve(baseDpath, testPath)).sort();
 
+const test_error = async () => {
+  const errorProcess = (cmd) => {
+    return new Promise((resolve, reject) => {
+      childProcess.exec(cmd, (_err, _stdout, stderr) => {
+        if (stderr === undefined || stderr === null || stderr.length === 0) {
+          reject(new Error(`${cmd}`));
+        } else {
+          resolve();
+        }
+      });
+    });
+  };
+
+  await errorProcess(`node copy ./testwork/copy ./testwork/copy_error -s TEST_ERROR_EXT -F -e`);
+  // target directory
+  const errorExtFpaths = utility.getFilePaths('./testwork/copy').sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, errorExtFpaths)) {
+    throw new Error(``);
+  }
+  const errorExtSlpaths = utility.getSymbolicLinkPaths('./testwork/copy').sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, errorExtSlpaths)) {
+    throw new Error(``);
+  }
+  // destination directory
+  if (fs.readdirSync('./testwork/copy_error').length !== 0) {
+    throw new Error(``);
+  }
+
+  await errorProcess(`node copy ./testwork/copy ./testwork/copy_error -s TEST_ERROR_IMG -F -i`);
+  // target directory
+  const errorImgFpaths = utility.getFilePaths('./testwork/copy').sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, errorImgFpaths)) {
+    throw new Error(``);
+  }
+  const errorImgSlpaths = utility.getSymbolicLinkPaths('./testwork/copy').sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, errorImgSlpaths)) {
+    throw new Error(``);
+  }
+  // destination directory
+  if (fs.readdirSync('./testwork/copy_error').length !== 0) {
+    throw new Error(``);
+  }
+
+  await errorProcess(`node copy ./testwork/copy ./testwork/copy_error -s TEST_ERROR_IMG_XML -F -i xml`);
+  // target directory
+  const errorImgXmlFpaths = utility.getFilePaths('./testwork/copy').sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, errorImgXmlFpaths)) {
+    throw new Error(``);
+  }
+  const errorImgXmlSlpaths = utility.getSymbolicLinkPaths('./testwork/copy').sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, errorImgXmlSlpaths)) {
+    throw new Error(``);
+  }
+  // destination directory
+  if (fs.readdirSync('./testwork/copy_error').length !== 0) {
+    throw new Error(``);
+  }
+};
+
 // test log
 // test target directory
 // test destination directory
-const test_not_forced = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy -s TEST_NOT_FORCED`);
-  const targetDpath = path.resolve('./testwork/copy_base');
-  const destinationDpath = path.resolve('./testwork/copy');
+const test_not_forced_all = async () => {
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_all -s TEST_NOT_FORCED_ALL`);
+  const destinationDpath = path.resolve('./testwork/copy_all');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED.json'));
-  if (info['Target directory'] !== targetDpath) {
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_ALL.json'));
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
-    throw new Error(`File count: ${info['File count']}`);
+    throw new Error(`Target file count: ${info['Target file count']}`);
   }
   if (info['Target symbolic link count'] !== expectBeforeTargetSlpathList.length) {
     throw new error(`${info['Symbolic link count']}`);
@@ -159,36 +217,21 @@ const test_not_forced = async () => {
     throw new Error(``);
   }
   info['Records'].sort();
-  if (info['Records'].length !== expectRecordList.length) {
-    throw new Error(`${expectRecordList.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordList[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordList, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+    throw new Error(``);
   }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
   }
   // test destination directory
   if (fs.readdirSync(destinationDpath).length !== 0) {
@@ -199,14 +242,13 @@ const test_not_forced = async () => {
 // test log
 // test target directory
 // test destination directory
-const test_forced = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy -s TEST_FORCED -F`);
-  const targetDpath = path.resolve('./testwork/copy_base');
-  const destinationDpath = path.resolve('./testwork/copy');
+const test_forced_all = async () => {
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_all -s TEST_FORCED_ALL -F`);
+  const destinationDpath = path.resolve('./testwork/copy_all');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED.json'));
-  if (info['Target directory'] !== targetDpath) {
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_ALL.json'));
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -224,55 +266,34 @@ const test_forced = async () => {
   if (info['Filter type'] !== null) {
     throw new Error(``);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordList.length) {
-    throw new Error(`${expectRecordList.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordList[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordList, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectRecordList.length) {
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
     throw new Error(``);
   }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(``);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
     throw new Error(``);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(``);
-    }
   }
   // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
-  if (destinationFpaths.length !== expectRecordList.length) {
-    throw new Error(``);
-  }
-  const actualOmittedDestinationFpaths = destinationFpaths.
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
-    sort();
   const expectOmittedDestinationFpaths = expectRecordList.
     map(record => recordRegExp.exec(record).groups.newPath).
     sort();
-  for (let i = 0; i < actualOmittedDestinationFpaths.length; i++) {
-    const actual = actualOmittedDestinationFpaths[i];
-    const expect = expectOmittedDestinationFpaths[i];
-    if (actual !== expect) {
-      throw new Error(``);
-    }
+  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+    map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
+    sort();
+  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+    throw new Error(``);
+  }
+  if (utility.getSymbolicLinkPaths(destinationDpath).length !== 0) {
+    throw new Error(``);
   }
 };
 
@@ -280,13 +301,12 @@ const test_forced = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_ext_none = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_none -s TEST_NOT_FORCED_EXT_NONE -e ext_none.d -i`);
-  const targetDpath = path.resolve('./testwork/copy_base');
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_none -s TEST_NOT_FORCED_EXT_NONE -e ext_none.d`);
   const destinationDpath = path.resolve('./testwork/copy_ext_none');
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_EXT_NONE.json'));
-  if (info['Target directory'] !== targetDpath) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -304,37 +324,21 @@ const test_not_forced_ext_none = async () => {
   if (info['Filter type'] !== 'extension:ext_none.d') {
     throw new Error(``);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListExtNone.length) {
-    throw new Error(`${expectRecordListExtNone.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListExtNone[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListExtNone, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+    throw new Error(``);
   }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
   }
   // test destination directory
   if (fs.readdirSync(destinationDpath).length !== 0) {
@@ -346,13 +350,12 @@ const test_not_forced_ext_none = async () => {
 // test target directory
 // test destination directory
 const test_forced_ext_none = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_none -s TEST_FORCED_EXT_NONE -F -e ext_none.d -i`);
-  const targetDpath = path.resolve('./testwork/copy_base');
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_none -s TEST_FORCED_EXT_NONE -F -e ext_none.d`);
   const destinationDpath = path.resolve('./testwork/copy_ext_none');
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_EXT_NONE.json'));
-  if (info['Target directory'] !== targetDpath) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -370,55 +373,34 @@ const test_forced_ext_none = async () => {
   if (info['Destination directory'] !== destinationDpath) {
     throw new Error(`Destination directory: ${info['Destination directory']}`);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListExtNone.length) {
-    throw new Error(`${expectRecordListExtNone.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListExtNone[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListExtNone, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
-  }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
-  }
-  // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
-  if (destinationFpaths.length !== expectRecordListExtNone.length) {
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
     throw new Error(``);
   }
-  const actualOmittedDestinationFpaths = destinationFpaths.
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
-    sort();
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
+  }
+  // test destination directory
   const expectOmittedDestinationFpaths = expectRecordListExtNone.
     map(record => recordRegExp.exec(record).groups.newPath).
     sort();
-  for (let i = 0; i < actualOmittedDestinationFpaths.length; i++) {
-    const actual = actualOmittedDestinationFpaths[i];
-    const expect = expectOmittedDestinationFpaths[i];
-    if (actual !== expect) {
-      throw new Error(``);
-    }
+  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+    map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
+    sort();
+  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+    throw new Error(``);
+  }
+  if (utility.getSymbolicLinkPaths(destinationDpath).length !== 0) {
+    throw new Error(``);
   }
 };
 
@@ -426,13 +408,12 @@ const test_forced_ext_none = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_ext_zero = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_zero -s TEST_NOT_FORCED_EXT_ZERO -e ext_zero.d -i`);
-  const targetDpath = path.resolve('./testwork/copy_base');
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_zero -s TEST_NOT_FORCED_EXT_ZERO -e ext_zero.d`);
   const destinationDpath = path.resolve('./testwork/copy_ext_zero');
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_EXT_ZERO.json'));
-  if (info['Target directory'] !== targetDpath) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -450,37 +431,21 @@ const test_not_forced_ext_zero = async () => {
   if (info['Filter type'] !== 'extension:ext_zero.d') {
     throw new Error(``);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListExtZero.length) {
-    throw new Error(`${expectRecordListExtZero.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListExtZero[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListExtZero, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+    throw new Error(``);
   }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
   }
   // test destination directory
   if (fs.readdirSync(destinationDpath).length !== 0) {
@@ -492,13 +457,12 @@ const test_not_forced_ext_zero = async () => {
 // test target directory
 // test destination directory
 const test_forced_ext_zero = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_zero -s TEST_FORCED_EXT_ZERO -F -e ext_zero.d -i`);
-  const targetDpath = path.resolve('./testwork/copy_base');
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_zero -s TEST_FORCED_EXT_ZERO -F -e ext_zero.d`);
   const destinationDpath = path.resolve('./testwork/copy_ext_zero');
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_EXT_ZERO.json'));
-  if (info['Target directory'] !== targetDpath) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -516,69 +480,44 @@ const test_forced_ext_zero = async () => {
   if (info['Destination directory'] !== destinationDpath) {
     throw new Error(`Destination directory: ${info['Destination directory']}`);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListExtZero.length) {
-    throw new Error(`${expectRecordListExtZero.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListExtZero[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListExtZero, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
-  }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
-  }
-  // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
-  if (destinationFpaths.length !== expectRecordListExtZero.length) {
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
     throw new Error(``);
   }
-  const actualOmittedDestinationFpaths = destinationFpaths.
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
-    sort();
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
+  }
+  // test destination directory
   const expectOmittedDestinationFpaths = expectRecordListExtZero.
     map(record => recordRegExp.exec(record).groups.newPath).
     sort();
-  for (let i = 0; i < actualOmittedDestinationFpaths.length; i++) {
-    const actual = actualOmittedDestinationFpaths[i];
-    const expect = expectOmittedDestinationFpaths[i];
-    if (actual !== expect) {
-      throw new Error(``);
-    }
+  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+    map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
+    sort();
+  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+    throw new Error(``);
   }
 };
 
 // test log
 // test target directory
 // test destination directory
-const test_not_forced_ext_zero2 = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_zero2 -s TEST_NOT_FORCED_EXT_ZERO2 -e "" -i`);
-  const targetDpath = path.resolve('./testwork/copy_base');
-  const destinationDpath = path.resolve('./testwork/copy_ext_zero2');
+const test_not_forced_ext_zero_length = async () => {
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_zero_length -s TEST_NOT_FORCED_EXT_ZERO_LENGTH -e ""`);
+  const destinationDpath = path.resolve('./testwork/copy_ext_zero_length');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_EXT_ZERO2.json'));
-  if (info['Target directory'] !== targetDpath) {
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_EXT_ZERO_LENGTH.json'));
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -596,37 +535,21 @@ const test_not_forced_ext_zero2 = async () => {
   if (info['Filter type'] !== 'extension:ext_zero.d') {
     throw new Error(``);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListExtZero.length) {
-    throw new Error(`${expectRecordListExtZero.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListExtZero[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListExtZero, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+    throw new Error(``);
   }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
   }
   // test destination directory
   if (fs.readdirSync(destinationDpath).length !== 0) {
@@ -637,14 +560,13 @@ const test_not_forced_ext_zero2 = async () => {
 // test log
 // test target directory
 // test destination directory
-const test_forced_ext_zero2 = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_zero2 -s TEST_FORCED_EXT_ZERO2 -F -e "" -i`);
-  const targetDpath = path.resolve('./testwork/copy_base');
-  const destinationDpath = path.resolve('./testwork/copy_ext_zero2');
+const test_forced_ext_zero_length = async () => {
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_zero_length -s TEST_FORCED_EXT_ZERO_LENGTH -F -e ""`);
+  const destinationDpath = path.resolve('./testwork/copy_ext_zero_length');
 
   // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_EXT_ZERO2.json'));
-  if (info['Target directory'] !== targetDpath) {
+  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_EXT_ZERO_LENGTH.json'));
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -662,55 +584,31 @@ const test_forced_ext_zero2 = async () => {
   if (info['Destination directory'] !== destinationDpath) {
     throw new Error(`Destination directory: ${info['Destination directory']}`);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListExtZero.length) {
-    throw new Error(`${expectRecordListExtZero.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListExtZero[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListExtZero, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
-  }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
-  }
-  // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
-  if (destinationFpaths.length !== expectRecordListExtZero.length) {
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
     throw new Error(``);
   }
-  const actualOmittedDestinationFpaths = destinationFpaths.
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
-    sort();
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
+  }
+  // test destination directory
   const expectOmittedDestinationFpaths = expectRecordListExtZero.
     map(record => recordRegExp.exec(record).groups.newPath).
     sort();
-  for (let i = 0; i < actualOmittedDestinationFpaths.length; i++) {
-    const actual = actualOmittedDestinationFpaths[i];
-    const expect = expectOmittedDestinationFpaths[i];
-    if (actual !== expect) {
-      throw new Error(``);
-    }
+  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+    map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
+    sort();
+  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+    throw new Error(``);
   }
 };
 
@@ -718,13 +616,12 @@ const test_forced_ext_zero2 = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_ext_bmp = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_bmp -s TEST_NOT_FORCED_EXT_BMP -e BMP -i`);
-  const targetDpath = path.resolve('./testwork/copy_base');
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_bmp -s TEST_NOT_FORCED_EXT_BMP -e BMP`);
   const destinationDpath = path.resolve('./testwork/copy_ext_bmp');
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_EXT_BMP.json'));
-  if (info['Target directory'] !== targetDpath) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -742,37 +639,21 @@ const test_not_forced_ext_bmp = async () => {
   if (info['Filter type'] !== 'extension:bmp') {
     throw new Error(``);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListExtBmp.length) {
-    throw new Error(`${expectRecordListExtBmp.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListExtBmp[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListExtBmp, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+    throw new Error(``);
   }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
   }
   // test destination directory
   if (fs.readdirSync(destinationDpath).length !== 0) {
@@ -784,13 +665,12 @@ const test_not_forced_ext_bmp = async () => {
 // test target directory
 // test destination directory
 const test_forced_ext_bmp = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_ext_bmp -s TEST_FORCED_EXT_BMP -F -e BMP -i`);
-  const targetDpath = path.resolve('./testwork/copy_base');
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_ext_bmp -s TEST_FORCED_EXT_BMP -F -e BMP`);
   const destinationDpath = path.resolve('./testwork/copy_ext_bmp');
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_EXT_BMP.json'));
-  if (info['Target directory'] !== targetDpath) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -808,55 +688,31 @@ const test_forced_ext_bmp = async () => {
   if (info['Destination directory'] !== destinationDpath) {
     throw new Error(`Destination directory: ${info['Destination directory']}`);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListExtBmp.length) {
-    throw new Error(`${expectRecordListExtBmp.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListExtBmp[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListExtBmp, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
-  }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
-  }
-  // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
-  if (destinationFpaths.length !== expectRecordListExtBmp.length) {
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
     throw new Error(``);
   }
-  const actualOmittedDestinationFpaths = destinationFpaths.
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
-    sort();
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
+  }
+  // test destination directory
   const expectOmittedDestinationFpaths = expectRecordListExtBmp.
     map(record => recordRegExp.exec(record).groups.newPath).
     sort();
-  for (let i = 0; i < actualOmittedDestinationFpaths.length; i++) {
-    const actual = actualOmittedDestinationFpaths[i];
-    const expect = expectOmittedDestinationFpaths[i];
-    if (actual !== expect) {
-      throw new Error(``);
-    }
+  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+    map(fpath => utility.omitPath(fpath, destinationDpath)).
+    sort();
+  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+    throw new Error(``);
   }
 };
 
@@ -864,13 +720,12 @@ const test_forced_ext_bmp = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_img_bmp = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_bmp -s TEST_NOT_FORCED_IMG_BMP -e -i bmp`);
-  const targetDpath = path.resolve('./testwork/copy_base');
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_bmp -s TEST_NOT_FORCED_IMG_BMP -i bmp`);
   const destinationDpath = path.resolve('./testwork/copy_img_bmp');
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_IMG_BMP.json'));
-  if (info['Target directory'] !== targetDpath) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -888,37 +743,21 @@ const test_not_forced_img_bmp = async () => {
   if (info['Filter type'] !== 'image:bmp') {
     throw new Error(`${info['Filter type']} !== 'image:bmp`);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListImgBmp.length) {
-    throw new Error(`${expectRecordListImgBmp.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListImgBmp[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListImgBmp, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+    throw new Error(``);
   }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
   }
   // test destination directory
   if (fs.readdirSync(destinationDpath).length !== 0) {
@@ -930,13 +769,12 @@ const test_not_forced_img_bmp = async () => {
 // test target directory
 // test destination directory
 const test_forced_img_bmp = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_bmp -s TEST_FORCED_IMG_BMP -F -e -i bmp`);
-  const targetDpath = path.resolve('./testwork/copy_base');
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_bmp -s TEST_FORCED_IMG_BMP -F -i bmp`);
   const destinationDpath = path.resolve('./testwork/copy_img_bmp');
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_IMG_BMP.json'));
-  if (info['Target directory'] !== targetDpath) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -954,55 +792,31 @@ const test_forced_img_bmp = async () => {
   if (info['Destination directory'] !== destinationDpath) {
     throw new Error(`Destination directory: ${info['Destination directory']}`);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListImgBmp.length) {
-    throw new Error(`${expectRecordListImgBmp.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListImgBmp[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListImgBmp, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
-  }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
-  }
-  // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
-  if (destinationFpaths.length !== expectRecordListImgBmp.length) {
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
     throw new Error(``);
   }
-  const actualOmittedDestinationFpaths = destinationFpaths.
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
-    sort();
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
+  }
+  // test destination directory
   const expectOmittedDestinationFpaths = expectRecordListImgBmp.
     map(record => recordRegExp.exec(record).groups.newPath).
     sort();
-  for (let i = 0; i < actualOmittedDestinationFpaths.length; i++) {
-    const actual = actualOmittedDestinationFpaths[i];
-    const expect = expectOmittedDestinationFpaths[i];
-    if (actual !== expect) {
-      throw new Error(``);
-    }
+  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+    map(fpath => utility.omitPath(fpath, destinationDpath)).
+    sort();
+  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+    throw new Error(``);
   }
 };
 
@@ -1010,13 +824,12 @@ const test_forced_img_bmp = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_img_gif = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_gif -s TEST_NOT_FORCED_IMG_GIF -e -i gif`);
-  const targetDpath = path.resolve('./testwork/copy_base');
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_gif -s TEST_NOT_FORCED_IMG_GIF -i gif`);
   const destinationDpath = path.resolve('./testwork/copy_img_gif');
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_IMG_GIF.json'));
-  if (info['Target directory'] !== targetDpath) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -1034,37 +847,21 @@ const test_not_forced_img_gif = async () => {
   if (info['Filter type'] !== 'image:gif') {
     throw new Error(`${info['Filter type']} !== 'image:gif`);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListImgGif.length) {
-    throw new Error(`${expectRecordListImgGif.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListImgGif[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListImgGif, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+    throw new Error(``);
   }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
   }
   // test destination directory
   if (fs.readdirSync(destinationDpath).length !== 0) {
@@ -1076,13 +873,12 @@ const test_not_forced_img_gif = async () => {
 // test target directory
 // test destination directory
 const test_forced_img_gif = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_gif -s TEST_FORCED_IMG_GIF -F -e -i GIF`);
-  const targetDpath = path.resolve('./testwork/copy_base');
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_gif -s TEST_FORCED_IMG_GIF -F -i GIF`);
   const destinationDpath = path.resolve('./testwork/copy_img_gif');
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_IMG_GIF.json'));
-  if (info['Target directory'] !== targetDpath) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -1100,55 +896,31 @@ const test_forced_img_gif = async () => {
   if (info['Destination directory'] !== destinationDpath) {
     throw new Error(`Destination directory: ${info['Destination directory']}`);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListImgGif.length) {
-    throw new Error(`${expectRecordListImgGif.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListImgGif[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListImgGif, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
-  }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
-  }
-  // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
-  if (destinationFpaths.length !== expectRecordListImgGif.length) {
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
     throw new Error(``);
   }
-  const actualOmittedDestinationFpaths = destinationFpaths.
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
-    sort();
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
+  }
+  // test destination directory
   const expectOmittedDestinationFpaths = expectRecordListImgGif.
     map(record => recordRegExp.exec(record).groups.newPath).
     sort();
-  for (let i = 0; i < actualOmittedDestinationFpaths.length; i++) {
-    const actual = actualOmittedDestinationFpaths[i];
-    const expect = expectOmittedDestinationFpaths[i];
-    if (actual !== expect) {
-      throw new Error(``);
-    }
+  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+    map(fpath => utility.omitPath(fpath, destinationDpath)).
+    sort();
+  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+    throw new Error(``);
   }
 };
 
@@ -1156,13 +928,12 @@ const test_forced_img_gif = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_img_jpg = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_jpg -s TEST_NOT_FORCED_IMG_JPG -e -i JPG`);
-  const targetDpath = path.resolve('./testwork/copy_base');
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_jpg -s TEST_NOT_FORCED_IMG_JPG -i JPG`);
   const destinationDpath = path.resolve('./testwork/copy_img_jpg');
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_IMG_JPG.json'));
-  if (info['Target directory'] !== targetDpath) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -1180,37 +951,21 @@ const test_not_forced_img_jpg = async () => {
   if (info['Filter type'] !== 'image:jpg') {
     throw new Error(`${info['Filter type']} !== 'image:jpg`);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListImgJpg.length) {
-    throw new Error(`${expectRecordListImgJpg.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListImgJpg[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListImgJpg, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+    throw new Error(``);
   }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
   }
   // test destination directory
   if (fs.readdirSync(destinationDpath).length !== 0) {
@@ -1222,13 +977,12 @@ const test_not_forced_img_jpg = async () => {
 // test target directory
 // test destination directory
 const test_forced_img_jpg = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_jpg -s TEST_FORCED_IMG_JPG -F -e -i jpg`);
-  const targetDpath = path.resolve('./testwork/copy_base');
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_jpg -s TEST_FORCED_IMG_JPG -F -i jpg`);
   const destinationDpath = path.resolve('./testwork/copy_img_jpg');
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_IMG_JPG.json'));
-  if (info['Target directory'] !== targetDpath) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -1246,55 +1000,31 @@ const test_forced_img_jpg = async () => {
   if (info['Destination directory'] !== destinationDpath) {
     throw new Error(`Destination directory: ${info['Destination directory']}`);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListImgJpg.length) {
-    throw new Error(`${expectRecordListImgJpg.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListImgJpg[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListImgJpg, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
-  }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
-  }
-  // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
-  if (destinationFpaths.length !== expectRecordListImgJpg.length) {
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
     throw new Error(``);
   }
-  const actualOmittedDestinationFpaths = destinationFpaths.
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
-    sort();
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
+  }
+  // test destination directory
   const expectOmittedDestinationFpaths = expectRecordListImgJpg.
     map(record => recordRegExp.exec(record).groups.newPath).
     sort();
-  for (let i = 0; i < actualOmittedDestinationFpaths.length; i++) {
-    const actual = actualOmittedDestinationFpaths[i];
-    const expect = expectOmittedDestinationFpaths[i];
-    if (actual !== expect) {
-      throw new Error(``);
-    }
+  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+    map(fpath => utility.omitPath(fpath, destinationDpath)).
+    sort();
+  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+    throw new Error(``);
   }
 };
 
@@ -1302,13 +1032,12 @@ const test_forced_img_jpg = async () => {
 // test target directory
 // test destination directory
 const test_not_forced_img_png = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_png -s TEST_NOT_FORCED_IMG_PNG -e -i PNG`);
-  const targetDpath = path.resolve('./testwork/copy_base');
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_png -s TEST_NOT_FORCED_IMG_PNG -i PNG`);
   const destinationDpath = path.resolve('./testwork/copy_img_png');
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_IMG_PNG.json'));
-  if (info['Target directory'] !== targetDpath) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -1326,37 +1055,21 @@ const test_not_forced_img_png = async () => {
   if (info['Filter type'] !== 'image:png') {
     throw new Error(`${info['Filter type']} !== 'image:png`);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListImgPng.length) {
-    throw new Error(`${expectRecordListImgPng.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListImgPng[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListImgPng, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
+    throw new Error(``);
   }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
   }
   // test destination directory
   if (fs.readdirSync(destinationDpath).length !== 0) {
@@ -1368,13 +1081,12 @@ const test_not_forced_img_png = async () => {
 // test target directory
 // test destination directory
 const test_forced_img_png = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_png -s TEST_FORCED_IMG_PNG -F -e -i png`);
-  const targetDpath = path.resolve('./testwork/copy_base');
+  childProcess.execSync(`node copy ./testwork/copy ./testwork/copy_img_png -s TEST_FORCED_IMG_PNG -F -i png`);
   const destinationDpath = path.resolve('./testwork/copy_img_png');
 
   // test log
   const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_IMG_PNG.json'));
-  if (info['Target directory'] !== targetDpath) {
+  if (info['Target directory'] !== baseDpath) {
     throw new Error(`Target directory: ${info['Target directory']}`);
   }
   if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
@@ -1392,201 +1104,32 @@ const test_forced_img_png = async () => {
   if (info['Destination directory'] !== destinationDpath) {
     throw new Error(`Destination directory: ${info['Destination directory']}`);
   }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordListImgPng.length) {
-    throw new Error(`${expectRecordListImgPng.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordListImgPng[i]) {
-      throw new Error(``);
-    }
+  const records = info['Records'].map(record => record.replaceAll(path.sep, '/')).sort();
+  if (!utility.equalsArray(expectRecordListImgPng, records)) {
+    throw new Error(``);
   }
   if (!(-1 < info['Time'])) {
     throw new Error(`Time: ${info['Time']}`);
   }
   // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
-  }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
-  }
-  // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
-  if (destinationFpaths.length !== expectRecordListImgPng.length) {
+  const targetFpaths = utility.getFilePaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetFpathList, targetFpaths)) {
     throw new Error(``);
   }
-  const actualOmittedDestinationFpaths = destinationFpaths.
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
-    sort();
+  const targetSlpaths = utility.getSymbolicLinkPaths(baseDpath).sort();
+  if (!utility.equalsArray(expectBeforeTargetSlpathList, targetSlpaths)) {
+    throw new Error(``);
+  }
+  // test destination directory
   const expectOmittedDestinationFpaths = expectRecordListImgPng.
     map(record => recordRegExp.exec(record).groups.newPath).
     sort();
-  for (let i = 0; i < actualOmittedDestinationFpaths.length; i++) {
-    const actual = actualOmittedDestinationFpaths[i];
-    const expect = expectOmittedDestinationFpaths[i];
-    if (actual !== expect) {
-      throw new Error(``);
-    }
-  }
-};
 
-// test log
-// test target directory
-// test destination directory
-const test_not_forced_img_other = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_other -s TEST_NOT_FORCED_IMG_OTHER -e -i OTHER`);
-  const targetDpath = path.resolve('./testwork/copy_base');
-  const destinationDpath = path.resolve('./testwork/copy_img_other');
-
-  // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_NOT_FORCED_IMG_OTHER.json'));
-  if (info['Target directory'] !== targetDpath) {
-    throw new Error(`Target directory: ${info['Target directory']}`);
-  }
-  if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
-    throw new Error(`File count: ${info['File count']}`);
-  }
-  if (info['Target symbolic link count'] !== expectBeforeTargetSlpathList.length) {
-    throw new error(`${info['Symbolic link count']}`);
-  }
-  if (info['Forced'] !== false) {
-    throw new Error(`Forced: ${info['Forced']}`);
-  }
-  if (info['Destination directory'] !== null) {
-    throw new Error(`Destination directory: ${info['Destination directory']}`);
-  }
-  if (info['Filter type'] !== null) {
-    throw new Error(`${info['Filter type']} !== null`);
-  }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordList.length) {
-    throw new Error(`${expectRecordList.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordList[i]) {
-      throw new Error(``);
-    }
-  }
-  if (!(-1 < info['Time'])) {
-    throw new Error(`Time: ${info['Time']}`);
-  }
-  // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
-  }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
-  }
-  // test destination directory
-  if (fs.readdirSync(destinationDpath).length !== 0) {
-    throw new Error(``);
-  }
-};
-
-// test log
-// test target directory
-// test destination directory
-const test_forced_img_other = async () => {
-  childProcess.execSync(`node copy ./testwork/copy_base ./testwork/copy_img_other -s TEST_FORCED_IMG_OTHER -F -e -i other`);
-  const targetDpath = path.resolve('./testwork/copy_base');
-  const destinationDpath = path.resolve('./testwork/copy_img_other');
-
-  // test log
-  const info = require(utility.getLatestFpath('./logs', timestamp, 'copy_TEST_FORCED_IMG_OTHER.json'));
-  if (info['Target directory'] !== targetDpath) {
-    throw new Error(`Target directory: ${info['Target directory']}`);
-  }
-  if (info['Target file count'] !== expectBeforeTargetFpathList.length) {
-    throw new Error(`File count: ${info['File count']}`);
-  }
-  if (info['Target symbolic link count'] !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`Symbolic link count: ${info['Symbolic link count']}`);
-  }
-  if (info['Forced'] !== true) {
-    throw new Error(`Forced: ${info['Forced']}`);
-  }
-  if (info['Filter type'] !== null) {
-    throw new Error(``);
-  }
-  if (info['Destination directory'] !== destinationDpath) {
-    throw new Error(`Destination directory: ${info['Destination directory']}`);
-  }
-  info['Records'].sort();
-  if (info['Records'].length !== expectRecordList.length) {
-    throw new Error(`${expectRecordList.length} !== ${info['Records'].length}`);
-  }
-  const records = info['Records'].map(record => record.replaceAll(path.sep, '/'));
-  for (let i = 0; i < records.length; i++) {
-    if (records[i] !== expectRecordList[i]) {
-      throw new Error(``);
-    }
-  }
-  if (!(-1 < info['Time'])) {
-    throw new Error(`Time: ${info['Time']}`);
-  }
-  // test target directory
-  const targetFpaths = utility.getFilePaths(targetDpath).sort();
-  if (targetFpaths.length !== expectBeforeTargetFpathList.length) {
-    throw new Error(`${targetFpaths.length}`);
-  }
-  for (let i = 0; i < targetFpaths.length; i++) {
-    if (targetFpaths[i] !== expectBeforeTargetFpathList[i]) {
-      throw new Error(`${targetFpaths[i]}`);
-    }
-  }
-  const targetSlpaths = utility.getSymbolicLinkPaths(targetDpath).sort();
-  if (targetSlpaths.length !== expectBeforeTargetSlpathList.length) {
-    throw new Error(`${targetSlpaths.length}`);
-  }
-  for (let i = 0; i < targetSlpaths.length; i++) {
-    if (targetSlpaths[i] !== expectBeforeTargetSlpathList[i]) {
-      throw new Error(`${targetSlpaths[i]}`);
-    }
-  }
-  // test destination directory
-  const destinationFpaths = utility.getFilePaths(destinationDpath).map(testPath => testPath.replaceAll(path.sep, '/'));
-  if (destinationFpaths.length !== expectRecordList.length) {
-    throw new Error(``);
-  }
-  const actualOmittedDestinationFpaths = destinationFpaths.
+  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
     map(fpath => utility.omitPath(fpath, destinationDpath)).
     sort();
-  const expectOmittedDestinationFpaths = expectRecordList.
-    map(record => recordRegExp.exec(record).groups.newPath).
-    sort();
-  for (let i = 0; i < actualOmittedDestinationFpaths.length; i++) {
-    const actual = actualOmittedDestinationFpaths[i];
-    const expect = expectOmittedDestinationFpaths[i];
-    if (actual !== expect) {
-      throw new Error(``);
-    }
+  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+    throw new Error(``);
   }
 };
 
@@ -1595,9 +1138,12 @@ const main = async () => {
   utility.generateResourceFiles(baseDpath, resourceFpaths);
   utility.generateResourceSymbolicLinks(baseDpath, resourceSlpaths);
 
-  fs.emptyDirSync('./testwork/copy');
-  await test_not_forced();
-  await test_forced();
+  fs.emptyDirSync('./testwork/copy_error');
+  await test_error();
+
+  fs.emptyDirSync('./testwork/copy_all');
+  await test_not_forced_all();
+  await test_forced_all();
 
   fs.emptyDirSync('./testwork/copy_ext_none');
   await test_not_forced_ext_none();
@@ -1607,9 +1153,9 @@ const main = async () => {
   await test_not_forced_ext_zero();
   await test_forced_ext_zero();
 
-  fs.emptyDirSync('./testwork/copy_ext_zero2');
-  await test_not_forced_ext_zero2();
-  await test_forced_ext_zero2();
+  fs.emptyDirSync('./testwork/copy_ext_zero_length');
+  await test_not_forced_ext_zero_length();
+  await test_forced_ext_zero_length();
 
   fs.emptyDirSync('./testwork/copy_ext_bmp');
   await test_not_forced_ext_bmp();
@@ -1630,10 +1176,6 @@ const main = async () => {
   fs.emptyDirSync('./testwork/copy_img_png');
   await test_not_forced_img_png();
   await test_forced_img_png();
-
-  fs.emptyDirSync('./testwork/copy_img_other');
-  await test_not_forced_img_other();
-  await test_forced_img_other();
 };
 
 main().

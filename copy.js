@@ -27,14 +27,10 @@ const main = async () => {
   // node copy ${dir_path} -s ${sign} ${-F} -e ${extension} -i ${image extension}
   const [ , , testTargetDpath, testDestinationDpath, ...options ] = process.argv;
 
-  const isForced = options.includes('-F');
-  info['Forced'] = isForced;
-
   const targetDpath = path.resolve(testTargetDpath);
   if (!fs.existsSync(targetDpath) || !fs.lstatSync(targetDpath).isDirectory()) {
     throw new Error(`Not directory. "${targetDpath}"`);
   }
-  info['Target directory'] = targetDpath;
 
   const destinationDpath = path.resolve(testDestinationDpath);
   if (fs.existsSync(destinationDpath)) {
@@ -45,7 +41,31 @@ const main = async () => {
       throw new Error(`Directory is not empty.`);
     }
   }
+
+  const filterType = options.includes('-e') ? 'extension' :
+    options.includes('-i') ? 'image' : null;
+
+  const extFilterValue = utility.getOptionValue('-e', options);
+  const imgFilterValue = utility.getOptionValue('-i', options);
+  if (filterType === 'extension' && (extFilterValue === undefined || extFilterValue === null)) {
+    throw new Error(`Specify extension.`);
+  }
+  if (
+    filterType === 'image' && (
+      imgFilterValue === undefined ||
+      imgFilterValue === null ||
+      ![ 'bmp', 'gif', 'jpg', 'png' ].includes(imgFilterValue.toLowerCase())
+    )
+  ) {
+    throw new Error(`Specify image type.`);
+  }
+
+  const isForced = options.includes('-F');
+  info['Forced'] = isForced;
+
+  info['Target directory'] = targetDpath;
   info['Destination directory'] = (isForced) ? destinationDpath : null;
+
 
   const sign = utility.getOptionValue('-s', options);
   execId += (sign !== undefined && sign !== null && sign !== '') ?
@@ -61,24 +81,20 @@ const main = async () => {
   info['Target symbolic link count'] = utility.getSymbolicLinkPaths(targetDpath).length;
 
   const filterByExt = (testExtType) => {
-    if (testExtType === undefined || testExtType === null) {
-      return allFpaths;
-    }
-    const extType = testExtType.toLowerCase();
+    const extType = (testExtType === '') ? 'ext_zero.d' : testExtType.toLowerCase();
+    info['Filter type'] = `${filterType}:${extType}`;
+
     if (extType === 'ext_none.d') {
-      info['Filter type'] = `extension:ext_none.d`;
       return allFpaths.filter(testPath => {
         const ext = utility.getExtension(path.basename(testPath));
         return (ext === undefined || ext === null);
       });
-    } else if (extType === 'ext_zero.d' || extType === '') {
-      info['Filter type'] = `extension:ext_zero.d`;
+    } else if (extType === 'ext_zero.d') {
       return allFpaths.filter(testPath => {
         const ext = utility.getExtension(path.basename(testPath));
         return (ext === '');
       });
     } else {
-      info['Filter type'] = `extension:${extType}`;
       return allFpaths.filter(testPath => {
         const ext = utility.getExtension(path.basename(testPath));
         return (ext !== undefined && ext !== null && ext.toLowerCase() === extType);
@@ -87,44 +103,21 @@ const main = async () => {
   };
 
   const filterByImg = (testImgType) => {
-    if (testImgType === undefined || testImgType === null) {
-      return allFpaths;
-    }
     const imgType = testImgType.toLowerCase();
-    if (![ 'bmp', 'gif', 'jpg', 'png' ].includes(imgType)) {
-      return allFpaths;
-    }
-    info['Filter type'] = `image:${imgType}`;
+    info['Filter type'] = `${filterType}:${imgType}`;
+
     return allFpaths.filter(testPath => {
       const img = utility.getImageType(testPath);
       return (img.toLowerCase() === imgType);
     });
   };
 
-  const extFilterValue = utility.getOptionValue('-e', options);
-  const imgFilterValue = utility.getOptionValue('-i', options);
-
-  let fpaths = allFpaths;
-  if (
-    options.includes('-e') &&
-    extFilterValue !== undefined &&
-    extFilterValue !== null
-  ) {
-    fpaths = filterByExt(extFilterValue);
-  } else if (
-    options.includes('-i') &&
-    imgFilterValue !== undefined &&
-    imgFilterValue !== null &&
-    [ 'bmp', 'gif', 'jpg', 'png' ].includes(imgFilterValue.toLowerCase())
-  ) {
-    fpaths = filterByImg(imgFilterValue);
-  }
+  const fpaths = (filterType === 'extension') ? filterByExt(extFilterValue) :
+    (filterType === 'image') ? filterByImg(imgFilterValue) :
+    allFpaths;
 
   for (let i = 0; i < fpaths.length; i++) {
     const testPath = fpaths[i];
-    if (isForced) {
-
-    }
     const omitted = utility.omitPath(testPath, targetDpath);
     const newPath = path.resolve(destinationDpath, omitted);
     const parentDpath = path.dirname(newPath);

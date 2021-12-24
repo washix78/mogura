@@ -1,7 +1,18 @@
 const crypto = require('crypto');
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
+
+module.exports.equalsArray = (a, b) => {
+  if (a.length !== b.length) {
+    return false;
+  }
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+  return true;
+};
 
 module.exports.generateResourceFiles = (baseDpath, lines) => {
   lines.forEach(line => {

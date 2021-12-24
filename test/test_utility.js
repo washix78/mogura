@@ -2,6 +2,23 @@ const fs = require('fs-extra');
 const path = require('path');
 const utility = require('../utility');
 
+const testEqualsArray = async () => {
+  const pairs = [
+    [ utility.equalsArray([], []), true ],
+    [ utility.equalsArray([ 0, 'a' ], [ 0, 'a' ]), true ],
+    [ utility.equalsArray([ 0, 'a' ], [ 0, 'a', 1 ]), false ],
+    [ utility.equalsArray([ 0, 'a', 1 ], [ 0, 'a' ]), false ],
+    [ utility.equalsArray([ 0, 'a' ], [ 'a', 0 ]), false ]
+  ];
+
+  for (let i = 0; i < pairs.length; i++) {
+    const [ actual, expect ] = pairs[i];
+    if (expect !== actual) {
+      throw new Error(``);
+    }
+  }
+};
+
 const testGenerateResourceFiles = async () => {
   // TODO
 };
@@ -334,6 +351,7 @@ const testOmitPath = async () => {
 };
 
 const test = async () => {
+  await testEqualsArray();
   // await testGenerateResourceFiles();
   // await testGenerateResourceSymbolicLinks();
   await testGetPaths();
