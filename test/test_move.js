@@ -823,7 +823,7 @@ const test_forced_ext_bmp = async () => {
     map(record => recordRegExp.exec(record).groups.newPath).
     sort();
   const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
+    map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
     sort();
   if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
     throw new Error(``);
@@ -927,7 +927,7 @@ const test_forced_img_bmp = async () => {
     map(record => recordRegExp.exec(record).groups.newPath).
     sort();
   const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
+    map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
     sort();
   if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
     throw new Error(``);
@@ -1031,7 +1031,7 @@ const test_forced_img_gif = async () => {
     map(record => recordRegExp.exec(record).groups.newPath).
     sort();
   const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
+    map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
     sort();
   if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
     throw new Error(``);
@@ -1135,7 +1135,7 @@ const test_forced_img_jpg = async () => {
     map(record => recordRegExp.exec(record).groups.newPath).
     sort();
   const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
+    map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
     sort();
   if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
     throw new Error(``);
@@ -1240,7 +1240,7 @@ const test_forced_img_png = async () => {
     sort();
 
   const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
+    map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
     sort();
   if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
     throw new Error(``);
