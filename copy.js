@@ -127,8 +127,7 @@ const main = async () => {
       }
       fs.copyFileSync(testPath, newPath);
     }
-    const omittedNew = utility.omitPath(newPath, destinationDpath);
-    info['Records'].push(omittedNew);
+    info['Records'].push(omitted);
   }
 };
 
