@@ -36,70 +36,69 @@ const resourceSlpaths = [
   'file_png:dir2/syml_png'
 ];
 
-const recordRegExp = /^(?<newPath>.+)\:(?<oldPath>.+)/;
 const expectRecordList = [
-  'file_bmp:file_bmp',
-  'dir1/file_gif1:dir1/file_gif1',
-  'dir2/file_gif2:dir2/file_gif2',
-  'dir2/dir1/file_jpg:dir2/dir1/file_jpg',
-  'dir2/dir2/file_png:dir2/dir2/file_png',
-  'file_bmp.:file_bmp.',
-  'dir1/file_gif1.:dir1/file_gif1.',
-  'dir2/file_gif2.:dir2/file_gif2.',
-  'dir2/dir1/file_jpg.:dir2/dir1/file_jpg.',
-  'dir2/dir2/file_png.:dir2/dir2/file_png.',
-  'file_bmp1.bmp:file_bmp1.bmp',
-  'dir1/file_bmp2.BMP:dir1/file_bmp2.BMP',
-  'dir2/file_gif1.gif:dir2/file_gif1.gif',
-  'dir2/dir1/file_gif2.GIF:dir2/dir1/file_gif2.GIF',
-  'dir2/dir2/file_jpg1.jpg:dir2/dir2/file_jpg1.jpg',
-  'file2_jpg2.JPG:file2_jpg2.JPG',
-  'dir1/file_png1.png:dir1/file_png1.png',
-  'dir2/file_png2.PNG:dir2/file_png2.PNG'
+  'file_bmp',
+  'dir1/file_gif1',
+  'dir2/file_gif2',
+  'dir2/dir1/file_jpg',
+  'dir2/dir2/file_png',
+  'file_bmp.',
+  'dir1/file_gif1.',
+  'dir2/file_gif2.',
+  'dir2/dir1/file_jpg.',
+  'dir2/dir2/file_png.',
+  'file_bmp1.bmp',
+  'dir1/file_bmp2.BMP',
+  'dir2/file_gif1.gif',
+  'dir2/dir1/file_gif2.GIF',
+  'dir2/dir2/file_jpg1.jpg',
+  'file2_jpg2.JPG',
+  'dir1/file_png1.png',
+  'dir2/file_png2.PNG'
 ].sort();
 const expectRecordListExtNone = [
-  'file_bmp:file_bmp',
-  'dir1/file_gif1:dir1/file_gif1',
-  'dir2/file_gif2:dir2/file_gif2',
-  'dir2/dir1/file_jpg:dir2/dir1/file_jpg',
-  'dir2/dir2/file_png:dir2/dir2/file_png'
+  'file_bmp',
+  'dir1/file_gif1',
+  'dir2/file_gif2',
+  'dir2/dir1/file_jpg',
+  'dir2/dir2/file_png'
 ].sort();
 const expectRecordListExtZero = [
-  'file_bmp.:file_bmp.',
-  'dir1/file_gif1.:dir1/file_gif1.',
-  'dir2/file_gif2.:dir2/file_gif2.',
-  'dir2/dir1/file_jpg.:dir2/dir1/file_jpg.',
-  'dir2/dir2/file_png.:dir2/dir2/file_png.'
+  'file_bmp.',
+  'dir1/file_gif1.',
+  'dir2/file_gif2.',
+  'dir2/dir1/file_jpg.',
+  'dir2/dir2/file_png.'
 ].sort();
 const expectRecordListExtBmp = [
-  'file_bmp1.bmp:file_bmp1.bmp',
-  'dir1/file_bmp2.BMP:dir1/file_bmp2.BMP'
+  'file_bmp1.bmp',
+  'dir1/file_bmp2.BMP'
 ].sort();
 const expectRecordListImgBmp = [
-  'file_bmp:file_bmp',
-  'file_bmp.:file_bmp.',
-  'file_bmp1.bmp:file_bmp1.bmp',
-  'dir1/file_bmp2.BMP:dir1/file_bmp2.BMP'
+  'file_bmp',
+  'file_bmp.',
+  'file_bmp1.bmp',
+  'dir1/file_bmp2.BMP'
 ].sort();
 const expectRecordListImgGif = [
-  'dir1/file_gif1:dir1/file_gif1',
-  'dir2/file_gif2:dir2/file_gif2',
-  'dir1/file_gif1.:dir1/file_gif1.',
-  'dir2/file_gif2.:dir2/file_gif2.',
-  'dir2/file_gif1.gif:dir2/file_gif1.gif',
-  'dir2/dir1/file_gif2.GIF:dir2/dir1/file_gif2.GIF'
+  'dir1/file_gif1',
+  'dir2/file_gif2',
+  'dir1/file_gif1.',
+  'dir2/file_gif2.',
+  'dir2/file_gif1.gif',
+  'dir2/dir1/file_gif2.GIF'
 ].sort();
 const expectRecordListImgJpg = [
-  'dir2/dir1/file_jpg:dir2/dir1/file_jpg',
-  'dir2/dir1/file_jpg.:dir2/dir1/file_jpg.',
-  'dir2/dir2/file_jpg1.jpg:dir2/dir2/file_jpg1.jpg',
-  'file2_jpg2.JPG:file2_jpg2.JPG'
+  'dir2/dir1/file_jpg',
+  'dir2/dir1/file_jpg.',
+  'dir2/dir2/file_jpg1.jpg',
+  'file2_jpg2.JPG'
 ].sort();
 const expectRecordListImgPng = [
-  'dir2/dir2/file_png:dir2/dir2/file_png',
-  'dir2/dir2/file_png.:dir2/dir2/file_png.',
-  'dir1/file_png1.png:dir1/file_png1.png',
-  'dir2/file_png2.PNG:dir2/file_png2.PNG'
+  'dir2/dir2/file_png',
+  'dir2/dir2/file_png.',
+  'dir1/file_png1.png',
+  'dir2/file_png2.PNG'
 ].sort();
 
 const expectBeforeTargetFpathList = [
@@ -282,13 +281,10 @@ const test_forced_all = async () => {
     throw new Error(``);
   }
   // test destination directory
-  const expectOmittedDestinationFpaths = expectRecordList.
-    map(record => recordRegExp.exec(record).groups.newPath).
-    sort();
-  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+  const destinationFpaths = utility.getFilePaths(destinationDpath).
     map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
     sort();
-  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+  if (!utility.equalsArray(records, destinationFpaths)) {
     throw new Error(``);
   }
   if (utility.getSymbolicLinkPaths(destinationDpath).length !== 0) {
@@ -389,13 +385,11 @@ const test_forced_ext_none = async () => {
     throw new Error(``);
   }
   // test destination directory
-  const expectOmittedDestinationFpaths = expectRecordListExtNone.
-    map(record => recordRegExp.exec(record).groups.newPath).
-    sort();
-  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+
+  const destinationFpaths = utility.getFilePaths(destinationDpath).
     map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
     sort();
-  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+  if (!utility.equalsArray(records, destinationFpaths)) {
     throw new Error(``);
   }
   if (utility.getSymbolicLinkPaths(destinationDpath).length !== 0) {
@@ -496,13 +490,13 @@ const test_forced_ext_zero = async () => {
     throw new Error(``);
   }
   // test destination directory
-  const expectOmittedDestinationFpaths = expectRecordListExtZero.
-    map(record => recordRegExp.exec(record).groups.newPath).
-    sort();
-  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+  const destinationFpaths = utility.getFilePaths(destinationDpath).
     map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
     sort();
-  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+  if (!utility.equalsArray(records, destinationFpaths)) {
+    throw new Error(``);
+  }
+  if (utility.getSymbolicLinkPaths(destinationDpath).length !== 0) {
     throw new Error(``);
   }
 };
@@ -600,13 +594,13 @@ const test_forced_ext_zero_length = async () => {
     throw new Error(``);
   }
   // test destination directory
-  const expectOmittedDestinationFpaths = expectRecordListExtZero.
-    map(record => recordRegExp.exec(record).groups.newPath).
-    sort();
-  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+  const destinationFpaths = utility.getFilePaths(destinationDpath).
     map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
     sort();
-  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+  if (!utility.equalsArray(records, destinationFpaths)) {
+    throw new Error(``);
+  }
+  if (utility.getSymbolicLinkPaths(destinationDpath).length !== 0) {
     throw new Error(``);
   }
 };
@@ -704,13 +698,13 @@ const test_forced_ext_bmp = async () => {
     throw new Error(``);
   }
   // test destination directory
-  const expectOmittedDestinationFpaths = expectRecordListExtBmp.
-    map(record => recordRegExp.exec(record).groups.newPath).
-    sort();
-  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+  const destinationFpaths = utility.getFilePaths(destinationDpath).
     map(fpath => utility.omitPath(fpath, destinationDpath)).
     sort();
-  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+  if (!utility.equalsArray(records, destinationFpaths)) {
+    throw new Error(``);
+  }
+  if (utility.getSymbolicLinkPaths(destinationDpath).length !== 0) {
     throw new Error(``);
   }
 };
@@ -808,13 +802,13 @@ const test_forced_img_bmp = async () => {
     throw new Error(``);
   }
   // test destination directory
-  const expectOmittedDestinationFpaths = expectRecordListImgBmp.
-    map(record => recordRegExp.exec(record).groups.newPath).
-    sort();
-  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+  const destinationFpaths = utility.getFilePaths(destinationDpath).
     map(fpath => utility.omitPath(fpath, destinationDpath)).
     sort();
-  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+  if (!utility.equalsArray(records, destinationFpaths)) {
+    throw new Error(``);
+  }
+  if (utility.getSymbolicLinkPaths(destinationDpath).length !== 0) {
     throw new Error(``);
   }
 };
@@ -912,13 +906,14 @@ const test_forced_img_gif = async () => {
     throw new Error(``);
   }
   // test destination directory
-  const expectOmittedDestinationFpaths = expectRecordListImgGif.
-    map(record => recordRegExp.exec(record).groups.newPath).
-    sort();
-  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+
+  const destinationFpaths = utility.getFilePaths(destinationDpath).
     map(fpath => utility.omitPath(fpath, destinationDpath)).
     sort();
-  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+  if (!utility.equalsArray(records, destinationFpaths)) {
+    throw new Error(``);
+  }
+  if (utility.getSymbolicLinkPaths(destinationDpath).length !== 0) {
     throw new Error(``);
   }
 };
@@ -1016,13 +1011,13 @@ const test_forced_img_jpg = async () => {
     throw new Error(``);
   }
   // test destination directory
-  const expectOmittedDestinationFpaths = expectRecordListImgJpg.
-    map(record => recordRegExp.exec(record).groups.newPath).
-    sort();
-  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+  const destinationFpaths = utility.getFilePaths(destinationDpath).
     map(fpath => utility.omitPath(fpath, destinationDpath)).
     sort();
-  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+  if (!utility.equalsArray(records, destinationFpaths)) {
+    throw new Error(``);
+  }
+  if (utility.getSymbolicLinkPaths(destinationDpath).length !== 0) {
     throw new Error(``);
   }
 };
@@ -1120,14 +1115,13 @@ const test_forced_img_png = async () => {
     throw new Error(``);
   }
   // test destination directory
-  const expectOmittedDestinationFpaths = expectRecordListImgPng.
-    map(record => recordRegExp.exec(record).groups.newPath).
-    sort();
-
-  const actualOmittedDestinationFpaths = utility.getFilePaths(destinationDpath).
+  const destinationFpaths = utility.getFilePaths(destinationDpath).
     map(fpath => utility.omitPath(fpath, destinationDpath)).
     sort();
-  if (!utility.equalsArray(expectOmittedDestinationFpaths, actualOmittedDestinationFpaths)) {
+  if (!utility.equalsArray(records, destinationFpaths)) {
+    throw new Error(``);
+  }
+  if (utility.getSymbolicLinkPaths(destinationDpath).length !== 0) {
     throw new Error(``);
   }
 };
