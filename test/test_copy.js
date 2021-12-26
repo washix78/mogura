@@ -699,7 +699,7 @@ const test_forced_ext_bmp = async () => {
   }
   // test destination directory
   const destinationFpaths = utility.getFilePaths(destinationDpath).
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
+    map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
     sort();
   if (!utility.equalsArray(records, destinationFpaths)) {
     throw new Error(``);
@@ -803,7 +803,7 @@ const test_forced_img_bmp = async () => {
   }
   // test destination directory
   const destinationFpaths = utility.getFilePaths(destinationDpath).
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
+    map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
     sort();
   if (!utility.equalsArray(records, destinationFpaths)) {
     throw new Error(``);
@@ -908,7 +908,7 @@ const test_forced_img_gif = async () => {
   // test destination directory
 
   const destinationFpaths = utility.getFilePaths(destinationDpath).
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
+    map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
     sort();
   if (!utility.equalsArray(records, destinationFpaths)) {
     throw new Error(``);
@@ -1012,7 +1012,7 @@ const test_forced_img_jpg = async () => {
   }
   // test destination directory
   const destinationFpaths = utility.getFilePaths(destinationDpath).
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
+    map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
     sort();
   if (!utility.equalsArray(records, destinationFpaths)) {
     throw new Error(``);
@@ -1116,7 +1116,7 @@ const test_forced_img_png = async () => {
   }
   // test destination directory
   const destinationFpaths = utility.getFilePaths(destinationDpath).
-    map(fpath => utility.omitPath(fpath, destinationDpath)).
+    map(fpath => utility.omitPath(fpath, destinationDpath).replaceAll(path.sep, '/')).
     sort();
   if (!utility.equalsArray(records, destinationFpaths)) {
     throw new Error(``);
