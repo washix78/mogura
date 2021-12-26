@@ -127,9 +127,7 @@ const main = async () => {
       }
       fs.renameSync(testPath, newPath);
     }
-    const omittedNew = utility.omitPath(newPath, destinationDpath);
-    const omittedOld = utility.omitPath(testPath, targetDpath);
-    info['Records'].push(`${omittedNew}:${omittedOld}`);
+    info['Records'].push(omitted);
   }
 };
 
