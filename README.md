@@ -8,6 +8,7 @@ Use as administrator on Windows.
 * unique: Moves duplicate digest file and symbolic link.
 * extension: Groups file by extension.
 * comp: Moves duplicated file or symbolic link between base directory and target directory.
+* supply: Copies files which does not agree with files of target directory.
 * header: Outputs some byte from file beginning.
 * image: Moves files to directory named "BMP", "GIF", "JPG", "PNG", "binary.d". 
 * date: Groups file by btime.
@@ -84,6 +85,22 @@ node comp ${base directory path} ${target directory path} ${options}
 
 ```
 -F
+```
+
+## supply
+
+```
+node supply ${base directory path} ${target directory path} ${options}
+```
+
+### options
+
+```
+-F
+```
+
+```
+-dp ${direcotry path}
 ```
 
 ## header
